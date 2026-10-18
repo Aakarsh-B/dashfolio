@@ -4,24 +4,24 @@
 // Images live in images/projects/<id>/: cover.jpg (4:3) plus 1.jpg, 2.jpg… for the gallery (n = how many).
 // Write-ups come from the Behance/Dribbble descriptions and the text in the project images. No invented numbers.
 const PROJECTS = [
-{id:'bitespeed',t:'Brand revamp for BiteSpeed',ty:'Brand identity · Campaigns',n:5,src:'https://www.behance.net/gallery/233743907/Brand-Revamp-for-BiteSpeed',
- s:'A refreshed brand for BiteSpeed, an AI marketing and support platform for e-commerce brands, carried through type, campaign visuals and product marketing.',
- ctx:'BiteSpeed helps Shopify and e-commerce brands run marketing and customer support with AI: unified inbox, smart segmentation and conversational touchpoints across channels. The product had moved to an AI-first position, and the brand needed to look like it.',
- role:'Brand designer. I led the logo revamp and visual identity, set the colour system and typography (Acumin VF), and carried the new look into launch and social creative such as the "AI is redefining e-commerce" and "4 ways AI enhances customer experience" carousels, plus product marketing for SmartReach AI.',
- out:'A modern, AI-native identity built on clear reasoning. Blue-to-purple gradients and abstract shapes signal innovation; blue carries trust and reliability for businesses handing work to automation, while purple adds a forward-thinking edge. Acumin VF keeps everything flexible, legible and consistent from product UI to ads. The result is one system the team can extend across campaigns, social and product launches without starting from scratch each time.'},
-{id:'bose',t:'Bose · Audio systems dashboard',ty:'Dashboard UI',n:5,src:'https://www.behance.net/gallery/232987491/Bose-Professional-Audio-Systems-Integrator-Dashboard',
- s:'A responsive dashboard for a professional audio systems integrator: real-time monitoring, quick control and detailed device management for AV professionals.',
- ctx:'AV professionals manage many audio devices across zones at once. They need to spot problems immediately, read critical metrics like latency, CPU, throughput and uptime at a glance, and act on frequent tasks such as mute, reboot and diagnostics without digging through menus.',
- role:'End-to-end product design: goals, information architecture, UI and a design system with a working prototype in Figma, a custom icon set in Illustrator, and a visual concept built in React and Tailwind.',
+{id:'bitespeed',t:'Brand revamp for BiteSpeed',ty:'Brand identity · Hiring assignment',n:5,src:'https://www.behance.net/gallery/233743907/Brand-Revamp-for-BiteSpeed',
+ s:'One of two brand identity directions I created for BiteSpeed\'s design assignment. A week after submitting it, I joined the team.',
+ ctx:'This was the design assignment in BiteSpeed\'s hiring process: propose a revamped brand for an AI marketing and support platform built for Shopify and e-commerce brands. I created two complete identity directions; this is the one I\'m sharing.',
+ role:'The whole assignment: brand direction, logo revamp, colour system, typography (Acumin VF) and sample campaign, social and product-marketing pieces that show the identity in use.',
+ out:'A modern, AI-native identity built on clear reasoning. Blue-to-purple gradients and abstract shapes signal innovation; blue carries trust for businesses handing work to automation, while purple adds a forward-thinking edge. Acumin VF keeps it flexible and legible from product UI to ads. Within a week of submitting it, I joined BiteSpeed as Brand Designer.'},
+{id:'bose',t:'Bose Professional · Audio systems dashboard',ty:'Dashboard UI · Interview assignment',n:5,src:'https://www.behance.net/gallery/232987491/Bose-Professional-Audio-Systems-Integrator-Dashboard',
+ freebie:'',s:'A responsive dashboard for a professional audio systems integrator: real-time monitoring, quick control and detailed device management for AV professionals.',
+ ctx:'A design assignment from my interview with Bose Professional: a dashboard for audio systems integrators. AV professionals manage many devices across zones at once, so they need to spot problems immediately, read latency, CPU, throughput and uptime at a glance, and act on mute, reboot and diagnostics without digging through menus.',
+ role:'End-to-end design, with most of the attention on the details: micro-interactions, button states, and the warning and alert symbols that tell an integrator what\'s wrong at a glance. Built as a design system and prototype in Figma, with custom icons in Illustrator and a visual concept in React and Tailwind.',
  out:'A single control hub. A system map shows every device with warnings and errors highlighted; a recent-alerts panel uses consistent colour codes for error, warning and success; quick-stat cards surface the key KPIs; quick actions put mute, diagnostics, reboot and power-off one tap away; and a device table lists name, zone, CPU, latency, status and last seen. Eight custom icons cover core audio functions (volume, mute, EQ, DSP, gain, input, output, Bluetooth). Frequent actions take fewer steps, and problems are visible the moment they happen.'},
-{id:'mavion',t:'Mavion',ty:'Visual identity',n:0,src:'https://dribbble.com/shots/27734612-Mavion-Building-a-Modern-Visual-Identity-for-a-Tech-Brand',
- s:'A modern visual identity for Mavion IT Solutions, a technology company building professional software and IT solutions.',
- ctx:'Mavion IT Solutions needed an identity that felt as confident as its technical work, but still approachable and contemporary, and that could grow with the company.',
- role:'Logo design, art direction, brand visuals, typography and digital branding.',
- out:'A bold electric-blue palette, geometric forms and clean typography that communicate technology, reliability and forward momentum. The identity is built to work across digital touchpoints while staying distinctive and flexible as the brand grows. The hero presentation pairs the mark with a deep-blue, architecture-inspired backdrop to reinforce its technology-first character.'},
-{id:'travel',t:'Travel Memories',ty:'Brand identity',n:8,src:'https://www.behance.net/gallery/172807929/Travel-Memories-Brand-Identity',
- s:'Logo mark, colour and applications for a travel brand: a map pin with a plane cut through it.',
- ctx:'Travel Memories needed a mark that says "travel" instantly and stays simple enough to work small, in one colour, and on merchandise.',
+{id:'mavion',t:'Mavion',ty:'Brand identity · Website',n:0,src:'https://dribbble.com/shots/27734612-Mavion-Building-a-Modern-Visual-Identity-for-a-Tech-Brand',
+ live:'https://mavion.in',s:'Brand identity and website for Mavion IT Solutions, a software and hardware sales company, set up from the ground up.',
+ ctx:'Mavion brings 20+ years of experience in software and hardware sales into its own business, founded and led by a woman entrepreneur. It needed its whole visual side built from scratch: an identity that feels confident and technical but approachable, and a website that explains a wide range of products and services.',
+ role:'Logo design and brand direction, then the website: design, development and CSS implementation, with a little help from code. In short, I set up the visual side of the business from the ground up.',
+ out:'A bold electric-blue identity with geometric forms and clean typography that says technology, reliability and momentum, and works across every digital touchpoint. The live site at mavion.in organises professional software, business hardware, peripherals, support, BIM and web services, and the industries Mavion serves, around one clear path to get in touch.'},
+{id:'travel',t:'Travel Memories',ty:'Brand identity revamp',n:8,src:'https://www.behance.net/gallery/172807929/Travel-Memories-Brand-Identity',
+ date:'Published Jun 2023',s:'Logo mark, colour and applications for a travel brand: a map pin with a plane cut through it.',
+ ctx:'A complete brand identity revamp for Travel Memories, a travel company based abroad. The brand needed a mark that says "travel" instantly and still works small, in one colour, and on merchandise.',
  role:'Brand identity in Illustrator: logo mark and construction, logotype, colour palette, light/dark/colour versions and real-world applications.',
  out:'A map pin with a plane cut through it, drawn on a circle-based construction grid so the curves stay balanced. A three-colour palette (green #5EBF88, blue #0768B3 and white) gives colour, light and reversed versions that hold up on navy, blue or white. The system is shown applied to a tote bag, t-shirt and business cards.'},
 {id:'creativate',t:'Creativate',ty:'Website design',n:3,src:'https://dribbble.com/shots/25935569-Creativate-Website-Design',live:'https://creativate.in',
@@ -38,11 +38,11 @@ const PROJECTS = [
  s:'A spin-the-wheel micro-interaction for a landing page, built in Figma and shared as a free community file.',
  ctx:'Landing pages often need a playful hook, like a spin-to-win offer, to hold attention. Most examples are built in code; I wanted to show how far a Figma prototype alone can go.',
  role:'Interaction and UI design, prototyped entirely in Figma.',
- out:'A working spin-the-wheel interaction you can try below, published as a free Figma community file so other designers can open it, learn from the setup and reuse it.'},
-{id:'balance',t:'The principle of Balance',ty:'Presentation',n:7,src:'https://www.behance.net/gallery/167460001/The-principle-of-Balance',
+ out:'A working spin-the-wheel interaction you can try below. It\'s published as a free Figma community file, so other designers can open it, see how it\'s set up and reuse it.'},
+{id:'balance',t:'The principle of Balance',ty:'Presentation · Seminar talk',n:7,src:'https://www.behance.net/gallery/167460001/The-principle-of-Balance',
  s:'A slide presentation on balance in design: visual weight and the five types of balance.',
- ctx:'Balance is one of the most used and least explained design principles. The goal was a short deck that makes it easy to understand for anyone, designer or not.',
- role:'Research, writing and slide design.',
+ ctx:'I researched and built this deck for a seminar talk. Balance is one of the most used and least explained design principles, so the goal was to make it easy to understand for anyone, designer or not.',
+ role:'Research, writing and slide design, then presenting it at the seminar.',
  out:'A visual deck that defines balance, explains visual weight, and walks through five types (symmetrical, asymmetrical, radial, mosaic and discordant), each shown with simple diagrams and real-world brand examples.'}];
 
 /* Photo board. To add a photo:
@@ -99,7 +99,7 @@ const SERVICES = [
 {t:'Design audit',p:'₹15,000',w:'3 days',i:['Review of your brand and website','Recorded walkthrough','Prioritised list of fixes']}];
 const INVITE = {t:'Fractional design lead',p:'₹4,50,000',u:'/ month',w:'3-month minimum',s:'I join your team as a part-time head of design across brand, web and campaigns: setting direction, running the design system and working directly with founders. One team at a time, by invitation or referral only.'};
 
-// Figma Community freebies (figma.com/@aakarsh). Uses = times duplicated, as reported by Figma when added.
+// Freebies: Figma Community files (figma.com/@aakarsh). Uses = times duplicated, as reported by Figma when added.
 const COMMUNITY_URL = 'https://www.figma.com/@aakarsh';
 const COMMUNITY = [
 {slug:'hotel-booking-app-ui',t:'Hotel booking app UI',k:'App UI',s:'Booking screens that make finding the right stay easier, starting with a broader search bar that does more of the work.',url:'https://www.figma.com/community/file/1201551095501582522',uses:1796,likes:21},

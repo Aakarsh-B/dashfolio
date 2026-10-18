@@ -8,7 +8,7 @@ Portfolio for Aakarsh B, brand and visual designer. Dashboard layout, a draggabl
 npx serve .            # or: python3 -m http.server
 ```
 
-Then open the printed URL. Opening `index.html` straight from disk also works.
+Then open the printed URL. Use a local server: pages use real paths like `/projects/bitespeed`, so opening `index.html` from disk won't work.
 
 ## Structure
 
@@ -47,7 +47,7 @@ Visitors can drag photos around (mouse, touch, or keyboard arrows). Each visitor
 1. Make a folder `images/projects/<id>/` with `cover.jpg` (4:3, about 1200 × 900) and gallery images `1.jpg`, `2.jpg`… (up to 1600px wide).
 2. Add an entry to `PROJECTS` in `js/data.js` with the same `id`, and set `n` to the number of gallery images. The first four projects show on Explore.
 
-## Community (Figma freebies)
+## Freebies (Figma Community files)
 
 Cards come from `COMMUNITY` in `js/data.js`; thumbnails live in `images/community/<slug>.jpg`. To add a file, publish it on figma.com/@aakarsh, save its thumbnail, and add an entry with its community URL. `uses` is Figma's duplicate count at the time it was added.
 
@@ -67,6 +67,24 @@ Three palettes are built in: `cobalt` (current), `ember` and `forest`, each with
 
 The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js` to bring it back. Edit `SERVICES` and `INVITE` in `js/data.js`. The sidebar counts for Projects and Services update automatically.
 
+## Pages and URLs
+
+Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title and description, so links work on any static host and search engines see each project.
+
+**After editing `js/data.js` (new project, new title), run:**
+
+```sh
+node scripts/build-pages.js
+```
+
+Once the domain is live, add it so pages get canonical links, preview images and a `sitemap.xml`:
+
+```sh
+SITE_URL=https://your-domain.com node scripts/build-pages.js
+```
+
+Old `#/` links (e.g. `#/p/bose`) redirect to the new URLs.
+
 ## Deploy
 
-Any static host works. With GitHub Pages: Settings → Pages → Deploy from branch → `main` / root. Routes are hash-based (`#/projects`), so no redirect rules are needed.
+Any static host works (GitHub Pages, Netlify, Vercel, Cloudflare Pages). The site expects to live at the domain root. To preview on a GitHub Pages project URL (`username.github.io/dashfolio/`) before the domain is connected, build with `BASE_PATH=/dashfolio/ node scripts/build-pages.js` and set it back to `/` before connecting the domain.

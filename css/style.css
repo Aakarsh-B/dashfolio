@@ -64,7 +64,10 @@ a.card:hover .art img{transform:scale(1.03)}
 .todo{background:var(--a2);color:var(--on);border-radius:6px;padding:0 8px;font-size:14px;font-weight:600;white-space:nowrap}
 .more{display:inline-block;margin-top:18px;color:var(--mute)}
 .more:hover{color:var(--ink)}
-.back{display:inline-block;margin-bottom:22px;color:var(--mute)}
+.back{display:inline-flex;align-items:center;gap:8px;margin-bottom:26px;padding:7px 14px 7px 10px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font-size:14px;font-weight:600;text-decoration:none;transition:background .2s,border-color .2s}
+.back svg{transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.back:hover{background:var(--hi);border-color:var(--mute)}
+.back:hover svg{transform:translateX(-4px)}
 .sec{border-top:1px solid var(--line);padding:22px 0;display:grid;grid-template-columns:200px 1fr;gap:20px}
 .sec h3{margin:0;font:600 18px 'Bricolage Grotesque'}.sec p{margin:0;color:var(--mute);max-width:62ch}
 .empty{color:var(--mute)}
@@ -244,3 +247,9 @@ a.free:hover .meta .get{background:var(--a1);color:#fff;transform:translateX(2px
 /* Smoother card hover: lift and shadow share one curve */
 a.card{transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s}
 a.card:hover{box-shadow:var(--shadow)}
+
+/* Case-study header */
+.cs-t{font-size:clamp(36px,5vw,64px)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 18px}
+.cs~.gallery,.cs+.embed{margin-top:28px}
+.cs .sec a{color:var(--a1);font-weight:600}
