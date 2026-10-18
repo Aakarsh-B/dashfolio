@@ -24,11 +24,16 @@ h2{font:600 13px 'Instrument Sans';letter-spacing:.14em;text-transform:uppercase
 .job .r{margin:4px 0 0;font-weight:600}.job .r span{font-weight:400;color:var(--mute);font-size:13.5px}
 .job ul{margin:4px 0 0;padding-left:18px;color:#2a3046}.job li{margin:2px 0}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-.list{margin:0;padding:0;list-style:none}.list li{margin:0 0 8px}.list span{display:block;color:var(--mute);font-size:13.5px}
+.list{margin:0;padding:0;list-style:none}
+.certs{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px}
+.chips{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border:1px solid var(--line);border-radius:99px;font-weight:600;font-size:13.5px;break-inside:avoid}
+.chips i{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;flex:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.chips img{width:13px;height:13px;display:block}.list li{margin:0 0 8px}.list span{display:block;color:var(--mute);font-size:13.5px}
 .bar{position:fixed;right:20px;bottom:20px;display:flex;gap:10px}
 .bar button,.bar a{font:600 15px 'Instrument Sans';padding:11px 18px;border-radius:12px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;text-decoration:none}
 .bar a{background:#fff;color:var(--ink)}
-@media(max-width:700px){.page{margin:0;padding:32px 20px;border-radius:0}.job,.two{grid-template-columns:1fr;gap:4px}.two{gap:0}}
+@media(max-width:700px){.page{margin:0;padding:32px 20px;border-radius:0}.job,.certs{grid-template-columns:1fr;gap:4px}}
 @media print{@page{size:A4;margin:14mm}body{background:#fff}.page{margin:0;padding:0;box-shadow:none;max-width:none}.bar{display:none}}
 </style>
 </head>
@@ -45,10 +50,8 @@ document.getElementById('cv').innerHTML=`
 <p class="sum">Brand and visual designer with 6+ years of experience building brands, websites, campaigns and digital experiences across startups, SaaS and marketing teams. Former Design Lead at CloudEagle.ai, leading a team of three and reporting to the CEO. Works across Figma, Adobe, Webflow and Framer, with a focus on clear communication and conversion.</p>
 <h2>Experience</h2>
 ${EXPERIENCE.map(c=>`<div class="job"><div class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</div><div><h3>${c.co}${c.where?` <span>· ${c.where}</span>`:''}</h3>${c.roles.map(r=>`<p class="r">${r.t}${c.roles.length>1?` <span>${r.d}</span>`:''}</p>${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}`).join('')}</div></div>`).join('')}
-<div class="two">
- <div><h2>Certificates</h2><ul class="list">${CERTS.map(c=>`<li><b>${c.t}</b><span>${c.by} · ${c.d}</span></li>`).join('')}</ul></div>
- <div><h2>Tools</h2><ul class="list">${TOOLS.map(t=>`<li><b>${t[0]}</b><span>${t[3]}</span></li>`).join('')}</ul></div>
-</div>
+<h2>Certificates</h2><ul class="list certs">${CERTS.map(c=>`<li><b>${c.t}</b><span>${c.by} · ${c.d}</span></li>`).join('')}</ul>
+<h2>Tools</h2><ul class="chips">${TOOLS.map(t=>`<li><i style="background:${t[2]}"><img src="images/tools/${t[1]}.svg" alt=""></i>${t[0]}</li>`).join('')}</ul>
 <h2>Education</h2>
 <ul class="list"><li><b>B.Tech, Computer Engineering</b><span>Government Engineering College, Idukki · 2017 – 2021</span></li></ul>`;
 </script>
