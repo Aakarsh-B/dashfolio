@@ -6,7 +6,12 @@
    links and a sitemap once the domain is live. */
 const fs=require('fs'),path=require('path');
 const root=path.join(__dirname,'..');
-const tpl=fs.readFileSync(path.join(root,'index.html'),'utf8');
+// Stamp CSS/JS with a content hash so a new deploy never mixes a cached old file with new ones.
+const crypto=require('crypto');
+const ver=crypto.createHash('sha1').update(['css/style.css','js/data.js','js/app.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex').slice(0,8);
+const stamp=html=>html.replace(/((?:href|src)="(?:css\/style\.css|js\/data\.js|js\/app\.js))(\?v=\w+)?"/g,`$1?v=${ver}"`);
+const tpl=stamp(fs.readFileSync(path.join(root,'index.html'),'utf8'));
+fs.writeFileSync(path.join(root,'index.html'),tpl);
 // Point a copy's own CSS/JS/favicon at the site root, `depth` folders up (or an absolute path for 404.html).
 const rel=(html,pre)=>html.replace(/(href|src)="(css\/|js\/|favicon\.svg)/g,`$1="${pre}$2`);
 const data=new Function(fs.readFileSync(path.join(root,'js/data.js'),'utf8')+';return {PROJECTS,COMMUNITY}')();
@@ -34,4 +39,4 @@ for(const [dir,title,desc,img] of pages){
 }
 fs.writeFileSync(path.join(root,'404.html'),rel(tpl,process.env.BASE_PATH||'/'));
 if(SITE)fs.writeFileSync(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u=>`  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
-console.log(`Wrote ${pages.length} pages + 404.html${SITE?' + sitemap.xml':''}`);
+console.log(`v=${ver} · Wrote ${pages.length} pages + 404.html${SITE?' + sitemap.xml':''}`);

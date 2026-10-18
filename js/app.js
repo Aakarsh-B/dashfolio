@@ -19,7 +19,7 @@ const matches=()=>{const v=q.value.trim().toLowerCase();return PROJECTS.filter(p
 const projectGrid=()=>matches().map(card).join('')||'<p class="empty">No projects match. Try a different word.</p>';
 
 // One pinned item: a polaroid (photo or placeholder) or a sticky note.
-const pin=(b,attrs='')=>`<figure class="pin${b.note?' note':''}" style="--r:${b.r}deg;--c:${b.color}" ${attrs}>${b.note?'':b.src?`<img src="${b.src}" alt="${b.alt||b.caption}" loading="lazy" draggable="false">`:`<div class="ph" style="background-color:${b.color}">photo placeholder</div>`}<figcaption>${b.caption}</figcaption></figure>`;
+const pin=(b,attrs='')=>`<figure class="pin${b.note?' note':''}" style="--r:${b.r}deg;--c:${b.color}" ${attrs}>${b.note?'':b.src?`<img src="${b.src}" alt="${b.alt||b.caption}" draggable="false">`:`<div class="ph" style="background-color:${b.color}">photo placeholder</div>`}<figcaption>${b.caption}</figcaption></figure>`;
 const logo=c=>c.logo?`<img class="logo" src="${c.logo}" alt="" width="44" height="44">`:`<span class="logo" aria-hidden="true">${c.co.split(' ').map(w=>w[0]).slice(0,2).join('')}</span>`;
 const kfmt=n=>n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'k':String(n);
 const freebie=c=>`<a class="card free" href="${c.url}" target="_blank" rel="noopener"><div class="art"><img src="images/community/${c.slug}.jpg" alt="${c.t} preview" loading="lazy"></div><div class="meta"><div><b>${c.t}</b><span>${c.k} · ${kfmt(c.uses)} uses</span></div><span class="get">Get file ↗</span></div><p>${c.s}</p></a>`;
@@ -63,7 +63,9 @@ function go(url){
  inSite++;render();window.scrollTo(0,0);
  if(document.activeElement!==q)$('main').focus({preventScroll:true});
 }
-function render(){
+function render(){swap(renderNow)}
+function renderNow(){
+ document.documentElement.classList.remove('intro');
  const h=path();let html,key=h;
  const m=h.match(/^\/projects\/([\w-]+)/);let proj;
  if(m){proj=PROJECTS.find(x=>x.id===m[1]);key='/projects';if(proj)html=caseStudy(proj)}
@@ -71,7 +73,7 @@ function render(){
  if(h==='/community')key='/freebies';
  if(key==='/services'&&!SHOW_SERVICES)key='/';
  if(!html){if(!V[key])key='/';html=V[key]()}
- const main=$('main');main.innerHTML=html;animateIn(main);
+ const main=$('main');main.innerHTML=html;animateIn(main,firstRender);firstRender=false;
  $('nav').innerHTML=N.map(n=>`<a href="${href(n[1])}" ${n[1]===key?'aria-current="page"':''}>${icon(n[3])}${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="contact" '+(key==='/contact'?'aria-current="page"':'')+'>'+icon('contact')+'Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
  document.title=(proj?proj.t+' · ':key==='/'?'':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if(key==='/about')initBoard();
@@ -157,17 +159,31 @@ addEventListener('resize',layout);
    Stagger the page's top-level blocks in, then reveal repeated items (cards, tools, jobs, images) as they scroll into view. */
 const motionOK=!matchMedia('(prefers-reduced-motion: reduce)').matches;
 const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'}):null;
-function animateIn(main){
- main.classList.remove('enter');void main.offsetWidth;
+function animateIn(main,first){
  if(!motionOK)return;
- main.classList.add('enter');
- [...main.children].forEach((el,i)=>el.style.setProperty('--i',Math.min(i,6)));
+ if(first)document.documentElement.classList.add('intro');
+ else if(!document.startViewTransition){main.classList.remove('enter');void main.offsetWidth;main.classList.add('enter')}
  main.querySelectorAll('.hero>div>*').forEach((el,i)=>el.style.setProperty('--i',i));
  if(!io)return;
- main.querySelectorAll('.grid>.card,.cgrid>.card,.tools>.tool,.certs>.card,.xp>.job,.gallery>img,.svc>.svc-card,.cs>.sec').forEach((el,i,all)=>{
+ main.querySelectorAll('.grid>.card,.cgrid>.card,.tools>.tool,.certs>.card,.xp>.job,.gallery>img,.svc>.svc-card,.cs>.sec').forEach(el=>{
   const sib=[...el.parentElement.children].indexOf(el);
   el.classList.add('rv');el.style.setProperty('--d',sib%4);io.observe(el);
  });
+}
+// Swap page content inside a View Transition when the browser supports it (smooth cross-fade, sidebar stays still).
+let firstRender=true;
+function swap(update){
+ if(firstRender||!motionOK||!document.startViewTransition){update();return}
+ document.documentElement.classList.remove('vt-theme');
+ vt(update);
+}
+// Run `update` inside a View Transition, but never let a slow transition hold up the page:
+// if the browser hasn't called back within 300ms, update immediately.
+function vt(update,cls){
+ let done=false;const run=()=>{if(!done){done=true;update()}};
+ const root=document.documentElement;if(cls)root.classList.add(cls);
+ try{const t=document.startViewTransition(run);t.finished.finally(()=>cls&&root.classList.remove(cls))}catch(e){run();cls&&root.classList.remove(cls)}
+ setTimeout(()=>{run();if(cls)setTimeout(()=>root.classList.remove(cls),600)},300);
 }
 
 /* ---------- Bengaluru clock (sidebar) ---------- */
@@ -229,10 +245,10 @@ const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="
 const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':dm.matches;
 function themeButton(){const d=isDark();$('theme').innerHTML=d?MOON:SUN;$('theme').setAttribute('aria-label',`Colour theme: ${d?'dark':'light'}. Switch to ${d?'light':'dark'}`)}
 $('theme').onclick=()=>{
- root.classList.add('switching');setTimeout(()=>root.classList.remove('switching'),400);
- root.dataset.theme=isDark()?'light':'dark';
- try{localStorage.setItem('dashfolio-theme',root.dataset.theme)}catch(e){}
- themeButton();
+ const flip=()=>{root.dataset.theme=isDark()?'light':'dark';themeButton()};
+ try{localStorage.setItem('dashfolio-theme',isDark()?'light':'dark')}catch(e){}
+ if(motionOK&&document.startViewTransition)vt(flip,'vt-theme');
+ else flip();
 };
 dm.addEventListener('change',themeButton);
 try{const t=localStorage.getItem('dashfolio-theme');if(t)root.dataset.theme=t}catch(e){}
