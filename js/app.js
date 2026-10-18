@@ -5,42 +5,45 @@ const N=[['Explore','/','1','var(--a4)'],['Projects','/projects','2','var(--a1)'
 const $=id=>document.getElementById(id);
 const q=$('q');
 
-const art=p=>p.img?`<img src="${p.img}" alt="${p.alt||''}" loading="lazy">`:p.art;
-const card=p=>`<a class="card" href="#/p/${p.id}"><div class="art" style="background:${p.bg}">${art(p)}</div><div class="meta"><div><b>${p.t}</b><span>${p.ty}</span></div>${p.img?'':'<span class="tag">Placeholder art</span>'}</div></a>`;
+const cover=p=>`images/projects/${p.id}/cover.jpg`;
+const card=p=>`<a class="card" href="#/p/${p.id}"><div class="art"><img src="${cover(p)}" alt="${p.t} cover" loading="lazy"></div><div class="meta"><div><b>${p.t}</b><span>${p.ty}</span></div></div></a>`;
 const matches=()=>{const v=q.value.trim().toLowerCase();return PROJECTS.filter(p=>(p.t+' '+p.ty).toLowerCase().includes(v))};
 const projectGrid=()=>matches().map(card).join('')||'<p class="empty">No projects match. Try a different word.</p>';
 
 // One pinned item: a polaroid (photo or placeholder) or a sticky note.
 const pin=(b,attrs='')=>`<figure class="pin${b.note?' note':''}" style="--r:${b.r}deg;--c:${b.color}" ${attrs}>${b.note?'':b.src?`<img src="${b.src}" alt="${b.alt||b.caption}" loading="lazy" draggable="false">`:`<div class="ph" style="background-color:${b.color}">photo placeholder</div>`}<figcaption>${b.caption}</figcaption></figure>`;
 const logo=c=>c.logo?`<img class="logo" src="${c.logo}" alt="" width="44" height="44">`:`<span class="logo" aria-hidden="true">${c.co.split(' ').map(w=>w[0]).slice(0,2).join('')}</span>`;
-const svc=x=>`<article class="svc-card"><h3>${x.t}</h3><p class="price"><span>from</span> ${x.p}${x.u?` <span>${x.u}</span>`:''}</p><p class="when">${x.w}</p><ul>${x.i.map(i=>`<li>${i}</li>`).join('')}</ul></article>`;
+const svc=x=>`<article class="svc-card"><h3>${x.t}</h3><p class="price"><span>from</span> ${x.p}${x.u?` <span>${x.u}</span>`:''}</p><p class="when">${x.w}</p><ul>${x.i.map(i=>`<li>${i}</li>`).join('')}</ul><a class="btn sm enq" href="#/contact?s=${encodeURIComponent(x.t)}">Enquire</a></article>`;
 const tools=()=>`<div class="tools">${TOOLS.map(t=>`<div class="tool"><span class="ti" style="background:${t[2]}"><img src="images/tools/${t[1]}.svg" alt="" width="22" height="22"></span><div><b>${t[0]}</b><span>${t[3]}</span></div></div>`).join('')}</div>`;
 const certs=()=>`<div class="certs">${CERTS.map(c=>`<a class="card cert" href="${c.url}" target="_blank" rel="noopener"><img src="${c.img}" alt="${c.t} certificate for Aakarsh B" loading="lazy"><div class="meta"><div><b>${c.t}</b><span>${c.by} · ${c.d}</span></div><span class="tag">Verify ↗</span></div><p>${c.s}</p></a>`).join('')}</div>`;
 
 const V={
-'/':()=>`<span class="hand">ex-Design Lead @ CloudEagle.ai</span><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><div class="btns"><a class="btn p" href="#/projects">Explore selected work</a><a class="btn" href="#/contact">Get in touch</a></div><h2>Selected work</h2><div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="#/projects">See all projects</a><h2>Tools</h2>${tools()}<h2>Certificates</h2>${certs()}`,
-'/projects':()=>`<h1>Projects</h1><p class="lead">Brand, web and marketing design. Real project imagery replaces the placeholder artwork.</p><div class="grid" id="pg">${projectGrid()}</div>`,
-'/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="row"><div class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</div><div class="co">${logo(c)}<div><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></div></section>`).join('')}</div>`,
+'/':()=>`<span class="hand">ex-Design Lead @ CloudEagle.ai</span><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed, based in Bengaluru. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><p class="local"><i class="live" aria-hidden="true"></i>Bengaluru · <span id="blr"></span> IST</p><div class="btns"><a class="btn p" href="#/projects">Explore selected work</a><a class="btn" href="#/contact">Get in touch</a></div><h2>Selected work</h2><div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="#/projects">See all ${PROJECTS.length} projects</a>`,
+'/projects':()=>`<h1>Projects</h1><p class="lead">Brand, web and marketing design.</p><div class="grid" id="pg">${projectGrid()}</div>`,
+'/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="job">${logo(c)}<div class="jb"><div class="jh"><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3><span class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</span></div>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></section>`).join('')}</div>`,
 '/services':()=>`<h1>Services</h1><p class="lead">For founders and teams who need design that looks credible and gets understood. Starting prices; I confirm a fixed quote after a short call.</p><article class="invite"><div><span class="pill">Invite only</span><h3>${INVITE.t}</h3><p>${INVITE.s}</p></div><div class="inv-price"><p class="price"><span>from</span> ${INVITE.p} <span>${INVITE.u}</span></p><p class="when">${INVITE.w}</p><a class="btn" href="#/contact">Ask for an introduction</a></div></article><div class="svc">${SERVICES.map(svc).join('')}</div><a class="btn p" href="#/contact" style="margin-top:24px">Start a project</a>`,
-'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><div class="board-head"><div><h2>Off the clock</h2><p class="board-hint">A few things from outside work. Drag them around if you like.</p></div><button class="btn sm" id="reset" type="button">Reset</button></div><div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div>`,
-'/contact':()=>`<h1>Contact</h1><p class="lead">Hiring, or working on a brand, website or campaign that needs clearer design? Say hello.</p><div class="btns"><a class="btn p" href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a class="btn" href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn</a><a class="btn" href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium</a></div><p class="lead sm" style="margin-top:24px">Based in Bengaluru. Resume link ${T}</p>`
+'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><h2>Tools</h2>${tools()}<h2>Certificates</h2>${certs()}<div class="board-head"><div><h2>Off the clock</h2><p class="board-hint">A few things from outside work. Drag them around if you like.</p></div><button class="btn sm" id="reset" type="button">Reset</button></div><div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div>`,
+'/contact':()=>`<h1>Contact</h1><p class="lead">Hiring, or working on a brand, website or campaign that needs clearer design? Tell me a little about it and I'll reply within two working days.</p><div class="contact"><form id="cf" class="panel form" novalidate><div class="f2"><label>Name<input name="name" required autocomplete="name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label></div><div class="f2"><label><span>Phone <span class="opt">optional</span></span><input name="phone" type="tel" autocomplete="tel"></label><label>Looking for<select name="service">${['Not sure yet',INVITE.t,...SERVICES.map(x=>x.t),'Full-time role'].map(o=>`<option>${o}</option>`).join('')}</select></label></div><label>About the project<textarea name="message" rows="5" required placeholder="What you're building, timeline, budget range"></textarea></label><input type="text" name="_honey" class="sr" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="btn p" type="submit">Send message</button><p class="fmsg" id="fmsg" role="status" aria-live="polite"></p></form><div class="elsewhere"><h3>Or reach me directly</h3><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance ↗</a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble ↗</a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium ↗</a></div></div>`
 };
 
 function caseStudy(p){
- const S=[['Context','The business problem and background.'],['My role','Scope and responsibilities.'],['Approach','Key design decisions and explorations.'],['Deliverables','Final assets and responsive states.'],['Outcome','Verified results or learnings. No numbers until confirmed.']];
- return `<a class="back" href="#/projects">Back to projects</a><h1 style="font-size:clamp(36px,5vw,64px)">${p.t}</h1><p class="lead">${p.s}</p><div class="card"><div class="art" style="background:${p.bg};aspect-ratio:21/9">${art(p)}</div></div><div style="margin-top:32px">${S.map(s=>`<div class="sec"><h3>${s[0]}</h3><p>${s[1]} ${T}</p></div>`).join('')}</div>`;
+ const S=[['Context','The business problem and background.'],['My role','Scope and responsibilities.'],['Outcome','Verified results or learnings. No numbers until confirmed.']];
+ const imgs=p.n?Array.from({length:p.n},(_,i)=>`images/projects/${p.id}/${i+1}.jpg`):[cover(p)];
+ return `<a class="back" href="#/projects">Back to projects</a><h1 style="font-size:clamp(36px,5vw,64px)">${p.t}</h1><p class="lead">${p.s}</p><div class="btns"><span class="tag">${p.ty}</span><a class="more" style="margin:0" href="${p.src}" target="_blank" rel="noopener">View on ${p.src.includes('behance')?'Behance':'Dribbble'} ↗</a></div><div class="gallery">${imgs.map((src,i)=>`<img src="${src}" alt="${p.t}, image ${i+1}" loading="${i?'lazy':'eager'}">`).join('')}</div><div>${S.map(s=>`<div class="sec"><h3>${s[0]}</h3><p>${s[1]} ${T}</p></div>`).join('')}</div>`;
 }
 
 function render(){
- const h=location.hash.slice(1)||'/';let html,key=h;
+ const [h0,qs]=location.hash.slice(1).split('?'),h=h0||'/';let html,key=h;
  const m=h.match(/^\/p\/([\w-]+)/);
  if(m){const p=PROJECTS.find(x=>x.id===m[1]);key='/projects';if(p)html=caseStudy(p)}
  if(h==='/board')key='/about'; // the board lives on About now
  if(!html){if(!V[key])key='/';html=V[key]()}
  $('main').innerHTML=html;
- $('nav').innerHTML=N.map(n=>`<a href="#${n[1]}" ${n[1]===key?'aria-current="page"':''}><i class="dot" style="background:${n[3]}"></i>${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="#/contact" '+(key==='/contact'?'aria-current="page"':'')+'>Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
+ $('nav').innerHTML=N.map(n=>`<a href="#${n[1]}" ${n[1]===key?'aria-current="page"':''}><i class="dot" style="background:${n[3]}"></i>${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="#/contact" '+(key.startsWith('/contact')?'aria-current="page"':'')+'>Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
  document.title=(key==='/'?'':N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]+' · ')+'Aakarsh B · Brand Designer';
  if(key==='/about')initBoard();
+ if(key==='/')clock();
+ if(key==='/contact')initForm(new URLSearchParams(qs).get('s'));
  window.scrollTo(0,0);
 }
 
@@ -118,6 +121,34 @@ function openPin(id){
 }
 $('lightbox').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
 addEventListener('resize',layout);
+
+/* ---------- Bengaluru clock (Explore) ---------- */
+let clockTimer;
+function clock(){
+ const tick=()=>{const el=$('blr');if(!el)return clearInterval(clockTimer);el.textContent=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'numeric',minute:'2-digit'})};
+ clearInterval(clockTimer);tick();clockTimer=setInterval(tick,30000);
+}
+
+/* ---------- Contact form ----------
+   Posts to FormSubmit, which emails each submission to the inbox below.
+   The first submission sends an activation email; click it once and the form is live. */
+const FORM_ENDPOINT='https://formsubmit.co/ajax/aakarshbiju@gmail.com';
+function initForm(service){
+ const f=$('cf'),msg=$('fmsg');
+ if(service)[...f.service.options].forEach(o=>{if(o.text===service)o.selected=true});
+ f.onsubmit=async e=>{
+  e.preventDefault();
+  if(!f.checkValidity()){msg.textContent='Please add your name, a valid email and a few words about the project.';msg.className='fmsg err';f.querySelector(':invalid').focus();return}
+  const btn=f.querySelector('button');btn.disabled=true;btn.textContent='Sending…';msg.textContent='';msg.className='fmsg';
+  const d=Object.fromEntries(new FormData(f));
+  try{
+   const r=await fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({...d,_subject:`Portfolio enquiry: ${d.service} from ${d.name}`,_template:'table',_replyto:d.email})});
+   if(!r.ok)throw new Error(r.status);
+   f.reset();msg.textContent="Thanks, that's on its way. I'll reply by email soon.";msg.className='fmsg ok';
+  }catch(err){msg.innerHTML='That didn\'t send. Please email me at <a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a>.';msg.className='fmsg err'}
+  btn.disabled=false;btn.textContent='Send message';
+ };
+}
 
 /* ---------- Navigation, search, shortcuts, theme ---------- */
 addEventListener('hashchange',()=>{render();if(document.activeElement!==q)$('main').focus({preventScroll:true})});
