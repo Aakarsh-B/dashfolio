@@ -1,16 +1,49 @@
 /* Site content. Edit this file to add projects or board photos — no build step. */
 
 // Projects, newest and strongest first. The first four appear on Explore.
-// Images live in images/projects/<id>/: cover.jpg (4:3) plus 1.jpg, 2.jpg… for the case-study gallery (n = how many).
+// Images live in images/projects/<id>/: cover.jpg (4:3) plus 1.jpg, 2.jpg… for the gallery (n = how many).
+// Write-ups come from the Behance/Dribbble descriptions and the text in the project images. No invented numbers.
 const PROJECTS = [
-{id:'bitespeed',t:'Brand revamp for BiteSpeed',ty:'Brand identity · Campaigns',n:5,src:'https://www.behance.net/gallery/233743907/Brand-Revamp-for-BiteSpeed',s:'A refreshed brand for BiteSpeed, an AI marketing and support platform for e-commerce brands, carried through type, campaign visuals and product marketing.'},
-{id:'bose',t:'Bose · Audio systems dashboard',ty:'Dashboard UI',n:5,src:'https://www.behance.net/gallery/232987491/Bose-Professional-Audio-Systems-Integrator-Dashboard',s:'A dashboard for a professional audio systems integrator: system overview, live alerts and an interactive system map.'},
-{id:'mavion',t:'Mavion',ty:'Visual identity',n:0,src:'https://dribbble.com/shots/27734612-Mavion-Building-a-Modern-Visual-Identity-for-a-Tech-Brand',s:'Building a modern visual identity for a tech brand.'},
-{id:'travel',t:'Travel Memories',ty:'Brand identity',n:8,src:'https://www.behance.net/gallery/172807929/Travel-Memories-Brand-Identity',s:'Logo mark, colour and applications for a travel brand: a map pin with a plane cut through it.'},
-{id:'creativate',t:'Creativate',ty:'Website design',n:3,src:'https://dribbble.com/shots/25935569-Creativate-Website-Design',s:'Website design for Creativate, a creative agency offering branding, UI/UX, web and performance marketing.'},
-{id:'ads',t:'Performance ad creatives',ty:'Marketing design',n:2,src:'https://dribbble.com/shots/27348735-Performance-focused-ad-explorations-for-Shopify-brands',s:'Performance-focused ad explorations for Shopify brands, alongside Meta and Google ad creatives.'},
-{id:'spin',t:"Let's Spin",ty:'Interactive Figma prototype',n:0,src:'https://www.behance.net/gallery/168379505/Figma-Micro-Interaction-for-landing-page',s:'A spin-the-wheel micro-interaction for a landing page, built in Figma and shared as a free community file.'},
-{id:'balance',t:'The principle of Balance',ty:'Presentation',n:7,src:'https://www.behance.net/gallery/167460001/The-principle-of-Balance',s:'A slide presentation on balance in design: visual weight and the five types of balance.'}];
+{id:'bitespeed',t:'Brand revamp for BiteSpeed',ty:'Brand identity · Campaigns',n:5,src:'https://www.behance.net/gallery/233743907/Brand-Revamp-for-BiteSpeed',
+ s:'A refreshed brand for BiteSpeed, an AI marketing and support platform for e-commerce brands, carried through type, campaign visuals and product marketing.',
+ ctx:'BiteSpeed helps Shopify and e-commerce brands run marketing and customer support with AI: unified inbox, smart segmentation and conversational touchpoints across channels. The product had moved to an AI-first position, and the brand needed to look like it.',
+ role:'Brand designer. I led the logo revamp and visual identity, set the colour system and typography (Acumin VF), and carried the new look into launch and social creative such as the "AI is redefining e-commerce" and "4 ways AI enhances customer experience" carousels, plus product marketing for SmartReach AI.',
+ out:'A modern, AI-native identity built on clear reasoning. Blue-to-purple gradients and abstract shapes signal innovation; blue carries trust and reliability for businesses handing work to automation, while purple adds a forward-thinking edge. Acumin VF keeps everything flexible, legible and consistent from product UI to ads. The result is one system the team can extend across campaigns, social and product launches without starting from scratch each time.'},
+{id:'bose',t:'Bose · Audio systems dashboard',ty:'Dashboard UI',n:5,src:'https://www.behance.net/gallery/232987491/Bose-Professional-Audio-Systems-Integrator-Dashboard',
+ s:'A responsive dashboard for a professional audio systems integrator: real-time monitoring, quick control and detailed device management for AV professionals.',
+ ctx:'AV professionals manage many audio devices across zones at once. They need to spot problems immediately, read critical metrics like latency, CPU, throughput and uptime at a glance, and act on frequent tasks such as mute, reboot and diagnostics without digging through menus.',
+ role:'End-to-end product design: goals, information architecture, UI and a design system with a working prototype in Figma, a custom icon set in Illustrator, and a visual concept built in React and Tailwind.',
+ out:'A single control hub. A system map shows every device with warnings and errors highlighted; a recent-alerts panel uses consistent colour codes for error, warning and success; quick-stat cards surface the key KPIs; quick actions put mute, diagnostics, reboot and power-off one tap away; and a device table lists name, zone, CPU, latency, status and last seen. Eight custom icons cover core audio functions (volume, mute, EQ, DSP, gain, input, output, Bluetooth). Frequent actions take fewer steps, and problems are visible the moment they happen.'},
+{id:'mavion',t:'Mavion',ty:'Visual identity',n:0,src:'https://dribbble.com/shots/27734612-Mavion-Building-a-Modern-Visual-Identity-for-a-Tech-Brand',
+ s:'A modern visual identity for Mavion IT Solutions, a technology company building professional software and IT solutions.',
+ ctx:'Mavion IT Solutions needed an identity that felt as confident as its technical work, but still approachable and contemporary, and that could grow with the company.',
+ role:'Logo design, art direction, brand visuals, typography and digital branding.',
+ out:'A bold electric-blue palette, geometric forms and clean typography that communicate technology, reliability and forward momentum. The identity is built to work across digital touchpoints while staying distinctive and flexible as the brand grows. The hero presentation pairs the mark with a deep-blue, architecture-inspired backdrop to reinforce its technology-first character.'},
+{id:'travel',t:'Travel Memories',ty:'Brand identity',n:8,src:'https://www.behance.net/gallery/172807929/Travel-Memories-Brand-Identity',
+ s:'Logo mark, colour and applications for a travel brand: a map pin with a plane cut through it.',
+ ctx:'Travel Memories needed a mark that says "travel" instantly and stays simple enough to work small, in one colour, and on merchandise.',
+ role:'Brand identity in Illustrator: logo mark and construction, logotype, colour palette, light/dark/colour versions and real-world applications.',
+ out:'A map pin with a plane cut through it, drawn on a circle-based construction grid so the curves stay balanced. A three-colour palette (green #5EBF88, blue #0768B3 and white) gives colour, light and reversed versions that hold up on navy, blue or white. The system is shown applied to a tote bag, t-shirt and business cards.'},
+{id:'creativate',t:'Creativate',ty:'Website design',n:3,src:'https://dribbble.com/shots/25935569-Creativate-Website-Design',live:'https://creativate.in',
+ s:'A clean, conversion-focused website for Creativate, a creative agency covering branding, UI/UX, web development and social media.',
+ ctx:'Before the revamp, Creativate had five problems: low form submissions from unclear CTAs and missing trust signals, low credibility because past work wasn\'t showcased, visitors leaving after one page, a generic brand perception, and a poor mobile experience that hurt conversions.',
+ role:'UI/UX designer, Aug – Nov 2023. I defined the site architecture (Home, Work, Services, Blog, Contact), designed the landing page and inner pages, and shaped the conversion path.',
+ out:'Every section leads to one goal, "Book free consultation", which is reachable from every page in the architecture. Client logos and project showcases sit near the top to build trust, a dark, confident UI separates Creativate from other agencies, and layouts were planned to work properly on mobile. The site is live at creativate.in.'},
+{id:'ads',t:'Performance ad creatives',ty:'Marketing design',n:2,src:'https://dribbble.com/shots/27348735-Performance-focused-ad-explorations-for-Shopify-brands',
+ s:'Performance-focused ads for Shopify brands, alongside Meta and Google ad creatives.',
+ ctx:'Paid ads have a second to land in a crowded feed. Shopify brands need creative that stops the scroll, explains the benefit fast and gets the click, and it has to be easy to test.',
+ role:'Concept, layout and visual design for ad sets across Meta and Google, exploring different directions, campaign concepts and formats while staying on-brand.',
+ out:'A clear hierarchy in every ad: bold problem-led headlines, quick-scan benefits, and CTAs placed where the eye naturally lands. A green palette leans into growth and trust while subtly echoing Shopify, and contrast moves attention from hook to proof to action. Modular layouts make variations easy to produce for A/B testing across campaigns. Designed for conversion, not just looks.'},
+{id:'spin',t:"Let's Spin",ty:'Interactive Figma prototype',n:0,src:'https://www.behance.net/gallery/168379505/Figma-Micro-Interaction-for-landing-page',embed:'https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fproto%2FEcB4BzirTljMhkUolCdvMr%2FLet%27s-spin%3Fpage-id%3D0%253A1%26node-id%3D1-113%26viewport%3D212%252C271%252C0.09%26scaling%3Dscale-down-width%26starting-point-node-id%3D1%253A124',live:'https://www.figma.com/community/file/1228676637731607261',
+ s:'A spin-the-wheel micro-interaction for a landing page, built in Figma and shared as a free community file.',
+ ctx:'Landing pages often need a playful hook, like a spin-to-win offer, to hold attention. Most examples are built in code; I wanted to show how far a Figma prototype alone can go.',
+ role:'Interaction and UI design, prototyped entirely in Figma.',
+ out:'A working spin-the-wheel interaction you can try below, published as a free Figma community file so other designers can open it, learn from the setup and reuse it.'},
+{id:'balance',t:'The principle of Balance',ty:'Presentation',n:7,src:'https://www.behance.net/gallery/167460001/The-principle-of-Balance',
+ s:'A slide presentation on balance in design: visual weight and the five types of balance.',
+ ctx:'Balance is one of the most used and least explained design principles. The goal was a short deck that makes it easy to understand for anyone, designer or not.',
+ role:'Research, writing and slide design.',
+ out:'A visual deck that defines balance, explains visual weight, and walks through five types (symmetrical, asymmetrical, radial, mosaic and discordant), each shown with simple diagrams and real-world brand examples.'}];
 
 /* Photo board. To add a photo:
    1. Put the image in images/board/ (JPG or WebP, around 800px wide keeps it fast).
@@ -23,7 +56,7 @@ const BOARD = [
 {id:'travel',caption:'somewhere new',color:'var(--a3)',x:74,y:3,r:3},
 {id:'chess',caption:'your move',color:'var(--tile)',x:12,y:50,r:5},
 {id:'run',caption:'running, slowly',color:'var(--a2)',x:40,y:52,r:-2},
-{id:'tools',note:true,caption:'currently learning: new design tools',color:'var(--a3)',x:68,y:56,r:6}];
+{id:'tools',note:true,caption:'currently: Claude maxxxing',color:'var(--a3)',x:68,y:56,r:6}];
 
 // Experience, from the LinkedIn profile export. Newest first; a company can hold several roles.
 const EXPERIENCE = [
