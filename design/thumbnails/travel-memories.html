@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Travel Memories · thumbnail</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;700&display=swap">
+<!--
+  Project thumbnail, 1600 × 1000 (16:10, same ratio as the site's project cards).
+  Open in a browser to view; export with a screenshot of the .thumb element.
+
+  How it's built, back to front:
+  1. Base: the brand's navy (#010a19).
+  2. Glows: two large blurred radial gradients in the brand green and blue. They give depth without any solid shapes.
+  3. Construction lines: faint dotted circles taken from the logo-mark grid on the Behance page.
+  4. Flight path: a dashed curve with a gradient stroke, ending at the logo pin.
+  5. Hero: the logo mark at large scale, lit by a soft halo.
+  6. Mockups: two business cards, tilted, with gradient fills and real shadows, to show the identity applied.
+  7. Type: wordmark and a small label, kept to one corner so the art leads.
+  8. Grain: an SVG noise layer at low opacity. It stops gradients banding and makes it feel printed.
+-->
+<style>
+:root{--navy:#010a19;--blue:#0768b3;--green:#5ebf88;--white:#fff}
+html,body{margin:0;background:#222}
+.thumb{position:relative;width:1600px;height:1000px;overflow:hidden;background:var(--navy);font-family:Outfit,sans-serif;color:var(--white)}
+.glow{position:absolute;border-radius:50%}
+.g1{width:760px;height:760px;left:-240px;top:-300px;background:radial-gradient(circle,rgba(94,191,136,.55),rgba(94,191,136,.18) 35%,rgba(94,191,136,0) 70%)}
+.g2{width:900px;height:900px;right:-260px;bottom:-420px;background:radial-gradient(circle,rgba(7,104,179,.7),rgba(7,104,179,.25) 35%,rgba(7,104,179,0) 70%)}
+.g3{width:420px;height:420px;left:820px;top:180px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+svg.lines{position:absolute;inset:0}
+.mark{position:absolute;left:640px;top:170px;width:330px;filter:drop-shadow(0 30px 60px rgba(0,0,0,.55))}
+.card{position:absolute;width:520px;height:300px;border-radius:18px;box-shadow:0 50px 80px -20px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06) inset}
+.c1{left:1030px;top:400px;transform:rotate(-12deg);background:linear-gradient(135deg,#1580d1 0%,#0768b3 45%,#044a82 100%)}
+.c2{left:860px;top:640px;transform:rotate(-5deg);background:linear-gradient(160deg,#ffffff 0%,#e8eef5 100%);color:#0b2440}
+.c1 .cm{position:absolute;left:44px;top:44px;width:54px}
+.c1 .cw{position:absolute;left:116px;top:46px;font:600 30px/1 Outfit}.c1 .cw span{display:block;font-weight:300}
+.c1::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%)}
+.c2 b{position:absolute;left:44px;top:44px;font:600 26px Outfit}.c2 i{position:absolute;left:44px;top:80px;font:300 18px Outfit;font-style:normal;color:#5b6f86}
+.c2 .bars{position:absolute;left:44px;bottom:52px;display:grid;gap:10px}.c2 .bars span{display:block;height:8px;border-radius:4px;background:#d5dee8;width:220px}.c2 .bars span:nth-child(2){width:170px}.c2 .bars span:nth-child(3){width:120px}
+.c2 .stripe{position:absolute;left:0;right:0;bottom:0;height:14px;border-radius:0 0 18px 18px;background:linear-gradient(90deg,var(--green),var(--blue))}
+.c2 .cm{position:absolute;right:44px;top:40px;width:40px}
+.word{position:absolute;left:96px;bottom:96px}
+.label{font:600 15px Outfit;letter-spacing:.32em;color:rgba(255,255,255,.6);margin-bottom:22px}
+.wm{font:700 92px/0.95 Outfit;letter-spacing:-.01em}.wm span{display:block;font-weight:300}
+svg.grain{position:absolute;inset:0;width:100%;height:100%;opacity:.22;mix-blend-mode:overlay;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="thumb">
+  <!-- 1–2 base and glows -->
+  <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+
+  <!-- 3–4 construction circles and flight path -->
+  <svg class="lines" viewBox="0 0 1600 1000" aria-hidden="true">
+    <defs><linearGradient id="path" x1="0" x2="1"><stop offset="0" stop-color="#5ebf88" stop-opacity="0"/><stop offset=".5" stop-color="#5ebf88"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+    <g fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5" stroke-dasharray="2 8">
+      <circle cx="805" cy="330" r="250"/><circle cx="640" cy="420" r="300"/><circle cx="970" cy="420" r="300"/>
+    </g>
+    <path d="M-40 560 C 180 600, 380 520, 520 440 S 650 360, 690 380" fill="none" stroke="url(#path)" stroke-width="3" stroke-dasharray="14 12" stroke-linecap="round"/>
+  </svg>
+
+  <!-- 5 hero mark: white pin, green lower fins, plane cut out with a mask -->
+  <svg class="mark" viewBox="0 0 100 120" aria-hidden="true">
+    <defs>
+      <mask id="cut"><rect width="100" height="120" fill="#000"/>
+        <path d="M50 118 L19 77 A42 42 0 1 1 81 77 Z" fill="#fff"/>
+        <path d="M50 10 C56 10 57.5 28 57.5 42 L57.5 88 L50 104 L42.5 88 L42.5 42 C42.5 28 44 10 50 10 Z M57.5 46 L92 70 L92 74 L57.5 62 Z M42.5 46 L8 70 L8 74 L42.5 62 Z" fill="#000"/>
+      </mask>
+    </defs>
+    <g mask="url(#cut)"><rect width="100" height="120" fill="#fff"/><rect y="63" width="100" height="57" fill="#5ebf88"/></g>
+  </svg>
+
+  <!-- 6 identity applied: business cards -->
+  <div class="card c1">
+    <svg class="cm" viewBox="0 0 100 120" aria-hidden="true"><g mask="url(#cut)"><rect width="100" height="120" fill="#fff"/><rect y="63" width="100" height="57" fill="#5ebf88"/></g></svg>
+    <div class="cw">Travel<span>Memories</span></div>
+  </div>
+  <div class="card c2">
+    <b>First Last Name</b><i>Designation</i>
+    <svg class="cm" viewBox="0 0 100 120" aria-hidden="true"><g mask="url(#cut)"><rect width="100" height="120" fill="#0768b3"/><rect y="63" width="100" height="57" fill="#5ebf88"/></g></svg>
+    <div class="bars"><span></span><span></span><span></span></div><div class="stripe"></div>
+  </div>
+
+  <!-- 7 type -->
+  <div class="word"><div class="label">BRAND IDENTITY</div><div class="wm">Travel<span>Memories</span></div></div>
+
+  <!-- 8 grain -->
+  <svg class="grain" aria-hidden="true"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+</div>
+</body>
+</html>

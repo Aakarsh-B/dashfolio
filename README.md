@@ -22,6 +22,8 @@ images/projects/  project cover images
 images/logos/     company logos (from each company's site)
 images/certs/     certificate previews
 images/tools/     tool icons (Simple Icons 9.0.0)
+resume.html       printable resume, built from js/data.js (sidebar "View resume")
+design/thumbnails/ editable HTML sources for project thumbnails
 HANDOVER.md       brief, facts, rules and open items
 ```
 
@@ -44,6 +46,10 @@ Visitors can drag photos around (mouse, touch, or keyboard arrows). Each visitor
 ## Add a project image
 
 In `PROJECTS` (`js/data.js`), add `img:'images/projects/<file>.jpg'` and `alt:'…'` to a project. This replaces the CSS placeholder art and the "Placeholder art" tag.
+
+## Project thumbnails
+
+Thumbnails are 1600 × 1000 HTML files in `design/thumbnails/`, with comments explaining each layer. Open one in a browser, screenshot the `.thumb` element, and export to `images/projects/` at 1200 × 750 JPG.
 
 ## Colour palette
 
