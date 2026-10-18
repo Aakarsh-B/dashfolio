@@ -24,15 +24,41 @@ const BOARD = [
 
 // Experience, from the LinkedIn profile export. Newest first; a company can hold several roles.
 const EXPERIENCE = [
-{co:'BiteSpeed',where:'Bengaluru',roles:[
+{co:'BiteSpeed',logo:'images/logos/bitespeed.png',where:'Bengaluru',roles:[
  {t:'Brand Designer',d:'Sep 2025 – now',p:['Website design, landing pages and Webflow builds.','Campaign and social creative, with a focus on growth.']}]},
-{co:'CloudEagle.ai',roles:[
+{co:'CloudEagle.ai',logo:'images/logos/cloudeagle.png',roles:[
  {t:'Design Lead',d:'Feb 2025 – Oct 2025',p:['Led and mentored a team of three: one junior designer and two developers.','Owned design, development and deployment across all web operations.','Set creative direction for campaigns, go-to-market assets, landing pages and brand collateral.','Reported to the CEO on design performance and web strategy; built workflows and a design system to keep work consistent.']},
  {t:'Visual Designer',d:'Nov 2023 – Jan 2025',p:[]}]},
-{co:'Hexnode',roles:[
+{co:'Hexnode',logo:'images/logos/hexnode.png',roles:[
  {t:'UI/UX Designer',d:'Aug 2021 – Oct 2023',p:['Revamped the Hexnode marketing website and designed inner pages for A/B testing.','Designed the full event website for HexCon22, and the web page and brochures for MWC 2023 in Barcelona.','Worked on the brand video, ads, social posts, presentation slides and mockups.']}]},
 {co:'Casper Academy of Excellence',where:'Kochi',roles:[
  {t:'Graphic Designer',d:'Apr 2019 – Aug 2021',p:['Worked with the director to define how the company should look and sound, then carried it through social posts, brochures, posters and print.']}]},
 {co:'Teaching',roles:[
  {t:'UI/UX Design Tutor, wibe creative academy',d:'Jan 2022 – Sep 2023',p:[]},
  {t:'UI/UX Design Tutor, Superprof',d:'Jun 2020 – Aug 2021',p:['Helped people starting out in UI/UX design work out their first steps and land a first job.']}]}];
+
+// Certificates, verified against the Coursera certificate images.
+const CERTS = [
+{t:'Google UX Design Professional Certificate',by:'Google · Coursera',d:'Oct 2026',s:'Eight courses, from UX foundations and research to high-fidelity Figma prototypes.',img:'images/certs/google-ux.jpg',url:'https://coursera.org/verify/professional-cert/FQD0YYP6NXLX'},
+{t:'UI / UX Design Specialization',by:'CalArts · Coursera',d:'May 2021',s:'Four courses: visual elements of UI, UX fundamentals, web strategy and information architecture, wireframes to prototypes.',img:'images/certs/calarts-uiux.jpg',url:'https://coursera.org/verify/specialization/VRRKNPHKEDLE'}];
+
+// Tools: icon file in images/tools/, tile colour, what it's used for.
+const TOOLS = [
+['Figma','figma','#1e1e1e','Web, UI and prototypes'],
+['Illustrator','adobeillustrator','#330000','Logos and identity'],
+['Photoshop','adobephotoshop','#001e36','Imagery and ad creative'],
+['After Effects','adobeaftereffects','#00005b','Motion'],
+['Premiere Pro','adobepremierepro','#00005b','Video edits'],
+['Webflow','webflow','#146ef5','Website builds'],
+['Framer','framer','#0a0a0a','Sites and prototypes'],
+['WordPress','wordpress','#21759b','Elementor sites']];
+
+// Services. Starting prices in INR, benchmarked to Bengaluru/Mumbai rates for a senior (5–7 yr) independent designer.
+const SERVICES = [
+{t:'Brand identity',p:'₹1,20,000',w:'3–4 weeks',i:['Logo and wordmark','Colour, type and visual language','Brand guidelines (PDF)','Core templates: social, deck, stationery']},
+{t:'Website design + Webflow build',p:'₹1,50,000',w:'4–6 weeks',i:['Up to 6 pages, desktop and mobile','Built and launched in Webflow','CMS set up for blog or case studies','Handover so your team can edit']},
+{t:'Landing page',p:'₹45,000',w:'1–2 weeks',i:['One conversion-focused page','Copy structure and visual design','Webflow or Framer build','Variant for A/B testing']},
+{t:'Pitch or sales deck',p:'₹40,000',w:'1–2 weeks',i:['Up to 15 slides','Story structure with you','Editable Figma, Google Slides or Keynote file']},
+{t:'Campaign and social creative',p:'₹75,000',u:'/ month',w:'Monthly retainer',i:['Ads, social posts and launch assets','Consistent with your brand system','Up to 2 campaigns a month']},
+{t:'Design audit',p:'₹15,000',w:'3 days',i:['Review of your brand and website','Recorded walkthrough','Prioritised list of fixes']}];
+const INVITE = {t:'Fractional design lead',p:'₹4,50,000',u:'/ month',w:'3-month minimum',s:'I join your team as a part-time head of design across brand, web and campaigns: setting direction, running the design system and working directly with founders. One team at a time, by invitation or referral only.'};

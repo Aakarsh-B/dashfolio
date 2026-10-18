@@ -19,10 +19,13 @@ js/data.js        CONTENT: projects and photo-board items. Edit this.
 js/app.js         router, views, photo board, shortcuts
 images/board/     photos for the board
 images/projects/  project cover images
+images/logos/     company logos (from each company's site)
+images/certs/     certificate previews
+images/tools/     tool icons (Simple Icons 9.0.0)
 HANDOVER.md       brief, facts, rules and open items
 ```
 
-## Add a photo to the board
+## Add a photo to the board (on the About page)
 
 1. Drop the image in `images/board/`. A JPG or WebP about 800px wide keeps the page fast.
 2. Add a line to `BOARD` in `js/data.js`:
@@ -48,7 +51,11 @@ Three palettes are built in: `ember` (default), `cobalt` and `forest`, each with
 
 ## Keyboard shortcuts
 
-`1`–`6` switch pages · `C` opens Contact · `S` focuses search.
+`1`–`5` switch pages · `C` opens Contact · `S` focuses search.
+
+## Services and prices
+
+Edit `SERVICES` and `INVITE` in `js/data.js`. The sidebar counts for Projects and Services update automatically.
 
 ## Deploy
 

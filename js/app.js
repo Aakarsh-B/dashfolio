@@ -1,6 +1,7 @@
 /* Router, views and the draggable photo board. Content lives in js/data.js. */
 const T='<span class="todo">To add</span>';
-const N=[['Explore','/','1','var(--a4)'],['Projects','/projects','2','var(--a1)'],['Experience','/experience','3','var(--a2)'],['Services','/services','4','var(--a3)'],['About','/about','5','var(--a4)'],['Board','/board','6','var(--a1)']];
+// [label, route, shortcut key, dot colour, count shown in the sidebar]
+const N=[['Explore','/','1','var(--a4)'],['Projects','/projects','2','var(--a1)',PROJECTS.length],['Experience','/experience','3','var(--a2)'],['Services','/services','4','var(--a3)',SERVICES.length+1],['About','/about','5','var(--a4)']];
 const $=id=>document.getElementById(id);
 const q=$('q');
 
@@ -11,15 +12,15 @@ const projectGrid=()=>matches().map(card).join('')||'<p class="empty">No project
 
 // One pinned item: a polaroid (photo or placeholder) or a sticky note.
 const pin=(b,attrs='')=>`<figure class="pin${b.note?' note':''}" style="--r:${b.r}deg;--c:${b.color}" ${attrs}>${b.note?'':b.src?`<img src="${b.src}" alt="${b.alt||b.caption}" loading="lazy" draggable="false">`:`<div class="ph" style="background-color:${b.color}">photo placeholder</div>`}<figcaption>${b.caption}</figcaption></figure>`;
-const peek=()=>`<a class="peek" href="#/board" aria-label="Open the photo board">${BOARD.filter(b=>!b.note).slice(0,4).map(b=>pin(b)).join('')}</a><a class="more" href="#/board">Open the board and move things around</a>`;
+const logo=c=>c.logo?`<img class="logo" src="${c.logo}" alt="" width="44" height="44">`:`<span class="logo" aria-hidden="true">${c.co.split(' ').map(w=>w[0]).slice(0,2).join('')}</span>`;
+const svc=x=>`<article class="svc-card"><h3>${x.t}</h3><p class="price"><span>from</span> ${x.p}${x.u?` <span>${x.u}</span>`:''}</p><p class="when">${x.w}</p><ul>${x.i.map(i=>`<li>${i}</li>`).join('')}</ul></article>`;
 
 const V={
-'/':()=>`<span class="hand">turning pixels into smiles :)</span><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed. I design clear identities, thoughtful websites and creative that moves businesses forward.</p><p class="lead sm">Designing clean visuals, living a slightly chaotic thought process. If it looks effortless, I probably fought it for 3 hours.</p><div class="btns"><a class="btn p" href="#/projects">Explore selected work</a><a class="btn" href="#/contact">Get in touch</a></div><h2>Selected work</h2><div class="grid">${PROJECTS.slice(0,3).map(card).join('')}</div><a class="more" href="#/projects">See all projects</a><h2>Off the clock</h2>${peek()}`,
+'/':()=>`<span class="hand">turning pixels into smiles :)</span><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed. I design clear identities, thoughtful websites and creative that moves businesses forward.</p><p class="lead sm">Designing clean visuals, living a slightly chaotic thought process. If it looks effortless, I probably fought it for 3 hours.</p><div class="btns"><a class="btn p" href="#/projects">Explore selected work</a><a class="btn" href="#/contact">Get in touch</a></div><h2>Selected work</h2><div class="grid">${PROJECTS.slice(0,3).map(card).join('')}</div><a class="more" href="#/projects">See all projects</a>`,
 '/projects':()=>`<h1>Projects</h1><p class="lead">Brand, web and marketing design. Real project imagery replaces the placeholder artwork.</p><div class="grid" id="pg">${projectGrid()}</div>`,
-'/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="row"><div class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</div><div><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></section>`).join('')}</div><h2>Credential</h2><div class="panel"><b>Google UX Design Professional Certificate</b><p>Completed October 16, 2026. Eight courses, from UX foundations to high-fidelity Figma prototypes.</p><a class="more" href="https://www.coursera.org/account/accomplishments/specialization/FQD0YYP6NXLX" target="_blank" rel="noopener">View certificate on Coursera ↗</a></div><h2>Education</h2><div class="panel"><b>B.Tech, Computer Engineering</b><p>Government Engineering College, Idukki · 2017 – 2021</p></div><h2>Tools</h2><div class="btns">${['Figma','Illustrator','Photoshop','After Effects','Premiere Pro','Webflow','Framer','WordPress'].map(x=>`<span class="tag">${x}</span>`).join('')}</div>`,
-'/services':()=>`<h1>Services</h1><p class="lead">For founders and teams who need design that looks credible and gets understood.</p><div class="panel rows svc">${[['Brand identity and visual systems','Logos, type, colour and the rules that keep them consistent.'],['Websites and landing pages','Designed for clarity and conversion, built in Webflow or Framer.'],['Marketing and campaign creative','Ads, social assets and launch visuals that work as a set.'],['Presentation and pitch decks','Slides that make the argument easy to follow.']].map(s=>`<div class="row"><div><h3>${s[0]}</h3><p>${s[1]}</p></div></div>`).join('')}</div><p class="lead sm" style="margin-top:20px">I design and handle Webflow builds. I don't do custom software development.</p><a class="btn p" href="#/contact">Start a project</a>`,
-'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><h2>Off the clock</h2>${peek()}`,
-'/board':()=>`<div class="board-head"><div><span class="hand">pinned, not curated</span><h1>Board</h1><p class="lead">Photos from off the clock. Grab any of them and rearrange the board. Your layout stays in this browser.</p></div><button class="btn" id="reset" type="button">Reset layout</button></div><div class="board" id="board" role="region" aria-label="Photo board"></div><p class="board-hint">Keyboard: Tab to a photo, arrow keys move it, Enter opens it.</p>`,
+'/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="row"><div class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</div><div class="co">${logo(c)}<div><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></div></section>`).join('')}</div><h2>Tools</h2><div class="tools">${TOOLS.map(t=>`<div class="tool"><span class="ti" style="background:${t[2]}"><img src="images/tools/${t[1]}.svg" alt="" width="22" height="22"></span><div><b>${t[0]}</b><span>${t[3]}</span></div></div>`).join('')}</div><h2>Certificates</h2><div class="certs">${CERTS.map(c=>`<a class="card cert" href="${c.url}" target="_blank" rel="noopener"><img src="${c.img}" alt="${c.t} certificate for Aakarsh B" loading="lazy"><div class="meta"><div><b>${c.t}</b><span>${c.by} · ${c.d}</span></div><span class="tag">Verify ↗</span></div><p>${c.s}</p></a>`).join('')}</div>`,
+'/services':()=>`<h1>Services</h1><p class="lead">For founders and teams who need design that looks credible and gets understood. Starting prices; I confirm a fixed quote after a short call.</p><div class="svc">${SERVICES.map(svc).join('')}</div><article class="invite"><div><span class="pill">Invite only</span><h3>${INVITE.t}</h3><p>${INVITE.s}</p></div><div class="inv-price"><p class="price"><span>from</span> ${INVITE.p} <span>${INVITE.u}</span></p><p class="when">${INVITE.w}</p><a class="btn" href="#/contact">Ask for an introduction</a></div></article><p class="lead sm" style="margin-top:24px">Prices in INR. I design and handle Webflow and Framer builds; I don't do custom software development.</p><a class="btn p" href="#/contact">Start a project</a>`,
+'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><div class="board-head"><div><h2>Off the clock</h2><p class="board-hint">A few things from outside work. Drag them around if you like.</p></div><button class="btn sm" id="reset" type="button">Reset</button></div><div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div>`,
 '/contact':()=>`<h1>Contact</h1><p class="lead">Hiring, or working on a brand, website or campaign that needs clearer design? Say hello.</p><div class="btns"><a class="btn p" href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a class="btn" href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn</a><a class="btn" href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium</a></div><p class="lead sm" style="margin-top:24px">Based in Bengaluru. Resume link ${T}</p>`
 };
 
@@ -32,11 +33,12 @@ function render(){
  const h=location.hash.slice(1)||'/';let html,key=h;
  const m=h.match(/^\/p\/([\w-]+)/);
  if(m){const p=PROJECTS.find(x=>x.id===m[1]);key='/projects';if(p)html=caseStudy(p)}
- if(!html){if(!V[h])key='/';html=V[key]()}
+ if(h==='/board')key='/about'; // the board lives on About now
+ if(!html){if(!V[key])key='/';html=V[key]()}
  $('main').innerHTML=html;
- $('nav').innerHTML=N.map(n=>`<a href="#${n[1]}" ${n[1]===key?'aria-current="page"':''}><i class="dot" style="background:${n[3]}"></i>${n[0]}<kbd>${n[2]}</kbd></a>`).join('')+'<div class="grp">Connect</div><a href="#/contact" '+(key==='/contact'?'aria-current="page"':'')+'>Contact<kbd>C</kbd></a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
+ $('nav').innerHTML=N.map(n=>`<a href="#${n[1]}" ${n[1]===key?'aria-current="page"':''}><i class="dot" style="background:${n[3]}"></i>${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="#/contact" '+(key==='/contact'?'aria-current="page"':'')+'>Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
  document.title=(key==='/'?'':N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]+' · ')+'Aakarsh B · Brand Designer';
- if(key==='/board')initBoard();
+ if(key==='/about')initBoard();
  window.scrollTo(0,0);
 }
 
@@ -128,11 +130,17 @@ addEventListener('keydown',e=>{
  else if(e.key==='c')location.hash='#/contact';
  else if(e.key==='s'){e.preventDefault();q.focus()}
 });
-const root=document.documentElement;
+const root=document.documentElement,dm=matchMedia('(prefers-color-scheme:dark)');
+const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>';
+const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':dm.matches;
+function themeButton(){const d=isDark();$('theme').innerHTML=(d?MOON:SUN)+(d?'Dark':'Light');$('theme').setAttribute('aria-label',`Colour theme: ${d?'dark':'light'}. Switch to ${d?'light':'dark'}`)}
 $('theme').onclick=()=>{
- const dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
- root.dataset.theme=dark?'light':'dark';
+ root.dataset.theme=isDark()?'light':'dark';
  try{localStorage.setItem('dashfolio-theme',root.dataset.theme)}catch(e){}
+ themeButton();
 };
+dm.addEventListener('change',themeButton);
 try{const t=localStorage.getItem('dashfolio-theme');if(t)root.dataset.theme=t}catch(e){}
+themeButton();
 render();
