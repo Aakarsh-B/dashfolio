@@ -1,4 +1,5 @@
-/* Site content. Edit this file to add projects or board photos — no build step. */
+/* Site content. Edit this file to add projects or board photos. */
+
 
 // Projects, newest and strongest first. The first four appear on Explore.
 // Images live in images/projects/<id>/: cover.jpg (4:3) plus 1.jpg, 2.jpg… for the gallery (n = how many).

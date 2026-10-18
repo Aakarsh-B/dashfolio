@@ -1,4 +1,8 @@
 /* Router, views and the draggable photo board. Content lives in js/data.js. */
+
+// The site root is wherever this script lives (one folder up from js/). Making it the page's <base>
+// lets every page work from a domain, a sub-folder or straight from disk without configuration.
+(function(){const b=document.createElement('base');b.href=new URL('..',document.currentScript.src).href;document.head.prepend(b)})();
 const T='<span class="todo">To add</span>';
 // [label, route, shortcut key, icon, count shown in the sidebar]
 // Services is hidden for now; set SHOW_SERVICES to true to bring back the page and nav item.
@@ -42,14 +46,20 @@ function caseStudy(p){
  return `<a class="back" href="projects" data-back>${BACK}All projects</a><h1 class="cs-t">${p.t}</h1><div class="chips"><span class="tag">${p.ty}</span>${p.date?`<span class="tag">${p.date}</span>`:''}</div><p class="lead">${p.s}</p><div class="btns">${live}<a class="btn sm" href="${p.src}" target="_blank" rel="noopener">View on ${src} ↗</a></div><div class="cs">${S.map(s=>`<div class="sec"><h3>${s[0]}</h3><p>${s[1]||T}</p></div>`).join('')}</div>${p.embed?`<div class="embed"><iframe src="${p.embed}" title="${p.t} interactive prototype" loading="lazy" allowfullscreen></iframe></div>`:''}<div class="gallery">${imgs.map((src,i)=>`<img src="${src}" alt="${p.t}, image ${i+1}" loading="${i?'lazy':'eager'}">`).join('')}</div>`;
 }
 
-/* Routing: real paths (/projects/bitespeed) via the History API. ROOT comes from the <base> tag. */
+/* Routing: real paths (/projects/bitespeed) on a server; #/projects/bitespeed when opened from disk.
+   ROOT is the site folder, from the <base> that js/data.js sets. Old #/p/… links still resolve. */
 const ROOT=new URL(document.baseURI).pathname;
-const path=()=>('/'+location.pathname.slice(ROOT.length)).replace(/index\.html$/,'').replace(/(.)\/$/,'$1');
+const HASH=location.protocol==='file:';
+const legacy=r=>r.replace(/^\/p\//,'/projects/').replace(/^\/community/,'/freebies');
+const tidy=r=>legacy(r.replace(/index\.html$/,'').replace(/(.)\/$/,'$1'))||'/';
+const path=()=>location.hash.startsWith('#/')?tidy(location.hash.slice(1).split('?')[0]):tidy('/'+location.pathname.slice(ROOT.length));
+const query=()=>new URLSearchParams(location.hash.startsWith('#/')?location.hash.split('?')[1]||'':location.search);
 const href=k=>k==='/'?'./':k.slice(1);
 let inSite=0; // how many in-site navigations this tab has made, so "All projects" can act as a real back
 function go(url){
+ const u=new URL(url,document.baseURI);
  history.replaceState({y:scrollY},'');
- history.pushState({},'',new URL(url,document.baseURI));
+ history.pushState({},'',HASH?location.href.split('#')[0]+'#'+tidy('/'+u.pathname.slice(ROOT.length))+u.search:u);
  inSite++;render();window.scrollTo(0,0);
  if(document.activeElement!==q)$('main').focus({preventScroll:true});
 }
@@ -65,7 +75,7 @@ function render(){
  $('nav').innerHTML=N.map(n=>`<a href="${href(n[1])}" ${n[1]===key?'aria-current="page"':''}>${icon(n[3])}${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="contact" '+(key==='/contact'?'aria-current="page"':'')+'>'+icon('contact')+'Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
  document.title=(proj?proj.t+' · ':key==='/'?'':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if(key==='/about')initBoard();
- if(key==='/contact')initForm(new URLSearchParams(location.search).get('s'));
+ if(key==='/contact')initForm(query().get('s'));
 }
 
 /* ---------- Photo board ----------
@@ -196,12 +206,12 @@ document.addEventListener('click',e=>{
  const u=new URL(a.href);if(u.origin!==location.origin||!u.pathname.startsWith(ROOT)||/\.(html|pdf|jpg|png|svg)$/.test(u.pathname)&&!u.pathname.endsWith('index.html'))return;
  e.preventDefault();
  if(a.hasAttribute('data-back')&&inSite>0){history.back();return}
- if(u.href!==location.href)go(u.href);
+ if(HASH||u.href!==location.href)go(u.href);
 });
 addEventListener('popstate',e=>{inSite=Math.max(0,inSite-1);render();window.scrollTo(0,(e.state&&e.state.y)||0)});
 if('scrollRestoration' in history)history.scrollRestoration='manual';
-// Old #/ links keep working.
-if(location.hash.startsWith('#/')){const old=location.hash.slice(2);history.replaceState({},'',new URL(old.replace(/^p\//,'projects/').replace(/^community/,'freebies')||'./',document.baseURI))}
+// Old #/ links move to real paths when served (they're the routing scheme when opened from disk).
+if(!HASH&&location.hash.startsWith('#/')){const [r0,qs]=location.hash.slice(1).split('?');history.replaceState({},'',new URL(tidy(r0).slice(1)+(qs?'?'+qs:''),document.baseURI))}
 q.addEventListener('input',()=>{
  const g=$('pg');
  if(!g){go('projects');return} // render() applies the current query

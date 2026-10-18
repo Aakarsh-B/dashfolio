@@ -1,14 +1,14 @@
 /* Writes a real HTML file for every route (e.g. projects/bitespeed/index.html) so each page
    has its own URL, title and preview, and loads directly on any static host.
    Run after changing js/data.js:  node scripts/build-pages.js
-   Hosting under a sub-path (e.g. username.github.io/dashfolio/)?  BASE_PATH=/dashfolio/ node scripts/build-pages.js
+   Pages work from any folder or domain. Only 404.html needs the hosting path: BASE_PATH=/dashfolio/ for username.github.io/dashfolio/.
    Set SITE_URL (e.g. SITE_URL=https://aakarsh.design node scripts/build-pages.js) to add canonical
    links and a sitemap once the domain is live. */
 const fs=require('fs'),path=require('path');
 const root=path.join(__dirname,'..');
-const BASE=process.env.BASE_PATH||'/';
-const tpl=fs.readFileSync(path.join(root,'index.html'),'utf8').replace(/<base href="[^"]*">/,`<base href="${BASE}">`);
-fs.writeFileSync(path.join(root,'index.html'),tpl);
+const tpl=fs.readFileSync(path.join(root,'index.html'),'utf8');
+// Point a copy's own CSS/JS/favicon at the site root, `depth` folders up (or an absolute path for 404.html).
+const rel=(html,pre)=>html.replace(/(href|src)="(css\/|js\/|favicon\.svg)/g,`$1="${pre}$2`);
 const data=new Function(fs.readFileSync(path.join(root,'js/data.js'),'utf8')+';return {PROJECTS,COMMUNITY}')();
 const SITE=(process.env.SITE_URL||'').replace(/\/$/,'');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
@@ -28,9 +28,10 @@ for(const [dir,title,desc,img] of pages){
   .replace(/(<meta property="og:description" content=")[^"]*/,'$1'+esc(desc));
  if(img&&SITE)html=html.replace('</title>',`</title>\n<meta property="og:image" content="${SITE}/${img}">`);
  if(SITE)html=html.replace('</title>',`</title>\n<link rel="canonical" href="${SITE}/${dir}/">`);
+ html=rel(html,'../'.repeat(dir.split('/').length));
  fs.mkdirSync(path.join(root,dir),{recursive:true});
  fs.writeFileSync(path.join(root,dir,'index.html'),html);urls.push(dir+'/');
 }
-fs.writeFileSync(path.join(root,'404.html'),tpl);
+fs.writeFileSync(path.join(root,'404.html'),rel(tpl,process.env.BASE_PATH||'/'));
 if(SITE)fs.writeFileSync(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u=>`  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 console.log(`Wrote ${pages.length} pages + 404.html${SITE?' + sitemap.xml':''}`);

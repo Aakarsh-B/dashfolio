@@ -8,7 +8,7 @@ Portfolio for Aakarsh B, brand and visual designer. Dashboard layout, a draggabl
 npx serve .            # or: python3 -m http.server
 ```
 
-Then open the printed URL. Use a local server: pages use real paths like `/projects/bitespeed`, so opening `index.html` from disk won't work.
+Then open the printed URL. You can also just double-click `index.html`: from disk, pages use `#/projects/…` links instead of real paths.
 
 ## Structure
 
@@ -87,4 +87,4 @@ Old `#/` links (e.g. `#/p/bose`) redirect to the new URLs.
 
 ## Deploy
 
-Any static host works (GitHub Pages, Netlify, Vercel, Cloudflare Pages). The site expects to live at the domain root. To preview on a GitHub Pages project URL (`username.github.io/dashfolio/`) before the domain is connected, build with `BASE_PATH=/dashfolio/ node scripts/build-pages.js` and set it back to `/` before connecting the domain.
+Any static host works (GitHub Pages, Netlify, Vercel, Cloudflare Pages). The site works at a domain root or in a sub-folder (e.g. `username.github.io/dashfolio/`) with no changes. Only the GitHub Pages `404.html` needs the sub-path: `BASE_PATH=/dashfolio/ node scripts/build-pages.js`.
