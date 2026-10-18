@@ -53,7 +53,7 @@ Submissions are emailed to aakarshbiju@gmail.com through [FormSubmit](https://fo
 
 ## Colour palette
 
-Three palettes are built in: `ember` (default), `cobalt` and `forest`, each with light and dark. To switch, add `data-palette="cobalt"` (or `forest`) to the `<html>` tag in `index.html`. Preview: `docs/palettes.png`.
+Three palettes are built in: `cobalt` (current), `ember` and `forest`, each with light and dark. The active one is set by `data-palette` on the `<html>` tag in `index.html` (remove it for `ember`). Preview: `docs/palettes.png`.
 
 ## Keyboard shortcuts
 
@@ -61,7 +61,7 @@ Three palettes are built in: `ember` (default), `cobalt` and `forest`, each with
 
 ## Services and prices
 
-Edit `SERVICES` and `INVITE` in `js/data.js`. The sidebar counts for Projects and Services update automatically.
+The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js` to bring it back. Edit `SERVICES` and `INVITE` in `js/data.js`. The sidebar counts for Projects and Services update automatically.
 
 ## Deploy
 

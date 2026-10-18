@@ -1,7 +1,9 @@
 /* Router, views and the draggable photo board. Content lives in js/data.js. */
 const T='<span class="todo">To add</span>';
 // [label, route, shortcut key, icon, count shown in the sidebar]
-const N=[['Explore','/','1','explore'],['Projects','/projects','2','projects',PROJECTS.length],['Experience','/experience','3','experience'],['Services','/services','4','services',SERVICES.length+1],['About','/about','5','about']];
+// Services is hidden for now; set SHOW_SERVICES to true to bring back the page and nav item.
+const SHOW_SERVICES=false;
+const N=[['Explore','/','1','explore'],['Projects','/projects','2','projects',PROJECTS.length],['Experience','/experience','3','experience'],...(SHOW_SERVICES?[['Services','/services','4','services',SERVICES.length+1]]:[]),['About','/about','5','about']];
 const ICON={explore:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',projects:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',experience:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',services:'<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',about:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',contact:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'};
 const icon=k=>`<svg class="ni" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 const $=id=>document.getElementById(id);
@@ -20,7 +22,7 @@ const tools=()=>`<div class="tools">${TOOLS.map(t=>`<div class="tool"><span clas
 const certs=()=>`<div class="certs">${CERTS.map(c=>`<a class="card cert" href="${c.url}" target="_blank" rel="noopener"><img src="${c.img}" alt="${c.t} certificate for Aakarsh B" loading="lazy"><div class="meta"><div><b>${c.t}</b><span>${c.by} · ${c.d}</span></div><span class="tag">Verify ↗</span></div><p>${c.s}</p></a>`).join('')}</div>`;
 
 const V={
-'/':()=>`<figure class="pin me" style="--r:5deg" aria-hidden="true"><img src="images/board/me.jpg" alt=""><figcaption>hi, I'm Aakarsh</figcaption></figure><span class="hand">ex-Design Lead @ CloudEagle.ai</span><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed, based in Bengaluru. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><div class="btns"><a class="btn p" href="#/projects">Explore selected work</a><a class="btn" href="#/contact">Get in touch</a></div><h2>Selected work</h2><div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="#/projects">See all ${PROJECTS.length} projects</a><h2>Tools</h2>${tools()}<h2>Certificates</h2>${certs()}`,
+'/':()=>`<section class="hero"><div><span class="hand">ex-Design Lead @ CloudEagle.ai</span><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed, based in Bengaluru. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><div class="btns"><a class="btn p" href="#/projects">Explore selected work</a><a class="btn" href="#/contact">Get in touch</a></div></div><figure class="pin me" style="--r:5deg" aria-hidden="true"><img src="images/board/me.jpg" alt=""><figcaption>hi, I'm Aakarsh</figcaption></figure></section><h2>Selected work</h2><div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="#/projects">See all ${PROJECTS.length} projects</a><h2>Tools</h2>${tools()}<h2>Certificates</h2>${certs()}`,
 '/projects':()=>`<h1>Projects</h1><p class="lead">Brand, web and marketing design.</p><div class="grid" id="pg">${projectGrid()}</div>`,
 '/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="job">${logo(c)}<div class="jb"><div class="jh"><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3><span class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</span></div>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></section>`).join('')}</div>`,
 '/services':()=>`<h1>Services</h1><p class="lead">For founders and teams who need design that looks credible and gets understood. Starting prices; I confirm a fixed quote after a short call.</p><article class="invite"><div><span class="pill">Invite only</span><h3>${INVITE.t}</h3><p>${INVITE.s}</p></div><div class="inv-price"><p class="price"><span>from</span> ${INVITE.p} <span>${INVITE.u}</span></p><p class="when">${INVITE.w}</p><a class="btn" href="#/contact">Ask for an introduction</a></div></article><div class="svc">${SERVICES.map(svc).join('')}</div>`,
@@ -40,8 +42,9 @@ function render(){
  const m=h.match(/^\/p\/([\w-]+)/);
  if(m){const p=PROJECTS.find(x=>x.id===m[1]);key='/projects';if(p)html=caseStudy(p)}
  if(h==='/board')key='/about'; // the board lives on About now
+ if(key==='/services'&&!SHOW_SERVICES)key='/';
  if(!html){if(!V[key])key='/';html=V[key]()}
- $('main').innerHTML=html;
+ const main=$('main');main.innerHTML=html;animateIn(main);
  $('nav').innerHTML=N.map(n=>`<a href="#${n[1]}" ${n[1]===key?'aria-current="page"':''}>${icon(n[3])}${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="#/contact" '+(key.startsWith('/contact')?'aria-current="page"':'')+'>'+icon('contact')+'Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
  document.title=(key==='/'?'':N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]+' · ')+'Aakarsh B · Brand Designer';
  if(key==='/about')initBoard();
@@ -124,6 +127,23 @@ function openPin(id){
 $('lightbox').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
 addEventListener('resize',layout);
 
+/* ---------- Motion ----------
+   Stagger the page's top-level blocks in, then reveal repeated items (cards, tools, jobs, images) as they scroll into view. */
+const motionOK=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'}):null;
+function animateIn(main){
+ main.classList.remove('enter');void main.offsetWidth;
+ if(!motionOK)return;
+ main.classList.add('enter');
+ [...main.children].forEach((el,i)=>el.style.setProperty('--i',Math.min(i,6)));
+ main.querySelectorAll('.hero>div>*').forEach((el,i)=>el.style.setProperty('--i',i));
+ if(!io)return;
+ main.querySelectorAll('.grid>.card,.tools>.tool,.certs>.card,.xp>.job,.gallery>img,.svc>.svc-card,.cs>.sec').forEach((el,i,all)=>{
+  const sib=[...el.parentElement.children].indexOf(el);
+  el.classList.add('rv');el.style.setProperty('--d',sib%4);io.observe(el);
+ });
+}
+
 /* ---------- Bengaluru clock (sidebar) ---------- */
 let clockTimer;
 function clock(){
@@ -171,6 +191,7 @@ const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="
 const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':dm.matches;
 function themeButton(){const d=isDark();$('theme').innerHTML=d?MOON:SUN;$('theme').setAttribute('aria-label',`Colour theme: ${d?'dark':'light'}. Switch to ${d?'light':'dark'}`)}
 $('theme').onclick=()=>{
+ root.classList.add('switching');setTimeout(()=>root.classList.remove('switching'),400);
  root.dataset.theme=isDark()?'light':'dark';
  try{localStorage.setItem('dashfolio-theme',root.dataset.theme)}catch(e){}
  themeButton();
