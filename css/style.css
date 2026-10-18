@@ -93,12 +93,10 @@ dialog .x{position:absolute;right:-10px;top:-14px;z-index:2;border-radius:99px;p
 
 @media(max-width:820px){
 body{display:block}
-aside{position:static;width:auto;height:auto;border:0;border-bottom:1px solid var(--line);padding:14px 12px 8px}
-.grp,.search,nav kbd{display:none}
-.who{padding-bottom:8px}
-nav{display:flex;overflow-x:auto;gap:4px;padding-bottom:6px;scrollbar-width:none}
-nav a{white-space:nowrap}
-main{padding-top:36px}
+aside{position:static;width:auto;height:auto;border:0;border-bottom:1px solid var(--line);padding:12px 12px 12px}
+aside nav,.grp,.search{display:none}
+.who{padding:0}
+main{padding-top:32px;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
 .row,.sec{grid-template-columns:1fr;gap:6px}
 .board{height:780px}
 .pin{--w:clamp(112px,40vw,170px)}
@@ -144,7 +142,7 @@ main{padding-top:36px}
 
 /* Resume: inverted button pinned to the bottom of the sidebar (fixed bottom-left on mobile) */
 .resume{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;text-decoration:none}
-@media(max-width:820px){.resume{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:50;border-radius:99px;padding:10px 16px;box-shadow:var(--shadow)}}
+@media(max-width:820px){.resume{position:absolute;top:12px;right:60px;width:auto;height:36px;padding:0 12px;border-radius:10px;font-size:14px;gap:6px}.resume .lbl{display:none}.resume .lbl-s{display:inline}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media(max-width:560px){.tools{grid-template-columns:1fr 1fr;gap:10px}.tool{padding:10px;gap:10px}.tool div span{display:none}.ti{width:36px;height:36px}}
 
@@ -189,7 +187,7 @@ main{padding-top:36px}
 .status{margin-top:auto;display:flex;align-items:center;gap:12px;padding:0 4px 10px}
 .tbtn{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .tbtn:hover{background:var(--hi)}
-@media(max-width:820px){aside{position:relative}.status{position:absolute;top:14px;right:12px;margin:0;padding:0}.status .local{font-size:13px}}
+@media(max-width:820px){aside{position:relative}.status{position:absolute;top:12px;right:12px;margin:0;padding:0}.status .local{display:none}}
 @media(max-width:480px){.status .local{display:none}}
 
 /* Case study */
@@ -201,7 +199,7 @@ main{padding-top:36px}
 /* Explore: fixed portrait polaroid, top-right */
 .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:clamp(24px,4vw,64px)}
 .pin.me{--w:clamp(150px,15vw,210px);position:relative;cursor:default;margin:0 8px 0 0}
-@media(max-width:820px){.hero{grid-template-columns:1fr}.pin.me{--w:110px;grid-row:1;justify-self:end;margin:0 4px -8px}.pin.me figcaption{font-size:15px;padding:6px 2px 8px}}
+@media(max-width:820px){.hero{grid-template-columns:1fr}.pin.me{--w:110px;grid-row:1;justify-self:start;margin:0 0 -4px 6px}.pin.me figcaption{font-size:15px;padding:6px 2px 8px}}
 
 
 /* Community freebies */
@@ -310,3 +308,15 @@ dialog[open]::backdrop{animation:fade-in var(--t-ui) var(--ease-out) both}
  .rv{opacity:1;transform:none}
  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
 }
+
+.lbl-s{display:none}
+/* Mobile tab bar: the six main pages, always one tap away */
+.tabbar{display:none}
+@media(max-width:820px){
+ .tabbar{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:60;padding:6px;border:1px solid var(--line);border-radius:20px;background:color-mix(in oklab,var(--side) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);box-shadow:var(--shadow)}
+ .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0 6px;border-radius:14px;color:var(--mute);text-decoration:none;font:600 10.5px 'Instrument Sans';letter-spacing:.01em;-webkit-tap-highlight-color:transparent;transition:color var(--t-hover) var(--ease-io),background-color var(--t-hover) var(--ease-io),transform var(--t-press) var(--ease-out)}
+ .tabbar a svg{width:21px;height:21px}
+ .tabbar a[aria-current=page]{color:var(--a1);background:color-mix(in oklab,var(--a1) 12%,transparent)}
+ .tabbar a:active{transform:scale(.94)}
+}
+@media(max-width:360px){.tabbar a{font-size:9.5px}.tabbar a svg{width:19px;height:19px}}

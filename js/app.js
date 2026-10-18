@@ -75,6 +75,8 @@ function renderNow(){
  if(!html){if(!V[key])key='/';html=V[key]()}
  const main=$('main');main.innerHTML=html;animateIn(main,firstRender);firstRender=false;
  $('nav').innerHTML=N.map(n=>`<a href="${href(n[1])}" ${n[1]===key?'aria-current="page"':''}>${icon(n[3])}${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="contact" '+(key==='/contact'?'aria-current="page"':'')+'>'+icon('contact')+'Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
+ // Mobile tab bar: the same pages plus Contact, icon + short label.
+ $('tabs').innerHTML=[...N.map(n=>[n[0],n[1],n[3]]),['Contact','/contact','contact']].map(t=>`<a href="${href(t[1])}" ${t[1]===key?'aria-current="page"':''}>${icon(t[2])}<span>${t[0]}</span></a>`).join('');
  document.title=(proj?proj.t+' · ':key==='/'?'':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if(key==='/about')initBoard();
  if(key==='/contact')initForm(query().get('s'));
