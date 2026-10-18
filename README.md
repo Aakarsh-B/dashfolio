@@ -77,10 +77,10 @@ Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`
 node scripts/build-pages.js
 ```
 
-Once the domain is live, add it so pages get canonical links, preview images and a `sitemap.xml`:
+The live domain is **aakarsh.design** (registered at Spaceship, DNS points at GitHub Pages). Always build with it so pages keep canonical links, preview images, `sitemap.xml` and `robots.txt`:
 
 ```sh
-SITE_URL=https://your-domain.com node scripts/build-pages.js
+SITE_URL=https://aakarsh.design node scripts/build-pages.js
 ```
 
 Old `#/` links (e.g. `#/p/bose`) redirect to the new URLs.
