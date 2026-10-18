@@ -42,6 +42,10 @@ Visitors can drag photos around (mouse, touch, or keyboard arrows). Each visitor
 
 In `PROJECTS` (`js/data.js`), add `img:'images/projects/<file>.jpg'` and `alt:'…'` to a project. This replaces the CSS placeholder art and the "Placeholder art" tag.
 
+## Colour palette
+
+Three palettes are built in: `ember` (default), `cobalt` and `forest`, each with light and dark. To switch, add `data-palette="cobalt"` (or `forest`) to the `<html>` tag in `index.html`. Preview: `docs/palettes.png`.
+
 ## Keyboard shortcuts
 
 `1`–`6` switch pages · `C` opens Contact · `S` focuses search.
