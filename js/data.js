@@ -98,3 +98,15 @@ const SERVICES = [
 {t:'Campaign and social creative',p:'₹75,000',u:'/ month',w:'Monthly retainer',i:['Ads, social posts and launch assets','Consistent with your brand system','Up to 2 campaigns a month']},
 {t:'Design audit',p:'₹15,000',w:'3 days',i:['Review of your brand and website','Recorded walkthrough','Prioritised list of fixes']}];
 const INVITE = {t:'Fractional design lead',p:'₹4,50,000',u:'/ month',w:'3-month minimum',s:'I join your team as a part-time head of design across brand, web and campaigns: setting direction, running the design system and working directly with founders. One team at a time, by invitation or referral only.'};
+
+// Figma Community freebies (figma.com/@aakarsh). Uses = times duplicated, as reported by Figma when added.
+const COMMUNITY_URL = 'https://www.figma.com/@aakarsh';
+const COMMUNITY = [
+{slug:'hotel-booking-app-ui',t:'Hotel booking app UI',k:'App UI',s:'Booking screens that make finding the right stay easier, starting with a broader search bar that does more of the work.',url:'https://www.figma.com/community/file/1201551095501582522',uses:1796,likes:21},
+{slug:'dynamic-island-iphone-14-pro',t:'Dynamic Island, iPhone 14 Pro',k:'Prototype',s:'A prototype-ready Dynamic Island you can drop into your own iPhone mockups.',url:'https://www.figma.com/community/file/1149791797947908516',uses:599,likes:7},
+{slug:'product-page-cards-with-complete-auto-layout',t:'Product page cards',k:'Auto layout',s:'Task and product cards built entirely with auto layout, to test how far it can stretch.',url:'https://www.figma.com/community/file/1220566330787404658',uses:246,likes:3},
+{slug:'figbruary-day-1',t:'Figbruary, day 1',k:'Illustration',s:'A night-time campsite illustration, made for the Figbruary challenge.',url:'https://www.figma.com/community/file/1202610647143442884',uses:248,likes:5},
+{slug:'figbruary-day-2',t:'Figbruary, day 2',k:'Layout',s:'An image gallery layout from day two of the Figbruary challenge.',url:'https://www.figma.com/community/file/1203031148807542796',uses:202,likes:5},
+{slug:'futuristic-tv-remote',t:'Futuristic TV remote',k:'3D in Figma',s:'Figbruary day 4: a soft, futuristic remote drawn entirely in Figma.',url:'https://www.figma.com/community/file/1204080211322613628',uses:155,likes:3},
+{slug:'let-s-spin',t:"Let's spin",k:'Animation',s:'A spin-the-wheel animation built in Figma, ready to reuse on a landing page.',url:'https://www.figma.com/community/file/1228676637731607261',uses:134,likes:6},
+{slug:'shapes',t:'Shapes',k:'Graphics',s:'Figbruary day 3: layered shapes and glowing gradients.',url:'https://www.figma.com/community/file/1203720629261705865',uses:55,likes:4}];

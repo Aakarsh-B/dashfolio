@@ -47,6 +47,10 @@ Visitors can drag photos around (mouse, touch, or keyboard arrows). Each visitor
 1. Make a folder `images/projects/<id>/` with `cover.jpg` (4:3, about 1200 × 900) and gallery images `1.jpg`, `2.jpg`… (up to 1600px wide).
 2. Add an entry to `PROJECTS` in `js/data.js` with the same `id`, and set `n` to the number of gallery images. The first four projects show on Explore.
 
+## Community (Figma freebies)
+
+Cards come from `COMMUNITY` in `js/data.js`; thumbnails live in `images/community/<slug>.jpg`. To add a file, publish it on figma.com/@aakarsh, save its thumbnail, and add an entry with its community URL. `uses` is Figma's duplicate count at the time it was added.
+
 ## Contact form
 
 Submissions are emailed to aakarshbiju@gmail.com through [FormSubmit](https://formsubmit.co) (free, no account). The **first** submission sends an activation email; click the link once and the form is live. FormSubmit then offers a random alias to use in `FORM_ENDPOINT` (`js/app.js`) so the address isn't in the page source.
@@ -57,7 +61,7 @@ Three palettes are built in: `cobalt` (current), `ember` and `forest`, each with
 
 ## Keyboard shortcuts
 
-`1`–`5` switch pages · `C` opens Contact · `S` focuses search.
+`1`–`3`, `5`, `6` switch pages · `C` opens Contact · `S` focuses search.
 
 ## Services and prices
 
