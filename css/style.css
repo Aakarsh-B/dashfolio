@@ -364,3 +364,10 @@ dialog[open]::backdrop{animation:fade-in var(--t-ui) var(--ease-out) both}
 @media(max-width:560px){.next{grid-template-columns:96px 1fr;padding-right:14px}.next .arr{display:none}.next b{font-size:18px}}
 .cs .sec>div{font-size:17px;line-height:1.6}.cs .sec h3{font-size:20px}
 .steps b{color:var(--ink)}
+
+/* Playful section headings: a handwritten aside next to the title */
+.hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.scrib{font:600 22px 'Caveat',cursive;color:var(--a1);transform:rotate(-3deg);display:inline-block;letter-spacing:0}
+.board-head{align-items:center;margin-bottom:6px}.board-head .hd{margin-bottom:0}
+.board-head+.board-hint{margin:0 0 20px;color:var(--mute)}
+.lead a{color:var(--a1)}

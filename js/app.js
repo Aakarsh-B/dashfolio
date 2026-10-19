@@ -29,13 +29,17 @@ const certs=()=>`<div class="certs">${CERTS.map(c=>`<a class="card cert" href="$
 
 const quotes=()=>`<div class="quotes">${QUOTES.map(q=>`<figure class="card quote"><blockquote><p>${q.q}</p></blockquote><figcaption><span class="logo" aria-hidden="true">${q.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><div><b>${q.n}</b><span>${q.r}</span><span>${q.rel} · ${q.d}</span></div></figcaption></figure>`).join('')}</div><a class="more" href="${QUOTES_URL}" target="_blank" rel="noopener">Read them on LinkedIn ↗</a>`;
 
+// Section heading with a handwritten aside, for the slightly-less-serious bits.
+const hd=(t,aside,id)=>`<h2 class="hd"${id?` id="${id}"`:''}>${t} <span class="scrib" aria-hidden="true">${aside}</span></h2>`;
+const board=()=>`<div class="board-head">${hd('Off the grid','drag \'em around',"grid")}<button class="btn sm" id="reset" type="button">Reset</button></div><p class="board-hint">A few things from outside work. Pick them up and move them.</p><div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div>`;
+
 const V={
-'/':()=>`<section class="hero"><div><div class="tags"><span class="hand">ex-Design Lead @ CloudEagle.ai</span><a class="open" href="contact?s=${encodeURIComponent('Full-time role')}"><i class="live" aria-hidden="true"></i>Open to new roles</a></div><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed, based in Bengaluru. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><div class="btns"><a class="btn p" href="projects">Explore selected work</a><a class="btn" href="contact">Get in touch</a></div></div><figure class="pin me" style="--r:5deg" aria-hidden="true"><img src="images/board/me.jpg" alt=""><figcaption>hi, I'm Aakarsh</figcaption></figure></section><h2>Selected work</h2><div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="projects">See all ${PROJECTS.length} projects</a><h2>Kind words</h2>${quotes()}<h2>Tools</h2>${tools()}`,
+'/':()=>`<section class="hero"><div><div class="tags"><span class="hand">ex-Design Lead @ CloudEagle.ai</span><a class="open" href="contact?s=${encodeURIComponent('Full-time role')}"><i class="live" aria-hidden="true"></i>Open to new roles</a></div><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed, based in Bengaluru. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><div class="btns"><a class="btn p" href="projects">Explore selected work</a><a class="btn" href="contact">Get in touch</a></div></div><figure class="pin me" style="--r:5deg" aria-hidden="true"><img src="images/board/me.jpg" alt=""><figcaption>hi, I'm Aakarsh</figcaption></figure></section>${hd('Things I\'ve made','the good stuff ↓')}<div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="projects">See all ${PROJECTS.length} projects</a>${board()}${hd('Nice things people said','unpaid, I promise')}${quotes()}${hd('The toolbox','daily drivers')}${tools()}`,
 '/projects':()=>`<h1>Projects</h1><p class="lead">Brand, web and marketing design.</p><div class="grid" id="pg">${projectGrid()}</div>`,
 '/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="job">${logo(c)}<div class="jb"><div class="jh"><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3><span class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</span></div>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></section>`).join('')}</div>`,
 '/services':()=>`<h1>Services</h1><p class="lead">For founders and teams who need design that looks credible and gets understood. Starting prices; I confirm a fixed quote after a short call.</p><article class="invite"><div><span class="pill">Invite only</span><h3>${INVITE.t}</h3><p>${INVITE.s}</p></div><div class="inv-price"><p class="price"><span>from</span> ${INVITE.p} <span>${INVITE.u}</span></p><p class="when">${INVITE.w}</p><a class="btn" href="contact">Ask for an introduction</a></div></article><div class="svc">${SERVICES.map(svc).join('')}</div>`,
 '/freebies':()=>`<h1>Freebies</h1><p class="lead">Free Figma files I've published. Duplicate them, take them apart and use them in your own work.</p><div class="grid cgrid">${COMMUNITY.map(freebie).join('')}</div><a class="more" href="${COMMUNITY_URL}" target="_blank" rel="noopener">See everything on Figma ↗</a>`,
-'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><h2>Certificates</h2>${certs()}<div class="board-head"><div><h2>Off the clock</h2><p class="board-hint">A few things from outside work. Drag them around if you like.</p></div><button class="btn sm" id="reset" type="button">Reset</button></div><div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div>`,
+'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><h2>Certificates</h2>${certs()}<p class="lead sm">There\'s more of me off the clock on the <a href="./">home page</a> board.</p>`,
 '/contact':()=>`<h1>Contact</h1><p class="lead">Hiring, or working on a brand, website or campaign that needs clearer design? Tell me a little about it and I'll reply within two working days.</p><div class="contact"><form id="cf" class="panel form" novalidate><div class="f2"><label>Name<input name="name" required autocomplete="name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label></div><div class="f2"><label><span>Phone <span class="opt">optional</span></span><input name="phone" type="tel" autocomplete="tel"></label><label>Looking for<select name="service">${['Not sure yet',INVITE.t,...SERVICES.map(x=>x.t),'Full-time role'].map(o=>`<option>${o}</option>`).join('')}</select></label></div><label>About the project<textarea name="message" rows="5" required placeholder="What you're building, timeline, budget range"></textarea></label><input type="text" name="_honey" class="sr" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="btn p" type="submit">Send message</button><p class="fmsg" id="fmsg" role="status" aria-live="polite"></p></form><div class="elsewhere"><h3>Or reach me directly</h3><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance ↗</a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble ↗</a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium ↗</a></div></div>`
 };
 
@@ -63,11 +67,11 @@ const tidy=r=>legacy(r.replace(/index\.html$/,'').replace(/(.)\/$/,'$1'))||'/';
 const path=()=>location.hash.startsWith('#/')?tidy(location.hash.slice(1).split('?')[0]):tidy('/'+location.pathname.slice(ROOT.length));
 const query=()=>new URLSearchParams(location.hash.startsWith('#/')?location.hash.split('?')[1]||'':location.search);
 const href=k=>k==='/'?'./':k.slice(1);
-let inSite=0; // how many in-site navigations this tab has made, so "All projects" can act as a real back
+let inSite=0; // in-site navigations this tab has made
 function go(url){
  const u=new URL(url,document.baseURI);
- history.replaceState({y:scrollY},'');
- history.pushState({},'',HASH?location.href.split('#')[0]+'#'+tidy('/'+u.pathname.slice(ROOT.length))+u.search:u);
+ const from=path();history.replaceState({...history.state,y:scrollY},'');
+ history.pushState({from},'',HASH?location.href.split('#')[0]+'#'+tidy('/'+u.pathname.slice(ROOT.length))+u.search:u);
  inSite++;render();window.scrollTo(0,0);
  if(document.activeElement!==q)$('main').focus({preventScroll:true});
 }
@@ -77,7 +81,7 @@ function renderNow(){
  const h=path();let html,key=h;
  const m=h.match(/^\/projects\/([\w-]+)/);let proj;
  if(m){proj=PROJECTS.find(x=>x.id===m[1]);key='/projects';if(proj)html=caseStudy(proj)}
- if(h==='/board')key='/about';
+ if(h==="/board")key="/";
  if(h==='/community')key='/freebies';
  if(key==='/services'&&!SHOW_SERVICES)key='/';
  if(!html){if(!V[key])key='/';html=V[key]()}
@@ -86,7 +90,7 @@ function renderNow(){
  // Mobile tab bar: the same pages plus Contact, icon + short label.
  $('tabs').innerHTML=[...N.map(n=>[n[0],n[1],n[3]]),['Contact','/contact','contact']].map(t=>`<a href="${href(t[1])}" ${t[1]===key?'aria-current="page"':''}>${icon(t[2])}<span>${t[0]}</span></a>`).join('');
  document.title=(proj?proj.t+' · ':key==='/'?'':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
- if(key==='/about')initBoard();
+ if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
 }
 
@@ -231,7 +235,8 @@ document.addEventListener('click',e=>{
  const raw=a.getAttribute('href');if(raw.startsWith('#')||raw.startsWith('mailto:'))return;
  const u=new URL(a.href);if(u.origin!==location.origin||!u.pathname.startsWith(ROOT)||/\.(html|pdf|jpg|png|svg)$/.test(u.pathname)&&!u.pathname.endsWith('index.html'))return;
  e.preventDefault();
- if(a.hasAttribute('data-back')&&inSite>0){history.back();return}
+ // "All projects" goes back only when the previous page was the projects grid (keeps its scroll); otherwise it opens the grid.
+ if(a.hasAttribute('data-back')&&inSite>0&&history.state&&history.state.from==='/projects'){history.back();return}
  if(HASH||u.href!==location.href)go(u.href);
 });
 addEventListener('popstate',e=>{inSite=Math.max(0,inSite-1);render();window.scrollTo(0,(e.state&&e.state.y)||0)});

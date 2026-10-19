@@ -23,7 +23,7 @@ const pages=[
  ['projects','Projects · '+base,'Brand, web and marketing design by Aakarsh B.'],
  ['experience','Experience · '+base,'6+ years of brand, web and growth design across startups, SaaS and marketing teams.'],
  ['freebies','Freebies · '+base,'Free Figma files by Aakarsh B: app UI, prototypes, auto layout and more.'],
- ['about','About · '+base,'Brand and visual designer in Bengaluru. Rides, runs, coffee and a cat called Tinky.'],
+ ['about','About · '+base,'Brand and visual designer in Bengaluru: how I work, and certificates.'],
  ['contact','Contact · '+base,'Hiring, or working on a brand, website or campaign? Get in touch.'],
  ...data.PROJECTS.map(p=>['projects/'+p.id,p.t+' · '+base,p.s,`images/projects/${p.id}/cover.jpg`])];
 const urls=[''];

@@ -26,7 +26,7 @@ resume.html       printable resume, built from js/data.js (sidebar "View resume"
 HANDOVER.md       brief, facts, rules and open items
 ```
 
-## Add a photo to the board (on the About page)
+## Add a photo to the board (on Explore, "Off the grid")
 
 1. Drop the image in `images/board/`. A JPG or WebP about 800px wide keeps the page fast.
 2. Add a line to `BOARD` in `js/data.js`:
