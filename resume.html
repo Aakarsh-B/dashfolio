@@ -48,13 +48,13 @@ document.getElementById('cv').innerHTML=`
 <p class="role">Brand Designer · Bengaluru</p>
 <div class="contact"><a href="tel:+919995529772">+91 99955 29772</a><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a href="https://www.linkedin.com/in/aakarshb/">linkedin.com/in/aakarshb</a><a href="https://www.behance.net/aakarshb">behance.net/aakarshb</a><a href="https://dribbble.com/aakarshb">dribbble.com/aakarshb</a></div>
 <h2>Summary</h2>
-<p class="sum">Brand and visual designer with 6+ years of experience building brands, websites, campaigns and digital experiences across startups, SaaS and marketing teams. Former Design Lead at CloudEagle.ai, leading a team of three and reporting to the CEO. Works across Figma, Adobe, Webflow and Framer, with a focus on clear communication and conversion.</p>
+<p class="sum">Brand designer with 5+ years of experience across brand, web and performance design for SaaS and marketing teams. At BiteSpeed, raised ad click-through rates by 50%+, cut cost per demo by 50% and lifted landing page PageSpeed from 50 to 80–84. Previously Senior Visual Designer at CloudEagle.ai, leading a team of three and reporting to the CEO. Works across Figma, Adobe, Webflow and Framer.</p>
 <h2>Experience</h2>
 ${EXPERIENCE.map(c=>`<div class="job"><div class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</div><div><h3>${c.co}${c.where?` <span>· ${c.where}</span>`:''}</h3>${c.roles.map(r=>`<p class="r">${r.t}${c.roles.length>1?` <span>${r.d}</span>`:''}</p>${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}`).join('')}</div></div>`).join('')}
 <h2>Certificates</h2><ul class="list certs">${CERTS.map(c=>`<li><b>${c.t}</b><span>${c.by} · ${c.d}</span></li>`).join('')}</ul>
 <h2>Tools</h2><ul class="chips">${TOOLS.map(t=>`<li><i style="background:${t[2]}"><img src="images/tools/${t[1]}.svg" alt=""></i>${t[0]}</li>`).join('')}</ul>
 <h2>Education</h2>
-<ul class="list"><li><b>B.Tech, Computer Engineering</b><span>Government Engineering College, Idukki · 2017 – 2021</span></li></ul>`;
+<ul class="list"><li><b>B.Tech, Computer Science and Engineering</b><span>Government Engineering College, Idukki · 2017 – 2021</span></li></ul>`;
 </script>
 </body>
 </html>

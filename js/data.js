@@ -38,13 +38,13 @@ const PROJECTS = [
  role:'Brand identity in Illustrator: logo mark and construction, logotype, colour palette, light/dark/colour versions and real-world applications.',
  out:'A map pin with a plane cut through it, drawn on a circle-based construction grid so the curves stay balanced. A three-colour palette (green #5EBF88, blue #0768B3 and white) gives colour, light and reversed versions that hold up on navy, blue or white. The system is shown applied to a tote bag, t-shirt and business cards.'},
 {id:'creativate',t:'Creativate',ty:'Website design',n:3,src:'https://dribbble.com/shots/25935569-Creativate-Website-Design',live:'https://creativate.in',
- me:'UI/UX designer',when:'Aug – Nov 2023',made:['Site architecture','Landing page','Inner pages','Social creative'],
+ me:'Lead designer and developer',when:'Aug – Nov 2023',made:['Site architecture','Landing page','Inner pages','Social creative'],
  s:'A clean, conversion-focused website for Creativate, a creative agency covering branding, UI/UX, web development and social media.',
  ctx:'Before the revamp, Creativate had five problems: low form submissions from unclear CTAs and missing trust signals, low credibility because past work wasn\'t showcased, visitors leaving after one page, a generic brand perception, and a poor mobile experience that hurt conversions.',
  how:[['Architecture first','Home leads to Work, Services, Blog and Contact, with Work and Blog inner pages, and every path ends at "Book free consultation".'],['Proof up front','Project showcases and client logos in the hero, so prospects see the work the moment they land.'],['Explain the process','A clear three-step process (Connect, Analyse, Get Started) to make working together feel transparent.'],['Make the form easy','Only the fields that matter, built responsive first, because lead generation was the main pain point.']],
  out:'A dark, confident site that sets Creativate apart from other agencies, set in Poppins and Glacial Indifference with a #0067FF primary blue.',
  key:['A homepage contact form that makes a young company feel approachable and opens more chances for leads','A consultation form that asks for the service, budget and a short summary, with business name and website optional','Pages for work, services, FAQs and privacy, laid out to work properly on mobile','Matching social creative: FAQ posts, a hiring post and an academy launch'],
- res:'Live at creativate.in.',
+ res:'Better UX flow, visual consistency and mobile responsiveness, with more engagement and form submissions from clearer layouts, CTAs and faster pages. Live at creativate.in.',
  cap:['Overview: what Creativate is, the business challenges and the site architecture','Typography, colours and the revamped pages','Landing page breakdown and social creative']},
 {id:'ads',t:'Performance ad creatives',ty:'Marketing design',n:2,src:'https://dribbble.com/shots/27348735-Performance-focused-ad-explorations-for-Shopify-brands',
  me:'Concept and visual design',tools:'Figma, Photoshop',made:['Meta ads','Google ads','Variations for A/B tests'],
@@ -82,17 +82,16 @@ const BOARD = [
 {id:'run',src:'images/board/run.jpg',alt:'Garmin watch showing 38 hours of recovery after a run',caption:'long runs, longer recovery',color:'var(--a2)',x:40,y:52,r:-2},
 {id:'tools',note:true,caption:'currently: Claude maxxxing',color:'var(--a3)',x:68,y:56,r:6}];
 
-// Experience, from the LinkedIn profile export. Newest first; a company can hold several roles.
+// Experience, from the resume (Oct 2026). Newest first; a company can hold several roles.
 const EXPERIENCE = [
-{co:'BiteSpeed',logo:'images/logos/bitespeed.png',where:'Bengaluru',roles:[
- {t:'Brand Designer',d:'Sep 2025 – now',p:['Website design, landing pages and Webflow builds.','Campaign and social creative, with a focus on growth.']}]},
-{co:'CloudEagle.ai',logo:'images/logos/cloudeagle.png',roles:[
- {t:'Design Lead',d:'Feb 2025 – Oct 2025',p:['Led and mentored a team of three: one junior designer and two developers.','Owned design, development and deployment across all web operations.','Set creative direction for campaigns, go-to-market assets, landing pages and brand collateral.','Reported to the CEO on design performance and web strategy; built workflows and a design system to keep work consistent.']},
- {t:'Visual Designer',d:'Nov 2023 – Jan 2025',p:[]}]},
-{co:'Hexnode',logo:'images/logos/hexnode.png',roles:[
- {t:'UI/UX Designer',d:'Aug 2021 – Oct 2023',p:['Revamped the Hexnode marketing website and designed inner pages for A/B testing.','Designed the full event website for HexCon22, and the web page and brochures for MWC 2023 in Barcelona.','Worked on the brand video, ads, social posts, presentation slides and mockups.']}]},
-{co:'Casper Academy of Excellence',where:'Kochi',roles:[
- {t:'Graphic Designer',d:'Apr 2019 – Aug 2021',p:['Worked with the director to define how the company should look and sound, then carried it through social posts, brochures, posters and print.']}]},
+{co:'BiteSpeed',logo:'images/logos/bitespeed.png',where:'Remote',roles:[
+ {t:'Brand Designer',d:'Oct 2025 – now',p:['Lead brand and performance design across the website, paid ads and social media for a high-growth SaaS platform with 70K–80K monthly visitors.','Raised ad click-through rates by 50%+ (up to 100% on key campaigns) through creative experiments, motion assets and iterative visual testing.','Cut cost per demo by 50% by improving ad creative, messaging hierarchy and how ads line up with their landing pages.','Design and build high-converting landing pages in Webflow, from UI to deployment.','Lifted the landing page PageSpeed Insights score from 50 to 80–84 through asset optimisation and performance best practices.','Run Webflow site operations: demo booking flows, scheduling integrations, tracking setup and live issue fixes.','Work with marketing on A/B tests to improve conversion rates and campaign ROI.','Design collateral for offline events, including standees, posters and branded materials.']}]},
+{co:'CloudEagle.ai',logo:'images/logos/cloudeagle.png',where:'Remote',roles:[
+ {t:'Senior Visual Designer',d:'Nov 2023 – Oct 2025',p:['Led and mentored a team of three: one junior designer and two developers.','Owned the design, development and deployment of all web operations.','Guided creative direction across campaigns, go-to-market assets, landing pages and brand collateral.','Worked closely with marketing and leadership to align design with business goals, reporting directly to the CEO on design performance and web strategy.','Built scalable workflows and design systems to keep work efficient and consistent.']}]},
+{co:'Hexnode (Mitsogo Inc.)',logo:'images/logos/hexnode.png',where:'Kochi',roles:[
+ {t:'UI/UX Designer',d:'Aug 2021 – Oct 2023',p:['Revamped the Hexnode marketing website for better UX and full device responsiveness.','Designed UI components and multiple pages for A/B testing experiments.','Built the full event website for HexCon22, including inner pages and its design system.','Created the brand video and marketing assets for MWC Barcelona 2023.','Produced ads, social creatives, decks and mockups in line with the brand guidelines.']}]},
+{co:'Casper Academy',where:'Remote',roles:[
+ {t:'Graphic Designer',d:'Apr 2020 – Jul 2021',p:['Designed daily social media creatives in line with the brand voice and campaign goals.','Created print materials: brochures, business cards, wall hangers and posters.']}]},
 {co:'Teaching',roles:[
  {t:'UI/UX Design Tutor, wibe creative academy',d:'Jan 2022 – Sep 2023',p:[]},
  {t:'UI/UX Design Tutor, Superprof',d:'Jun 2020 – Aug 2021',p:['Helped people starting out in UI/UX design work out their first steps and land a first job.']}]}];
@@ -113,11 +112,12 @@ const TOOLS = [
 ['Figma','figma','#1e1e1e','Web, UI and prototypes'],
 ['Illustrator','adobeillustrator','#330000','Logos and identity'],
 ['Photoshop','adobephotoshop','#001e36','Imagery and ad creative'],
-['After Effects','adobeaftereffects','#00005b','Motion'],
 ['Premiere Pro','adobepremierepro','#00005b','Video edits'],
+['Adobe XD','adobexd','#470137','UI and prototypes'],
 ['Webflow','webflow','#146ef5','Website builds'],
 ['Framer','framer','#0a0a0a','Sites and prototypes'],
-['WordPress','wordpress','#21759b','Elementor sites']];
+['WordPress','wordpress','#21759b','Elementor sites'],
+['Zapier','zapier','#1e1e1e','Workflow automation']];
 
 // Services. Starting prices in INR, benchmarked to Bengaluru/Mumbai rates for a senior (5–7 yr) independent designer.
 const SERVICES = [

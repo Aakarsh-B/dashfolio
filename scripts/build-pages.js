@@ -31,7 +31,7 @@ const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')
 const base='Aakarsh B · Brand Designer';
 const pages=[
  ['projects','Projects · '+base,'Brand, web and marketing design by Aakarsh B.'],
- ['experience','Experience · '+base,'6+ years of brand, web and growth design across startups, SaaS and marketing teams.'],
+ ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
  ['freebies','Freebies · '+base,'Free Figma files by Aakarsh B: app UI, prototypes, auto layout and more.'],
  ['about','About · '+base,'Brand and visual designer in Bengaluru: how I work, and certificates.'],
  ['contact','Contact · '+base,'Hiring, or working on a brand, website or campaign? Get in touch.'],

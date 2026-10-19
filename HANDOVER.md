@@ -3,7 +3,7 @@
 Date: 2026-10-18. Read this first, then continue the work in this repo.
 
 ## 1. Goal
-Build and publish a professional portfolio for Aakarsh B (visual/brand designer, ~6 years) that serves two goals equally: getting hired (design leads, hiring managers, founders) and winning freelance clients. Work and experience come first; personal interests are a small section lower on the page plus the About page.
+Build and publish a professional portfolio for Aakarsh B (visual/brand designer, 5+ years) that serves two goals equally: getting hired (design leads, hiring managers, founders) and winning freelance clients. Work and experience come first; personal interests are a small section lower on the page plus the About page.
 
 Current (old) site, for reference: https://aakarsh.framer.website/
 LinkedIn: https://www.linkedin.com/in/aakarshb/
@@ -23,8 +23,8 @@ Medium: https://aakarshbiju.medium.com/
 
 ## 3. Facts about Aakarsh (safe to use)
 - Positioning: Brand / Visual Designer with strong web, Webflow, growth-marketing and digital-experience skills. Do not position him as a pure product designer or as a developer.
-- BiteSpeed: Brand Designer, current role, start date recorded as Oct 2025 (confirm).
-- CloudEagle.ai: Senior Visual Designer, Nov 2023 to 2025 (confirm end date). Previously described leading a small design team (confirm size).
+- BiteSpeed: Brand Designer, Oct 2025 to now, remote. Verified results from the resume (Oct 2026): ad CTR +50% (up to 100% on key campaigns), cost per demo −50%, landing page PageSpeed 50 → 80–84, site with 70K–80K monthly visitors.
+- CloudEagle.ai: Senior Visual Designer, Nov 2023 to Oct 2025; led a team of three (one junior designer, two developers) and reported to the CEO. The resume is the source of truth for experience.
 - Google UX Design Professional Certificate, completed Oct 16, 2026 (supporting credential only).
 - Tools: Figma, Illustrator, Photoshop, After Effects, Premiere Pro, Webflow, Framer, WordPress/Elementor.
 - Projects on the old site: Travel Memories (brand identity), Let's Spin (interactive Figma prototype), Principle of Balance (presentation slides). Other slots (web, campaign, brand system) are placeholders.
