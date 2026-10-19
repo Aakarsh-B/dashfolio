@@ -1,62 +1,11 @@
-/* Router, views and the draggable photo board. Content lives in js/data.js. */
+/* Router, search, photo board and motion. Content lives in js/data.js, page templates in js/views.js. */
 
 // The site root is wherever this script lives (one folder up from js/). Making it the page's <base>
 // lets every page work from a domain, a sub-folder or straight from disk without configuration.
 (function(){const b=document.createElement('base');b.href=new URL('..',document.currentScript.src).href;document.head.prepend(b)})();
-const T='<span class="todo">To add</span>';
-// [label, route, shortcut key, icon, count shown in the sidebar]
-// Services is hidden for now; set SHOW_SERVICES to true to bring back the page and nav item.
-const SHOW_SERVICES=false;
-const N=[['Explore','/','1','explore'],['Projects','/projects','2','projects',PROJECTS.length],['Experience','/experience','3','experience'],...(SHOW_SERVICES?[['Services','/services','4','services',SERVICES.length+1]]:[]),['Freebies','/freebies','6','community',COMMUNITY.length],['About','/about','5','about']];
-const ICON={explore:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',projects:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',experience:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',services:'<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',about:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',community:'<path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',contact:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'};
-const icon=k=>`<svg class="ni" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 const $=id=>document.getElementById(id);
 const q=$('q');
-
-const cover=p=>`images/projects/${p.id}/cover.jpg`;
-const card=p=>`<a class="card" href="projects/${p.id}"><div class="art"><img src="${cover(p)}" alt="${p.t} cover" loading="lazy"></div><div class="meta"><div><b>${p.t}</b><span>${p.ty}</span></div></div></a>`;
-const matches=()=>{const v=q.value.trim().toLowerCase();return PROJECTS.filter(p=>(p.t+' '+p.ty).toLowerCase().includes(v))};
-const projectGrid=()=>matches().map(card).join('')||'<p class="empty">No projects match. Try a different word.</p>';
-
-// One pinned item: a polaroid (photo or placeholder) or a sticky note.
-const pin=(b,attrs='')=>`<figure class="pin${b.note?' note':''}" style="--r:${b.r}deg;--c:${b.color}" ${attrs}>${b.note?'':b.src?`<img src="${b.src}" alt="${b.alt||b.caption}" draggable="false">`:`<div class="ph" style="background-color:${b.color}">photo placeholder</div>`}<figcaption>${b.caption}</figcaption></figure>`;
-const logo=c=>c.logo?`<img class="logo" src="${c.logo}" alt="" width="44" height="44">`:`<span class="logo" aria-hidden="true">${c.co.split(' ').map(w=>w[0]).slice(0,2).join('')}</span>`;
-const kfmt=n=>n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'k':String(n);
-const freebie=c=>`<a class="card free" href="${c.url}" target="_blank" rel="noopener"><div class="art"><img src="images/community/${c.slug}.jpg" alt="${c.t} preview" loading="lazy"></div><div class="meta"><div><b>${c.t}</b><span>${c.k} · ${kfmt(c.uses)} uses</span></div><span class="get">Get file ↗</span></div><p>${c.s}</p></a>`;
-const svc=x=>`<article class="svc-card"><h3>${x.t}</h3><p class="price"><span>from</span> ${x.p}${x.u?` <span>${x.u}</span>`:''}</p><p class="when">${x.w}</p><ul>${x.i.map(i=>`<li>${i}</li>`).join('')}</ul><a class="btn sm enq" href="contact?s=${encodeURIComponent(x.t)}">Enquire</a></article>`;
-const tools=()=>`<div class="tools">${TOOLS.map(t=>`<div class="tool"><span class="ti" style="background:${t[2]}"><img src="images/tools/${t[1]}.svg" alt="" width="22" height="22"></span><div><b>${t[0]}</b><span>${t[3]}</span></div></div>`).join('')}</div>`;
-const certs=()=>`<div class="certs">${CERTS.map(c=>`<a class="card cert" href="${c.url}" target="_blank" rel="noopener"><img src="${c.img}" alt="${c.t} certificate for Aakarsh B" loading="lazy"><div class="meta"><div><b>${c.t}</b><span>${c.by} · ${c.d}</span></div><span class="tag">Verify ↗</span></div><p>${c.s}</p></a>`).join('')}</div>`;
-
-const quotes=()=>`<div class="quotes">${QUOTES.map(q=>`<figure class="card quote"><blockquote><p>${q.q}</p></blockquote><figcaption><span class="logo" aria-hidden="true">${q.n.split(' ').map(w=>w[0]).slice(0,2).join('')}</span><div><b>${q.n}</b><span>${q.r}</span><span>${q.rel} · ${q.d}</span></div></figcaption></figure>`).join('')}</div><a class="more" href="${QUOTES_URL}" target="_blank" rel="noopener">Read them on LinkedIn ↗</a>`;
-
-// Section heading with a handwritten aside, for the slightly-less-serious bits.
-const hd=(t,aside,id)=>`<h2 class="hd"${id?` id="${id}"`:''}>${t} <span class="scrib" aria-hidden="true">${aside}</span></h2>`;
-const board=()=>`<div class="board-head">${hd('Off the grid','drag \'em around',"grid")}<button class="btn sm" id="reset" type="button">Reset</button></div><p class="board-hint">A few things from outside work. Pick them up and move them.</p><div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div>`;
-
-const V={
-'/':()=>`<section class="hero"><div><div class="tags"><span class="hand">ex-Design Lead @ CloudEagle.ai</span><a class="open" href="contact?s=${encodeURIComponent('Full-time role')}"><i class="live" aria-hidden="true"></i>Open to new roles</a></div><h1>Aakarsh B</h1><p class="lead">Brand designer at BiteSpeed, based in Bengaluru. 6+ years designing identities, websites and campaign creative for startups and SaaS.</p><div class="btns"><a class="btn p" href="projects">Explore selected work</a><a class="btn" href="contact">Get in touch</a></div></div><figure class="pin me" style="--r:5deg" aria-hidden="true"><img src="images/board/me.jpg" alt=""><figcaption>hi, I'm Aakarsh</figcaption></figure></section>${hd('Things I\'ve made','the good stuff ↓')}<div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div><a class="more" href="projects">See all ${PROJECTS.length} projects</a>${board()}${hd('Nice things people said','unpaid, I promise')}${quotes()}${hd('The toolbox','daily drivers')}${tools()}`,
-'/projects':()=>`<h1>Projects</h1><p class="lead">Brand, web and marketing design.</p><div class="grid" id="pg">${projectGrid()}</div>`,
-'/experience':()=>`<h1>Experience</h1><p class="lead">6+ years of brand, web and growth design across startups, SaaS and marketing teams.</p><div class="panel rows xp">${EXPERIENCE.map(c=>`<section class="job">${logo(c)}<div class="jb"><div class="jh"><h3>${c.co}${c.where?` <span class="where">${c.where}</span>`:''}</h3><span class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</span></div>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></section>`).join('')}</div>`,
-'/services':()=>`<h1>Services</h1><p class="lead">For founders and teams who need design that looks credible and gets understood. Starting prices; I confirm a fixed quote after a short call.</p><article class="invite"><div><span class="pill">Invite only</span><h3>${INVITE.t}</h3><p>${INVITE.s}</p></div><div class="inv-price"><p class="price"><span>from</span> ${INVITE.p} <span>${INVITE.u}</span></p><p class="when">${INVITE.w}</p><a class="btn" href="contact">Ask for an introduction</a></div></article><div class="svc">${SERVICES.map(svc).join('')}</div>`,
-'/freebies':()=>`<h1>Freebies</h1><p class="lead">Free Figma files I've published. Duplicate them, take them apart and use them in your own work.</p><div class="grid cgrid">${COMMUNITY.map(freebie).join('')}</div><a class="more" href="${COMMUNITY_URL}" target="_blank" rel="noopener">See everything on Figma ↗</a>`,
-'/about':()=>`<h1>About</h1><p class="lead">I'm a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.</p><p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><h2>Certificates</h2>${certs()}<p class="lead sm">There\'s more of me off the clock on the <a href="./">home page</a> board.</p>`,
-'/contact':()=>`<h1>Contact</h1><p class="lead">Hiring, or working on a brand, website or campaign that needs clearer design? Tell me a little about it and I'll reply within two working days.</p><div class="contact"><form id="cf" class="panel form" novalidate><div class="f2"><label>Name<input name="name" required autocomplete="name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label></div><div class="f2"><label><span>Phone <span class="opt">optional</span></span><input name="phone" type="tel" autocomplete="tel"></label><label>Looking for<select name="service">${['Not sure yet',INVITE.t,...SERVICES.map(x=>x.t),'Full-time role'].map(o=>`<option>${o}</option>`).join('')}</select></label></div><label>About the project<textarea name="message" rows="5" required placeholder="What you're building, timeline, budget range"></textarea></label><input type="text" name="_honey" class="sr" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="btn p" type="submit">Send message</button><p class="fmsg" id="fmsg" role="status" aria-live="polite"></p></form><div class="elsewhere"><h3>Or reach me directly</h3><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance ↗</a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble ↗</a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium ↗</a></div></div>`
-};
-
-const BACK='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>';
-// Case-study template: summary card, then Challenge → Approach → Solution → Result, captioned gallery, next project.
-// Every section is optional, so a project shows only what its data has.
-function caseStudy(p){
- const imgs=p.n?Array.from({length:p.n},(_,i)=>`images/projects/${p.id}/${i+1}.jpg`):[];
- const src=p.src.includes('behance')?'Behance':'Dribbble';
- const live=p.live?`<a class="btn p sm" href="${p.live}" target="_blank" rel="noopener">${p.live.includes('figma')?'Get the Figma file':'Visit live site'} ↗</a>`:'';
- const facts=[['Role',p.me],['Timeline',p.when],['Tools',p.tools],['Deliverables',p.made&&p.made.join(', ')]].filter(f=>f[1]);
- const how=p.how?`<ol class="steps">${p.how.map(h=>`<li><b>${h[0]}</b><span>${h[1]}</span></li>`).join('')}</ol>`:p.role?`<p>${p.role}</p>`:'';
- const sol=`<p>${p.out}</p>${p.key?`<ul class="keys">${p.key.map(k=>`<li>${k}</li>`).join('')}</ul>`:''}${p.freebie?`<p><a href="${p.freebie}" target="_blank" rel="noopener">Get the Figma file ↗</a></p>`:''}`;
- const S=[['The challenge',p.ctx&&`<p>${p.ctx}</p>`],['Approach',how],['The solution',sol],['Result',p.res&&`<p>${p.res}</p>`]].filter(x=>x[1]);
- const i=PROJECTS.indexOf(p),nx=PROJECTS[(i+1)%PROJECTS.length];
- return `<a class="back" href="projects" data-back>${BACK}All projects</a><h1 class="cs-t">${p.t}</h1><div class="chips"><span class="tag">${p.ty}</span>${p.date?`<span class="tag">${p.date}</span>`:''}</div><p class="lead">${p.s}</p><div class="btns">${live}<a class="btn sm" href="${p.src}" target="_blank" rel="noopener">View on ${src} ↗</a></div>${facts.length?`<dl class="facts panel">${facts.map(f=>`<div><dt>${f[0]}</dt><dd>${f[1]}</dd></div>`).join('')}</dl>`:''}<img class="cs-cover" src="${cover(p)}" alt="${p.t}, cover" loading="eager"><div class="cs">${S.map(s=>`<section class="sec"><h3>${s[0]}</h3><div>${s[1]}</div></section>`).join('')}</div>${p.embed?`<div class="embed"><iframe src="${p.embed}" title="${p.t} interactive prototype" loading="lazy" allowfullscreen></iframe></div>`:''}${imgs.length?`<div class="gallery">${imgs.map((src,j)=>`<figure><img src="${src}" alt="${p.cap&&p.cap[j]||`${p.t}, image ${j+1}`}" loading="lazy">${p.cap&&p.cap[j]?`<figcaption>${p.cap[j]}</figcaption>`:''}</figure>`).join('')}</div>`:''}<a class="card next" href="projects/${nx.id}"><img src="${cover(nx)}" alt="" loading="lazy"><div><span>Next project</span><b>${nx.t}</b><em>${nx.ty}</em></div><span class="arr" aria-hidden="true">→</span></a><div class="cs-cta"><p>Like what you see? I'm open to new roles.</p><a class="btn p" href="contact">Get in touch</a></div>`;
-}
+matches=()=>{const v=q.value.trim().toLowerCase();return PROJECTS.filter(p=>(p.t+' '+p.ty).toLowerCase().includes(v))};
 
 /* Routing: real paths (/projects/bitespeed) on a server; #/projects/bitespeed when opened from disk.
    ROOT is the site folder, from the <base> that js/data.js sets. Old #/p/… links still resolve. */
@@ -66,7 +15,6 @@ const legacy=r=>r.replace(/^\/p\//,'/projects/').replace(/^\/community/,'/freebi
 const tidy=r=>legacy(r.replace(/index\.html$/,'').replace(/(.)\/$/,'$1'))||'/';
 const path=()=>location.hash.startsWith('#/')?tidy(location.hash.slice(1).split('?')[0]):tidy('/'+location.pathname.slice(ROOT.length));
 const query=()=>new URLSearchParams(location.hash.startsWith('#/')?location.hash.split('?')[1]||'':location.search);
-const href=k=>k==='/'?'./':k.slice(1);
 let inSite=0; // in-site navigations this tab has made
 function go(url){
  const u=new URL(url,document.baseURI);
@@ -78,17 +26,10 @@ function go(url){
 function render(){swap(renderNow)}
 function renderNow(){
  document.documentElement.classList.remove('intro');
- const h=path();let html,key=h;
- const m=h.match(/^\/projects\/([\w-]+)/);let proj;
- if(m){proj=PROJECTS.find(x=>x.id===m[1]);key='/projects';if(proj)html=caseStudy(proj)}
- if(h==="/board")key="/";
- if(h==='/community')key='/freebies';
- if(key==='/services'&&!SHOW_SERVICES)key='/';
- if(!html){if(!V[key])key='/';html=V[key]()}
- const main=$('main');main.innerHTML=html;animateIn(main,firstRender);firstRender=false;
- $('nav').innerHTML=N.map(n=>`<a href="${href(n[1])}" ${n[1]===key?'aria-current="page"':''}>${icon(n[3])}${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="contact" '+(key==='/contact'?'aria-current="page"':'')+'>'+icon('contact')+'Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Writing<kbd>↗</kbd></a>';
- // Mobile tab bar: the same pages plus Contact, icon + short label.
- $('tabs').innerHTML=[...N.map(n=>[n[0],n[1],n[3]]),['Contact','/contact','contact']].map(t=>`<a href="${href(t[1])}" ${t[1]===key?'aria-current="page"':''}>${icon(t[2])}<span>${t[0]}</span></a>`).join('');
+ const {key,proj,html,nav,tabs}=page(path());
+ // The page builder pre-fills <main> for crawlers and link previews; the first render replaces it like any other.
+ const main=$('main');main.innerHTML=html;main.removeAttribute('data-pre');animateIn(main,firstRender);firstRender=false;
+ $('nav').innerHTML=nav;$('tabs').innerHTML=tabs;
  document.title=(proj?proj.t+' · ':key==='/'?'':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));

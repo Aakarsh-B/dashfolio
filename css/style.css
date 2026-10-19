@@ -276,6 +276,9 @@ a.card:active{transform:translateY(-1px) scale(.995);transition-duration:var(--t
 
 /* Page entrance (fallback when View Transitions aren't available) */
 @keyframes rise{from{opacity:0;transform:translateY(10px)}}
+/* Pre-filled page text stays hidden until app.js renders it, so the intro never flashes; shown anyway after 2s if scripts fail. */
+.js main[data-pre]{opacity:0;animation:pre-show 0s 2s forwards}
+@keyframes pre-show{to{opacity:1}}
 .enter{animation:rise var(--t-enter) var(--ease-out) both}
 /* First visit: the intro settles in line by line */
 .intro .hero>div>*{animation:rise 520ms var(--ease-out) both;animation-delay:calc(var(--i,0)*70ms)}

@@ -16,7 +16,8 @@ Then open the printed URL. You can also just double-click `index.html`: from dis
 index.html        page shell: sidebar, main area, theme button
 css/style.css     all styles and colour tokens (light + dark)
 js/data.js        CONTENT: projects and photo-board items. Edit this.
-js/app.js         router, views, photo board, shortcuts
+js/views.js       page templates (used by the browser and by scripts/build-pages.js)
+js/app.js         router, search, photo board, shortcuts
 images/board/     photos for the board
 images/projects/  project cover images
 images/logos/     company logos (from each company's site)
@@ -87,7 +88,7 @@ The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js
 
 ## Pages and URLs
 
-Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title and description, so links work on any static host and search engines see each project.
+Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title, description and full page text (rendered from `js/views.js`), so links work on any static host and search engines see each project.
 
 **After editing `js/data.js` (new project, new title), run:**
 
