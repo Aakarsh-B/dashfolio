@@ -109,14 +109,19 @@ def sync_medium(src):
             continue
         title = html.unescape(re.search(r'<title><!\[CDATA\[(.*?)\]\]>', item, re.S).group(1)).strip()
         date = published.strftime('%b %Y')
-        body = re.search(r'<content:encoded><!\[CDATA\[(.*?)\]\]>', item, re.S)
+        # Medium sends either the full article (content:encoded) or a short card (description) with the cover
+        # image and the subtitle as "medium-feed-snippet". Use whichever is there.
+        body = re.search(r'<content:encoded><!\[CDATA\[(.*?)\]\]>', item, re.S) or \
+            re.search(r'<description><!\[CDATA\[(.*?)\]\]>', item, re.S)
         body = body.group(1) if body else ''
+        snippet = re.search(r'<p class="medium-feed-snippet">(.*?)</p>', body, re.S)
         slug = slugify(title)
         img = re.search(r'<img[^>]+src="([^"]+)"', body)
         cover = os.path.join(ROOT, 'images', 'writing', slug + '.jpg')
         if not (img and save_image(img.group(1), cover, (800, 500))):
             slug = 'default'  # images/writing/default.jpg
-        s = summary(re.findall(r'<p>(.*?)</p>', body, re.S)) or title
+        s = (text_of(snippet.group(1)) if snippet else '') or \
+            summary(re.findall(r'<p(?: [^>]*)?>(.*?)</p>', body, re.S)) or title
         src = insert_top(src, 'WRITING',
                          f"{{slug:{js(slug)},t:{js(title)},d:{js(date)},s:{js(s)},url:{js(link)},auto:1}},")
         print(f'Medium: added "{title}"')

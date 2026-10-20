@@ -145,7 +145,7 @@ const COMMUNITY = [
 // Covers live in images/writing/<slug>.jpg (16:10, about 800px wide), cropped from each article's header image.
 const WRITING_URL = 'https://aakarshbiju.medium.com/';
 const WRITING = [
-{slug:'default',t:'The design I’d never put in my portfolio has 1,800 duplicates',d:'Oct 2026',s:'The design I’d never put in my portfolio has 1,800 duplicates',url:'https://aakarshbiju.medium.com/the-design-id-never-put-in-my-portfolio-has-1-800-duplicates-d30d72c71565',auto:1},
+{slug:'the-design-i-d-never-put-in-my-portfolio-has-1-8',t:'The design I’d never put in my portfolio has 1,800 duplicates',d:'Oct 2026',s:'A dark, low-contrast hotel booking screen I made on day-something of a 100-day challenge, and what its weird success taught me.',url:'https://aakarshbiju.medium.com/the-design-id-never-put-in-my-portfolio-has-1-800-duplicates-d30d72c71565',auto:1},
 {slug:'a-dot-cost-me',t:'A dot cost me 6,000 rupees!',d:'May 2021',s:'A free trial class, one stray dot in some CSS, and the lesson that kept me teaching only what I practise.',url:'https://aakarshbiju.medium.com/a-dot-cost-me-6-000-rupees-3f519595f86f'},
 {slug:'buttons-rounded-or-sharp',t:'Buttons: rounded corners or sharp?',d:'Sep 2020',s:'Why sharp corners read as caution, rounded ones feel friendly, and how to choose for your UI.',url:'https://medium.com/creativcuckoo/buttons-rounded-corners-or-sharp-29109966a63c'},
 {slug:'3d-art-50-days',t:'I created 3D art daily for 50 days',d:'Dec 2020',s:'No 3D experience, a push from Beeple, and one Blender render every day for 50 days.',url:'https://medium.com/creativcuckoo/i-created-3d-art-daily-for-50-days-bbea3ec4a01f'},
