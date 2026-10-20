@@ -30,7 +30,7 @@ function renderNow(){
  // The page builder pre-fills <main> for crawlers and link previews; the first render replaces it like any other.
  const main=$('main');main.innerHTML=html;main.removeAttribute('data-pre');animateIn(main,firstRender);firstRender=false;
  $('nav').innerHTML=nav;$('tabs').innerHTML=tabs;
- document.title=(proj?proj.t+' · ':key==='/'?'':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
+ document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t+' · ':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
 }

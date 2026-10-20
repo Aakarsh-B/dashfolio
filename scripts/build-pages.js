@@ -13,7 +13,7 @@ const ver=crypto.createHash('sha1').update(['css/style.css','js/data.js','js/vie
 const stamp=html=>html.replace(/((?:href|src)="(?:css\/style\.css|js\/(?:data|views|app)\.js))(\?v=\w+)?"/g,`$1?v=${ver}"`);
 // Drop tags and content a previous build added, so re-running never duplicates them.
 const tpl=stamp(fs.readFileSync(path.join(root,'index.html'),'utf8'))
- .replace(/\n<link rel="canonical"[^>]*>|\n<meta property="og:(?:url|image)"[^>]*>|\n<base [^>]*>|\n<script type="application\/ld\+json">[^<]*<\/script>/g,'')
+ .replace(/\n<link rel="canonical"[^>]*>|\n<meta property="og:(?:url|image|image:alt|site_name|locale)"[^>]*>|\n<base [^>]*>|\n<script type="application\/ld\+json">[^<]*<\/script>/g,'')
  .replace(/(<nav aria-label="Main" id="nav">)[\s\S]*?(<\/nav>)/,'$1$2')
  .replace(/<main id="main"[^>]*>[\s\S]*?<\/main>/,'<main id="main" tabindex="-1"></main>')
  .replace(/(<nav class="tabbar" id="tabs" aria-label="Main \(mobile\)">)[\s\S]*?(<\/nav>)/,'$1$2');
@@ -21,6 +21,7 @@ const tpl=stamp(fs.readFileSync(path.join(root,'index.html'),'utf8'))
 const rel=(html,pre)=>html.replace('<meta charset="utf-8">',`<meta charset="utf-8">\n<base href="${pre}">`);
 const src=f=>fs.readFileSync(path.join(root,f),'utf8');
 const data=new Function(src('js/data.js')+';'+src('js/views.js')+';return {PROJECTS,COMMUNITY,page}')();
+const PROJ=Object.fromEntries(data.PROJECTS.map(p=>['projects/'+p.id,p]));
 // Fill the sidebar, page content and tab bar for one route, as app.js would on load.
 const fill=(html,route)=>{const p=data.page(route);return html
  .replace('<nav aria-label="Main" id="nav"></nav>',()=>`<nav aria-label="Main" id="nav">${p.nav}</nav>`)
@@ -29,34 +30,47 @@ const fill=(html,route)=>{const p=data.page(route);return html
 const SITE=(process.env.SITE_URL||'').replace(/\/$/,'');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const base='Aakarsh B · Brand Designer';
+const HOME=['Aakarsh B · Brand & Visual Designer in Bengaluru','Aakarsh B is a brand and visual designer in Bengaluru, formerly at CloudEagle.ai. Brand identities, websites, Webflow builds and campaign creative.'];
 const pages=[
- ['projects','Projects · '+base,'Brand, web and marketing design by Aakarsh B.'],
+ ['projects','Projects · '+base,'Brand identity, website and marketing design by Aakarsh B, including BiteSpeed, Bose Professional, Mavion and Creativate.'],
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
- ['freebies','Freebies · '+base,'Free Figma files by Aakarsh B: app UI, prototypes, auto layout and more.'],
- ['about','About · '+base,'Brand and visual designer in Bengaluru: how I work, and certificates.'],
- ['contact','Contact · '+base,'Hiring, or working on a brand, website or campaign? Get in touch.'],
+ ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],
+ ['about','About · '+base,'Aakarsh B, brand and visual designer in Bengaluru: how I work, and certificates from Google and CalArts.'],
+ ['contact','Contact · '+base,'Hiring, or working on a brand, website or campaign? Get in touch with Aakarsh B.'],
  ...data.PROJECTS.map(p=>['projects/'+p.id,p.t+' · '+base,p.s,`images/projects/${p.id}/cover.jpg`])];
+// Share-preview extras every page gets: page URL, image alt text, site name, locale, large card on X.
+const social=(url,alt)=>`\n<meta property="og:url" content="${url}">\n<meta property="og:image:alt" content="${esc(alt)}">\n<meta property="og:site_name" content="Aakarsh B">\n<meta property="og:locale" content="en_IN">`;
+const ld=o=>`<script type="application/ld+json">${JSON.stringify(o).replace(/</g,'\\u003c')}</script>\n</head>`;
 const urls=[''];
-let home=fill(tpl,'/');
+let home=fill(tpl,'/').replace(/<title>[^<]*<\/title>/,`<title>${esc(HOME[0])}</title>`)
+ .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(HOME[1]))
+ .replace(/(<meta property="og:title" content=")[^"]*/,'$1'+esc(HOME[0]))
+ .replace(/(<meta property="og:description" content=")[^"]*/,'$1'+esc(HOME[1]));
 // Who this site is about, for search engines: name, role and the profiles that belong to the same person.
-const person={'@context':'https://schema.org','@type':'Person',name:'Aakarsh B',jobTitle:'Brand Designer',
+const person={'@context':'https://schema.org','@type':'Person',name:'Aakarsh B',jobTitle:'Brand Designer',worksFor:{'@type':'Organization',name:'BiteSpeed'},
+ knowsAbout:['Brand identity','Visual design','Web design','Webflow','UI/UX design','Campaign creative'],
  address:{'@type':'PostalAddress',addressLocality:'Bengaluru',addressCountry:'IN'},
  sameAs:['https://www.linkedin.com/in/aakarshb/','https://www.behance.net/aakarshb','https://dribbble.com/aakarshb','https://aakarshbiju.medium.com/','https://www.figma.com/@aakarsh']};
-if(SITE){person.url=SITE+'/';person.image=SITE+'/images/board/me.jpg';home=home.replace('</title>',`</title>\n<link rel="canonical" href="${SITE}/">\n<meta property="og:url" content="${SITE}/">\n<meta property="og:image" content="${SITE}/images/board/me.jpg">`)}
-home=home.replace('</head>',`<script type="application/ld+json">${JSON.stringify(person).replace(/</g,'\\u003c')}</script>\n</head>`);
+if(SITE){person['@id']=SITE+'/#me';person.url=SITE+'/';person.image=SITE+'/images/board/me.jpg';home=home.replace('</title>',`</title>\n<link rel="canonical" href="${SITE}/">${social(SITE+'/','Aakarsh B, smiling')}\n<meta property="og:image" content="${SITE}/images/board/me.jpg">`)}
+home=home.replace('</head>',()=>ld(person));
 fs.writeFileSync(path.join(root,'index.html'),home);
 for(const [dir,title,desc,img] of pages){
+ const url=SITE+'/'+dir+'/',p=PROJ[dir];
  let html=fill(tpl,'/'+dir).replace(/<title>[^<]*<\/title>/,`<title>${esc(title)}</title>`)
   .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(desc))
   .replace(/(<meta property="og:title" content=")[^"]*/,'$1'+esc(title))
   .replace(/(<meta property="og:description" content=")[^"]*/,'$1'+esc(desc));
  if(SITE)html=html.replace('</title>',`</title>\n<meta property="og:image" content="${SITE}/${img||'images/board/me.jpg'}">`);
- if(SITE)html=html.replace('</title>',`</title>\n<link rel="canonical" href="${SITE}/${dir}/">`);
+ if(SITE)html=html.replace('</title>',`</title>\n<link rel="canonical" href="${url}">${social(url,p?p.t+', cover':'Aakarsh B, smiling')}`);
+ // Project pages: say what the work is and who made it, plus a Projects › title breadcrumb.
+ if(SITE&&p)html=html.replace('</head>',()=>ld({'@context':'https://schema.org','@graph':[
+  {'@type':'CreativeWork',name:p.t,description:p.s,genre:p.ty,image:SITE+'/'+img,url,author:{'@type':'Person','@id':SITE+'/#me',name:'Aakarsh B',url:SITE+'/'}},
+  {'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Projects',item:SITE+'/projects/'},{'@type':'ListItem',position:2,name:p.t,item:url}]}]}));
  html=rel(html,'../'.repeat(dir.split('/').length));
  fs.mkdirSync(path.join(root,dir),{recursive:true});
  fs.writeFileSync(path.join(root,dir,'index.html'),html);urls.push(dir+'/');
 }
 fs.writeFileSync(path.join(root,'404.html'),rel(tpl,process.env.BASE_PATH||'/'));
 if(SITE)fs.writeFileSync(path.join(root,'robots.txt'),`User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
-if(SITE)fs.writeFileSync(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u=>`  <url><loc>${SITE}/${u}</loc></url>`).join('\n')}\n</urlset>\n`);
+if(SITE)fs.writeFileSync(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u=>`  <url><loc>${SITE}/${u}</loc><lastmod>${new Date().toISOString().slice(0,10)}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 console.log(`v=${ver} · Wrote ${pages.length} pages + 404.html${SITE?' + sitemap.xml':''}`);

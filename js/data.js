@@ -76,7 +76,7 @@ const PROJECTS = [
 const BOARD = [
 {id:'hello',note:true,caption:'go on, drag these around',color:'var(--a2)',x:4,y:6,r:-3},
 {id:'bike',src:'images/board/bike.jpg',alt:'Black Royal Enfield Himalayan parked beside paddy fields',caption:'weekend rides, long roads',color:'var(--a4)',x:24,y:4,r:4},
-{id:'cat',src:'images/board/cat.jpg',alt:'Tinky, a ginger and white kitten, held up on a hand with one paw raised',caption:'Tinky, in charge',color:'var(--a1)',x:50,y:10,r:-5},
+{id:'cat',src:'images/board/cat.jpg',alt:'Tinki, a ginger and white kitten, held up on a hand with one paw raised',caption:'Tinki, in charge',color:'var(--a1)',x:50,y:10,r:-5},
 {id:'travel',src:'images/board/travel.jpg',alt:'A palace in Udaipur lit up at night',caption:'Udaipur, after dark',color:'var(--a3)',x:74,y:3,r:3},
 {id:'coffee',src:'images/board/coffee.jpg',alt:'Iced coffee next to an open laptop on a café table',caption:'coffee first, pixels later',color:'var(--tile)',x:12,y:50,r:5},
 {id:'run',src:'images/board/run.jpg',alt:'Garmin watch showing 38 hours of recovery after a run',caption:'long runs, longer recovery',color:'var(--a2)',x:40,y:52,r:-2},
