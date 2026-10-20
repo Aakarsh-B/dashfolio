@@ -86,6 +86,10 @@ Three palettes are built in: `cobalt` (current), `ember` and `forest`, each with
 
 The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js` to bring it back. Edit `SERVICES` and `INVITE` in `js/data.js`. The sidebar counts for Projects and Services update automatically.
 
+## Writing (Medium articles on Explore)
+
+`WRITING` in `js/data.js` lists the articles; the first four show on Explore as "Things I've written" and open on Medium. To add one, save its header image as `images/writing/<slug>.jpg` (16:10, about 800px wide) and add an entry with the title, month, a one-line summary and the Medium URL. Order it by what you'd want read first. On phones the cards become compact rows.
+
 ## Pages and URLs
 
 Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title, description and full page text (rendered from `js/views.js`), so links work on any static host and search engines see each project.

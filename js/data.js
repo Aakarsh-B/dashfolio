@@ -140,3 +140,12 @@ const COMMUNITY = [
 {slug:'futuristic-tv-remote',t:'Futuristic TV remote',k:'3D in Figma',s:'Figbruary day 4: a soft, futuristic remote drawn entirely in Figma.',url:'https://www.figma.com/community/file/1204080211322613628',uses:155,likes:3},
 {slug:'let-s-spin',t:"Let's spin",k:'Animation',s:'A spin-the-wheel animation built in Figma, ready to reuse on a landing page.',url:'https://www.figma.com/community/file/1228676637731607261',uses:134,likes:6},
 {slug:'shapes',t:'Shapes',k:'Graphics',s:'Figbruary day 3: layered shapes and glowing gradients.',url:'https://www.figma.com/community/file/1203720629261705865',uses:55,likes:4}];
+
+// Writing: Medium articles shown on Explore (the first four). Newest isn't always best; order by what you'd want read first.
+// Covers live in images/writing/<slug>.jpg (16:10, about 800px wide), cropped from each article's header image.
+const WRITING_URL = 'https://aakarshbiju.medium.com/';
+const WRITING = [
+{slug:'a-dot-cost-me',t:'A dot cost me 6,000 rupees!',d:'May 2021',s:'A free trial class, one stray dot in some CSS, and the lesson that kept me teaching only what I practise.',url:'https://aakarshbiju.medium.com/a-dot-cost-me-6-000-rupees-3f519595f86f'},
+{slug:'buttons-rounded-or-sharp',t:'Buttons: rounded corners or sharp?',d:'Sep 2020',s:'Why sharp corners read as caution, rounded ones feel friendly, and how to choose for your UI.',url:'https://medium.com/creativcuckoo/buttons-rounded-corners-or-sharp-29109966a63c'},
+{slug:'3d-art-50-days',t:'I created 3D art daily for 50 days',d:'Dec 2020',s:'No 3D experience, a push from Beeple, and one Blender render every day for 50 days.',url:'https://medium.com/creativcuckoo/i-created-3d-art-daily-for-50-days-bbea3ec4a01f'},
+{slug:'ai-design-tools-2025',t:'Emerging AI design tools to know',d:'Sep 2025',s:"Gemini's image model, Figma's Config 2025 features and other AI tools worth a designer's attention.",url:'https://aakarshbiju.medium.com/sep-2025-best-emerging-ai-design-tools-designers-should-know-d662eb31febe'}];
