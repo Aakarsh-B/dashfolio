@@ -64,6 +64,8 @@ function caseStudy(p){
 // Mobile: tabs that are always visible; every other page lives under More.
 const TABS=[['Explore','/','explore'],['Work','/projects','projects'],['Experience','/experience','experience'],['Contact','/contact','contact']];
 const SOCIAL=[['LinkedIn','https://www.linkedin.com/in/aakarshb/'],['Behance','https://www.behance.net/aakarshb'],['Dribbble','https://dribbble.com/aakarshb'],['Medium',WRITING_URL],['X','https://x.com/Aakarsh_B']];
+// Unknown routes (old links, typos) get an honest page instead of quietly showing Explore.
+const notFound=()=>`<h1>This page wandered off</h1><p class="lead">The link might be old, or I moved things around. Here's some work to look at instead.</p><div class="btns"><a class="btn p" href="./">Back to Explore</a><a class="btn" href="contact">Get in touch</a></div>${hd('Things I\'ve made','start here ↓')}<div class="grid two">${PROJECTS.slice(0,4).map(card).join('')}</div>`;
 const href=k=>k==='/'?'./':k.slice(1);
 // Resolve a route (e.g. /projects/bitespeed) to its nav key, project, page content, sidebar and tab bar.
 function page(h){
@@ -73,7 +75,7 @@ function page(h){
  if(h==="/board")key="/";
  if(h==='/community')key='/freebies';
  if(key==='/services'&&!SHOW_SERVICES)key='/';
- if(!html){if(!V[key])key='/';html=V[key]()}
+ if(!html){if(V[key]&&!(m&&!proj))html=V[key]();else{key='/404';html=notFound()}}
  const nav=N.map(n=>`<a href="${href(n[1])}" ${n[1]===key?'aria-current="page"':''}>${icon(n[3])}${n[0]}${n[4]?`<kbd aria-label="${n[4]} items">${n[4]}</kbd>`:''}</a>`).join('')+'<div class="grp">Connect</div><a href="contact" '+(key==='/contact'?'aria-current="page"':'')+'>'+icon('contact')+'Contact</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn<kbd>↗</kbd></a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance<kbd>↗</kbd></a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble<kbd>↗</kbd></a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium<kbd>↗</kbd></a>';
  // Mobile tab bar: the four pages people need most, plus More for everything else (a sheet, see app.js).
  const inMore=!TABS.some(t=>t[1]===key);

@@ -13,7 +13,7 @@ const ver=crypto.createHash('sha1').update(['css/style.css','js/data.js','js/vie
 const stamp=html=>html.replace(/((?:href|src)="(?:css\/style\.css|js\/(?:data|views|app)\.js))(\?v=\w+)?"/g,`$1?v=${ver}"`);
 // Drop tags and content a previous build added, so re-running never duplicates them.
 const tpl=stamp(fs.readFileSync(path.join(root,'index.html'),'utf8'))
- .replace(/\n<link rel="canonical"[^>]*>|\n<meta property="og:(?:url|image|image:alt|site_name|locale)"[^>]*>|\n<base [^>]*>|\n<script type="application\/ld\+json">[^<]*<\/script>/g,'')
+ .replace(/\n<link rel="canonical"[^>]*>|\n<meta property="og:(?:url|image|image:alt|image:width|image:height|site_name|locale)"[^>]*>|\n<meta name="twitter:image"[^>]*>|\n<base [^>]*>|\n<script type="application\/ld\+json">[^<]*<\/script>/g,'')
  .replace(/(<nav aria-label="Main" id="nav">)[\s\S]*?(<\/nav>)/,'$1$2')
  .replace(/<main id="main"[^>]*>[\s\S]*?<\/main>/,'<main id="main" tabindex="-1"></main>')
  .replace(/(<nav class="tabbar" id="tabs" aria-label="Main \(mobile\)">)[\s\S]*?(<\/nav>)/,'$1$2');
@@ -41,6 +41,9 @@ const pages=[
  ...data.PROJECTS.map(p=>['projects/'+p.id,p.t+' · '+base,p.s,`images/projects/${p.id}/cover.jpg`])];
 // Share-preview extras every page gets: page URL, image alt text, site name, locale, large card on X.
 const social=(url,alt)=>`\n<meta property="og:url" content="${url}">\n<meta property="og:image:alt" content="${esc(alt)}">\n<meta property="og:site_name" content="Aakarsh B">\n<meta property="og:locale" content="en_IN">`;
+// Share image: the 1200×630 card from scripts/og.js when it exists, else the cover or portrait (square/4:3, X crops it).
+const og=(name,fallback)=>fs.existsSync(path.join(root,`images/og/${name}.jpg`))?[`images/og/${name}.jpg`,1200,630]:[fallback,null,null];
+const ogTags=([img,w,h])=>`\n<meta property="og:image" content="${SITE}/${img}">`+(w?`\n<meta property="og:image:width" content="${w}">\n<meta property="og:image:height" content="${h}">\n<meta name="twitter:image" content="${SITE}/${img}">`:'');
 const ld=o=>`<script type="application/ld+json">${JSON.stringify(o).replace(/</g,'\\u003c')}</script>\n</head>`;
 // Cards use a 600px cover; warn if one is missing so a new project doesn't show a broken image.
 for(const p of data.PROJECTS)if(!fs.existsSync(path.join(root,`images/projects/${p.id}/cover-sm.jpg`)))console.warn(`Missing images/projects/${p.id}/cover-sm.jpg: run python3 scripts/thumbs.py`);
@@ -54,7 +57,7 @@ const person={'@context':'https://schema.org','@type':'Person',name:'Aakarsh B',
  knowsAbout:['Brand identity','Visual design','Web design','Webflow','UI/UX design','Campaign creative'],
  address:{'@type':'PostalAddress',addressLocality:'Bengaluru',addressCountry:'IN'},
  sameAs:['https://www.linkedin.com/in/aakarshb/','https://www.behance.net/aakarshb','https://dribbble.com/aakarshb','https://aakarshbiju.medium.com/','https://www.figma.com/@aakarsh']};
-if(SITE){person['@id']=SITE+'/#me';person.url=SITE+'/';person.image=SITE+'/images/board/me.jpg';home=home.replace('</title>',`</title>\n<link rel="canonical" href="${SITE}/">${social(SITE+'/','Aakarsh B, smiling')}\n<meta property="og:image" content="${SITE}/images/board/me.jpg">`)}
+if(SITE){person['@id']=SITE+'/#me';person.url=SITE+'/';person.image=SITE+'/images/board/me.jpg';home=home.replace('</title>',`</title>\n<link rel="canonical" href="${SITE}/">${social(SITE+'/','Aakarsh B, brand designer: brand identities, websites and campaign creative')}${ogTags(og('home','images/board/me.jpg'))}`)}
 home=home.replace('</head>',()=>ld(person));
 fs.writeFileSync(path.join(root,'index.html'),home);
 for(const [dir,title,desc,img] of pages){
@@ -63,7 +66,7 @@ for(const [dir,title,desc,img] of pages){
   .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(desc))
   .replace(/(<meta property="og:title" content=")[^"]*/,'$1'+esc(title))
   .replace(/(<meta property="og:description" content=")[^"]*/,'$1'+esc(desc));
- if(SITE)html=html.replace('</title>',`</title>\n<meta property="og:image" content="${SITE}/${img||'images/board/me.jpg'}">`);
+ if(SITE)html=html.replace('</title>',()=>`</title>${ogTags(og(p?p.id:dir,img||'images/board/me.jpg'))}`);
  if(SITE)html=html.replace('</title>',`</title>\n<link rel="canonical" href="${url}">${social(url,p?p.t+', cover':'Aakarsh B, smiling')}`);
  // Project pages: say what the work is and who made it, plus a Projects › title breadcrumb.
  if(SITE&&p)html=html.replace('</head>',()=>ld({'@context':'https://schema.org','@graph':[

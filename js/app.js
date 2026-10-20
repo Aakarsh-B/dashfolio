@@ -35,7 +35,7 @@ function renderNow(){
  main.removeAttribute('data-pre');animateIn(main,firstRender);firstRender=false;
  $('nav').innerHTML=nav;$('tabs').innerHTML=tabs;$('sheet').innerHTML=more;if($('sheet').open)$('sheet').close();
  $('more-btn').onclick=()=>$('sheet').showModal();
- document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t+' · ':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
+ document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t+' · ':key==='/404'?'Page not found · ':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
 }

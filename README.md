@@ -91,6 +91,10 @@ The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js
 
 `WRITING` in `js/data.js` lists the articles; the first four show on Explore as "Things I've written" and open on Medium. To add one, save its header image as `images/writing/<slug>.jpg` (16:10, about 800px wide) and add an entry with the title, month, a one-line summary and the Medium URL. Order it by what you'd want read first. On phones the cards become compact rows.
 
+## Share images (link previews)
+
+`scripts/og.js` makes a 1200×630 preview card for every page in `images/og/` (name, role, page title and the project cover or portrait, in the site's style). X, LinkedIn and WhatsApp show these when someone shares a link. Re-run it after adding a project or changing a title: `node scripts/og.js` (needs Playwright), then `node scripts/build-pages.js`. Pages without a card fall back to their cover or the portrait.
+
 ## Pages and URLs
 
 Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title, description and full page text (rendered from `js/views.js`), so links work on any static host and search engines see each project.
