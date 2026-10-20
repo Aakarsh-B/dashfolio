@@ -25,10 +25,14 @@ function go(url){
 }
 function render(){swap(renderNow)}
 function renderNow(){
- document.documentElement.classList.remove('intro');
+ if(!firstRender)document.documentElement.classList.remove('intro');
  const {key,proj,html,nav,tabs,more}=page(path());
  // The page builder pre-fills <main> for crawlers and link previews; the first render replaces it like any other.
- const main=$('main');main.innerHTML=html;main.removeAttribute('data-pre');animateIn(main,firstRender);firstRender=false;
+ const main=$('main');
+ // The build already wrote this page's HTML (data-pre names its route). Keep it on first load instead of rebuilding it,
+ // so images and text the browser has already started on stay put. Rebuild if the route or a search query differs.
+ if(!(firstRender&&main.dataset.pre===path()&&!q.value))main.innerHTML=html;
+ main.removeAttribute('data-pre');animateIn(main,firstRender);firstRender=false;
  $('nav').innerHTML=nav;$('tabs').innerHTML=tabs;$('sheet').innerHTML=more;if($('sheet').open)$('sheet').close();
  $('more-btn').onclick=()=>$('sheet').showModal();
  document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t+' · ':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
@@ -124,6 +128,8 @@ function animateIn(main,first){
  main.querySelectorAll('.hero>div>*').forEach((el,i)=>el.style.setProperty('--i',i));
  if(!io)return;
  main.querySelectorAll('.grid>.card,.cgrid>.card,.tools>.tool,.certs>.card,.xp>.job,.gallery>img,.svc>.svc-card,.cs>.sec').forEach(el=>{
+  // On first load, anything already on screen just shows: fading it in would delay the page's main image.
+  if(first&&el.getBoundingClientRect().top<innerHeight)return;
   const sib=[...el.parentElement.children].indexOf(el);
   el.classList.add('rv');el.style.setProperty('--d',sib%4);io.observe(el);
  });

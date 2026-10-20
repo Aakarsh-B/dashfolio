@@ -25,7 +25,7 @@ const PROJ=Object.fromEntries(data.PROJECTS.map(p=>['projects/'+p.id,p]));
 // Fill the sidebar, page content and tab bar for one route, as app.js would on load.
 const fill=(html,route)=>{const p=data.page(route);return html
  .replace('<nav aria-label="Main" id="nav"></nav>',()=>`<nav aria-label="Main" id="nav">${p.nav}</nav>`)
- .replace('<main id="main" tabindex="-1"></main>',()=>`<main id="main" tabindex="-1" data-pre>${p.html}</main>`)
+ .replace('<main id="main" tabindex="-1"></main>',()=>`<main id="main" tabindex="-1" data-pre="${route}">${p.html}</main>`)
  .replace('<nav class="tabbar" id="tabs" aria-label="Main (mobile)"></nav>',()=>`<nav class="tabbar" id="tabs" aria-label="Main (mobile)">${p.tabs}</nav>`)};
 const SITE=(process.env.SITE_URL||'').replace(/\/$/,'');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
@@ -42,6 +42,8 @@ const pages=[
 // Share-preview extras every page gets: page URL, image alt text, site name, locale, large card on X.
 const social=(url,alt)=>`\n<meta property="og:url" content="${url}">\n<meta property="og:image:alt" content="${esc(alt)}">\n<meta property="og:site_name" content="Aakarsh B">\n<meta property="og:locale" content="en_IN">`;
 const ld=o=>`<script type="application/ld+json">${JSON.stringify(o).replace(/</g,'\\u003c')}</script>\n</head>`;
+// Cards use a 600px cover; warn if one is missing so a new project doesn't show a broken image.
+for(const p of data.PROJECTS)if(!fs.existsSync(path.join(root,`images/projects/${p.id}/cover-sm.jpg`)))console.warn(`Missing images/projects/${p.id}/cover-sm.jpg: run python3 scripts/thumbs.py`);
 const urls=[''];
 let home=fill(tpl,'/').replace(/<title>[^<]*<\/title>/,`<title>${esc(HOME[0])}</title>`)
  .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(HOME[1]))
