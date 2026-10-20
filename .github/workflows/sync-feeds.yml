@@ -1,0 +1,51 @@
+# Every morning: add new Medium articles and Figma Community files to the site, refresh Figma use counts,
+# rebuild the pages and publish. Run it by hand any time from the repo's Actions tab ("Run workflow").
+name: Sync Medium and Figma
+
+on:
+  schedule:
+    - cron: '17 2 * * *'   # 07:47 IST daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: sync-feeds
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch new articles and files
+        run: |
+          pip install --quiet pillow
+          python scripts/sync_feeds.py
+
+      - name: Rebuild pages
+        run: SITE_URL=https://aakarsh.design node scripts/build-pages.js
+
+      - name: Publish if anything changed
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then echo "Nothing new."; exit 0; fi
+          git config user.name "dashfolio-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Sync: new Medium articles / Figma files, updated counts"
+          git push
+          # Ask GitHub Pages to rebuild, in case a bot push doesn't trigger it on its own.
+          curl -s -o /dev/null -w "Pages build request: %{http_code}\n" -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" || true

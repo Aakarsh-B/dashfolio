@@ -95,6 +95,15 @@ The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js
 
 `scripts/og.js` makes a 1200×630 preview card for every page in `images/og/` (name, role, page title and the project cover or portrait, in the site's style). X, LinkedIn and WhatsApp show these when someone shares a link. Re-run it after adding a project or changing a title: `node scripts/og.js` (needs Playwright), then `node scripts/build-pages.js`. Pages without a card fall back to their cover or the portrait.
 
+## Automatic updates from Medium and Figma
+
+`.github/workflows/sync-feeds.yml` runs every morning (and on demand from the repo's **Actions** tab → *Sync Medium and Figma* → *Run workflow*). It runs `scripts/sync_feeds.py`, which:
+
+- adds any Medium article published after 20 Oct 2026 to the top of `WRITING`, with its header image as the cover and a summary from its opening lines;
+- adds any new Figma Community file to the top of `COMMUNITY`, with its thumbnail, and refreshes every file's uses and likes;
+
+then rebuilds the pages and publishes. Auto-added entries are marked `auto:1` in `js/data.js`: rewrite the summary, reorder or delete them like any other entry. The share card for Freebies/Writing doesn't update itself; re-run `node scripts/og.js` if you want the counts on it refreshed.
+
 ## Pages and URLs
 
 Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title, description and full page text (rendered from `js/views.js`), so links work on any static host and search engines see each project.
