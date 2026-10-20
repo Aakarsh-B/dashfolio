@@ -26,10 +26,11 @@ function go(url){
 function render(){swap(renderNow)}
 function renderNow(){
  document.documentElement.classList.remove('intro');
- const {key,proj,html,nav,tabs}=page(path());
+ const {key,proj,html,nav,tabs,more}=page(path());
  // The page builder pre-fills <main> for crawlers and link previews; the first render replaces it like any other.
  const main=$('main');main.innerHTML=html;main.removeAttribute('data-pre');animateIn(main,firstRender);firstRender=false;
- $('nav').innerHTML=nav;$('tabs').innerHTML=tabs;
+ $('nav').innerHTML=nav;$('tabs').innerHTML=tabs;$('sheet').innerHTML=more;if($('sheet').open)$('sheet').close();
+ $('more-btn').onclick=()=>$('sheet').showModal();
  document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t+' · ':(N.concat([['Contact','/contact']]).find(n=>n[1]===key)?.[0]||'')+' · ')+'Aakarsh B · Brand Designer';
  if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
@@ -108,6 +109,8 @@ function openPin(id){
  dlg.showModal();
 }
 $('lightbox').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
+// More sheet (mobile): tap outside or pick a link to close it.
+$('sheet').addEventListener('click',e=>{if(e.target===e.currentTarget||e.target.closest('a[target]'))e.currentTarget.close()});
 addEventListener('resize',layout);
 
 /* ---------- Motion ----------

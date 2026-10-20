@@ -34,6 +34,7 @@ const HOME=['Aakarsh B · Brand & Visual Designer in Bengaluru','Aakarsh B is a 
 const pages=[
  ['projects','Projects · '+base,'Brand identity, website and marketing design by Aakarsh B, including BiteSpeed, Bose Professional, Mavion and Creativate.'],
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
+ ['writing','Writing · '+base,'Articles by Aakarsh B on design, process and lessons learned the hard way.'],
  ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],
  ['about','About · '+base,'Aakarsh B, brand and visual designer in Bengaluru: how I work, and certificates from Google and CalArts.'],
  ['contact','Contact · '+base,'Hiring, or working on a brand, website or campaign? Get in touch with Aakarsh B.'],
