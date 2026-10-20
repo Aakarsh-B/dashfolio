@@ -1,0 +1,41 @@
+# Every Monday: check that every page, image and outside link on aakarsh.design still works and that
+# accessibility/SEO/speed scores haven't dropped. If something broke, it opens (or updates) a GitHub issue,
+# which GitHub emails to you. When everything is fine again, it closes that issue.
+name: Site health check
+
+on:
+  schedule:
+    - cron: '43 3 * * 1'   # Mondays 09:13 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Check the live site
+        id: check
+        continue-on-error: true
+        env:
+          LIGHTHOUSE: '1'
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/healthcheck.js
+      - name: Report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="Site health check found problems"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ "${{ steps.check.outcome }}" = "failure" ]; then
+            if [ -n "$open" ]; then gh issue comment "$open" --body-file healthcheck-report.md
+            else gh issue create --title "$title" --body-file healthcheck-report.md; fi
+            exit 1
+          elif [ -n "$open" ]; then
+            gh issue close "$open" --comment "Fixed: this week's check passed."
+          fi

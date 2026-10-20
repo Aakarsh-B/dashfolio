@@ -8,6 +8,8 @@ Runs every day from .github/workflows/sync-feeds.yml; you can also run it yourse
 - New Figma Community files go to the top of COMMUNITY; existing ones get their "uses" and "likes" refreshed.
 - Nothing is ever removed or reordered, and hand-written titles and summaries are left alone.
 - If Medium or Figma can't be reached, that source is skipped with a warning and the run still succeeds.
+- With a NOTION_TOKEN (a GitHub secret), published articles are also marked Published, with their link, in the
+  Notion "Medium ideas" table: the matching idea if its title is close enough, otherwise a new row.
 """
 import html, io, json, os, re, sys, urllib.request
 from datetime import datetime
@@ -96,18 +98,20 @@ def sync_medium(src):
     if xml is None:
         print('Medium: skipped (feed unreachable)')
         return src, 0
+    global PUBLISHED
     known = set(re.findall(r"url:'(https://[^']+)'", src))
     known_ids = {u.rstrip('/').rsplit('-', 1)[-1] for u in known}
     added = 0
     # Oldest first, so several new posts end up newest-on-top after inserting each at the top.
     for item in reversed(re.findall(r'<item>(.*?)</item>', xml, re.S)):
         link = re.search(r'<link>(.*?)</link>', item).group(1).split('?')[0]
-        if link in known or link.rstrip('/').rsplit('-', 1)[-1] in known_ids:
-            continue
         published = parsedate_to_datetime(re.search(r'<pubDate>(.*?)</pubDate>', item).group(1))
         if published <= MEDIUM_ADD_AFTER:
             continue
         title = html.unescape(re.search(r'<title><!\[CDATA\[(.*?)\]\]>', item, re.S).group(1)).strip()
+        PUBLISHED.append((title, link))
+        if link in known or link.rstrip('/').rsplit('-', 1)[-1] in known_ids:
+            continue
         date = published.strftime('%b %Y')
         # Medium sends either the full article (content:encoded) or a short card (description) with the cover
         # image and the subtitle as "medium-feed-snippet". Use whichever is there.
@@ -163,13 +167,75 @@ def sync_figma(src):
     return src, added, updated
 
 
+PUBLISHED = []  # (title, link) of every Medium article after the cutoff, filled by sync_medium
+NOTION_DB = 'd52abb99-87a5-4cac-b833-b88791a770bb'  # Content HQ › Medium ideas
+
+
+def notion(method, path, body=None):
+    req = urllib.request.Request('https://api.notion.com/v1/' + path, method=method,
+                                 data=json.dumps(body).encode() if body is not None else None,
+                                 headers={'Authorization': 'Bearer ' + os.environ['NOTION_TOKEN'],
+                                          'Notion-Version': '2022-06-28', 'Content-Type': 'application/json'})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read())
+
+
+def words(s):
+    return {w for w in re.findall(r'[a-z0-9]+', s.lower().replace('’', "'")) if len(w) > 2}
+
+
+def sync_notion():
+    if not os.environ.get('NOTION_TOKEN') or not PUBLISHED:
+        return 0
+    try:
+        rows, cursor = [], None
+        while True:
+            res = notion('POST', f'databases/{NOTION_DB}/query', {'start_cursor': cursor} if cursor else {})
+            rows += res['results']
+            if not res.get('has_more'):
+                break
+            cursor = res['next_cursor']
+    except Exception as e:
+        print(f'Notion: skipped ({e}). Is the integration connected to the Content HQ page?')
+        return 0
+    def prop(r, name):
+        p = r['properties'].get(name) or {}
+        if p.get('type') == 'title':
+            return ''.join(t['plain_text'] for t in p['title'])
+        return p.get('url') or (p.get('status') or {}).get('name') or ''
+    changed = 0
+    for title, link in PUBLISHED:
+        if any(prop(r, 'Link').split('?')[0] == link for r in rows):
+            continue
+        # Best unpublished idea by shared words; needs at least half the words of the shorter title in common.
+        best, score = None, 0
+        for r in rows:
+            if prop(r, 'Status') == 'Published':
+                continue
+            a, b = words(title), words(prop(r, 'Title'))
+            sc = len(a & b) / max(1, min(len(a), len(b)))
+            if sc > score:
+                best, score = r, sc
+        props = {'Status': {'status': {'name': 'Published'}}, 'Link': {'url': link}}
+        if best and score >= 0.5:
+            notion('PATCH', f'pages/{best["id"]}', {'properties': props})
+            print(f'Notion: marked "{prop(best, "Title")}" as published')
+        else:
+            props['Title'] = {'title': [{'text': {'content': title}}]}
+            notion('POST', 'pages', {'parent': {'database_id': NOTION_DB}, 'properties': props})
+            print(f'Notion: added "{title}" as published')
+        changed += 1
+    return changed
+
+
 def main():
     src = open(DATA, encoding='utf-8').read()
     src, m = sync_medium(src)
     src, f, u = sync_figma(src)
     if (m, f, u) != (0, 0, 0):
         open(DATA, 'w', encoding='utf-8').write(src)
-    print(f'Done: {m} new article(s), {f} new Figma file(s), {u} count update(s).')
+    n = sync_notion()
+    print(f'Done: {m} new article(s), {f} new Figma file(s), {u} count update(s), {n} Notion update(s).')
 
 
 if __name__ == '__main__':

@@ -33,20 +33,25 @@ h2{font:600 13px 'Instrument Sans';letter-spacing:.14em;text-transform:uppercase
 .chips img{width:13px;height:13px;display:block}.list li{margin:0 0 8px}.list span{display:block;color:var(--mute);font-size:13.5px}
 .bar{position:fixed;right:20px;bottom:20px;display:flex;gap:10px}
 .bar button,.bar a{font:600 15px 'Instrument Sans';padding:11px 18px;border-radius:12px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;text-decoration:none}
-.bar a{background:#fff;color:var(--ink)}
+.bar a{background:#fff;color:var(--ink)}.bar a.dl{background:var(--ink);color:#fff}
 @media(max-width:700px){.page{margin:0;padding:32px 20px;border-radius:0}.job,.certs{grid-template-columns:1fr;gap:4px}}
-@media print{@page{size:A4;margin:14mm}body{background:#fff}.page{margin:0;padding:0;box-shadow:none;max-width:none}.bar{display:none}}
+@media print{@page{size:A4;margin:13mm 14mm}body{background:#fff;font-size:12.5px;line-height:1.42}.page{margin:0;padding:0;box-shadow:none;max-width:none}.bar{display:none}
+ /* Print/PDF: no letter-spacing on headings (screening software reads "S U M M A R Y"), tighter rhythm so it fits two pages */
+ h1{font-size:34px}.role{font-size:15px;margin:4px 0 8px}.contact{font-size:12.5px}
+ h2{letter-spacing:0;font-size:12.5px;margin:16px 0 8px;padding-bottom:4px}
+ .job{grid-template-columns:118px 1fr;gap:12px;margin-bottom:9px}.job .d,.job h3 span,.job .r span,.list span{font-size:12px}
+ .job h3{font-size:15px}.job li{margin:1px 0}.chips li{font-size:12px;padding:3px 10px 3px 3px}.chips i{width:18px;height:18px}.list li{margin:0 0 4px}}
 </style>
 </head>
 <body>
 <main class="page" id="cv"></main>
-<div class="bar"><a href="index.html">Back to site</a><button type="button" onclick="print()">Save as PDF</button></div>
+<div class="bar"><a href="index.html">Back to site</a><a class="dl" href="resume.pdf" download="Aakarsh-B-Resume.pdf">Download PDF</a></div>
 <script src="js/data.js"></script>
 <script>
 document.getElementById('cv').innerHTML=`
 <h1>Aakarsh B</h1>
 <p class="role">Brand Designer · Bengaluru</p>
-<div class="contact"><a href="tel:+919995529772">+91 99955 29772</a><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a href="https://www.linkedin.com/in/aakarshb/">linkedin.com/in/aakarshb</a><a href="https://www.behance.net/aakarshb">behance.net/aakarshb</a><a href="https://dribbble.com/aakarshb">dribbble.com/aakarshb</a></div>
+<div class="contact"><a href="tel:+919995529772">+91 99955 29772</a><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a><a href="https://aakarsh.design">aakarsh.design</a><a href="https://www.linkedin.com/in/aakarshb/">linkedin.com/in/aakarshb</a><a href="https://www.behance.net/aakarshb">behance.net/aakarshb</a><a href="https://dribbble.com/aakarshb">dribbble.com/aakarshb</a></div>
 <h2>Summary</h2>
 <p class="sum">Brand designer with 5+ years of experience across brand, web and performance design for SaaS and marketing teams. At BiteSpeed, raised ad click-through rates by 50%+, cut cost per demo by 50% and lifted landing page PageSpeed from 50 to 80–84. Previously Senior Visual Designer at CloudEagle.ai, leading a team of three and reporting to the CEO. Works across Figma, Adobe, Webflow and Framer.</p>
 <h2>Experience</h2>

@@ -1,12 +1,15 @@
 /* Makes the 1200×630 share images (images/og/<page>.jpg) that X, LinkedIn and WhatsApp show for each page.
    Run after changing a project title, type or cover:  node scripts/og.js   then  node scripts/build-pages.js
    Needs Playwright (npm i -D playwright, then npx playwright install chromium). The build falls back to the cover
-   or portrait for any page without one, so skipping this never breaks the site. */
+   or portrait for any page without one, so skipping this never breaks the site.
+   Cards whose text, image and template haven't changed are skipped (images/og/manifest.json), so re-running is cheap
+   and doesn't create a new commit every time. */
 const fs=require('fs'),path=require('path');
 const {chromium}=require(process.env.PLAYWRIGHT||'playwright');
 const root=path.join(__dirname,'..');
 const src=f=>fs.readFileSync(path.join(root,f),'utf8');
 const {PROJECTS,COMMUNITY}=new Function(src('js/data.js')+';return {PROJECTS,COMMUNITY}')();
+const crypto=require('crypto');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
 // [file name, tag, headline, image, image caption]. Pages share the portrait; projects show their cover.
@@ -40,15 +43,21 @@ h1{font:800 ${title.length>40?56:title.length>28?62:66}px/1.04 'Bricolage Grotes
 
 (async()=>{
  fs.mkdirSync(path.join(root,'images/og'),{recursive:true});
+ const mf=path.join(root,'images/og/manifest.json');
+ let seen={};try{seen=JSON.parse(fs.readFileSync(mf,'utf8'))}catch(e){}
+ const hash=c=>crypto.createHash('sha1').update(page(c)).update(fs.readFileSync(path.join(root,c[3]))).update(src('css/fonts.css')).digest('hex').slice(0,16);
+ const todo=cards.filter(c=>seen[c[0]]!==hash(c)||!fs.existsSync(path.join(root,`images/og/${c[0]}.jpg`)));
+ if(!todo.length){console.log('Share cards: all up to date');return}
  const tmp=path.join(root,'.og-tmp.html');
  const b=await chromium.launch(process.env.CHROMIUM?{executablePath:process.env.CHROMIUM}:{});
  const pg=await b.newPage({viewport:{width:1200,height:630}});
  try{
-  for(const c of cards){
+  for(const c of todo){
    fs.writeFileSync(tmp,page(c));
    await pg.goto('file://'+tmp);await pg.evaluate(()=>document.fonts.ready);await pg.waitForLoadState('networkidle');
    await pg.screenshot({path:path.join(root,`images/og/${c[0]}.jpg`),type:'jpeg',quality:86});
-   console.log('images/og/'+c[0]+'.jpg');
+   console.log('images/og/'+c[0]+'.jpg');seen[c[0]]=hash(c);
   }
+  fs.writeFileSync(mf,JSON.stringify(seen,null,1)+'\n');
  }finally{fs.rmSync(tmp,{force:true});await b.close()}
 })();

@@ -1,5 +1,6 @@
 # Every morning: add new Medium articles and Figma Community files to the site, refresh Figma use counts,
-# rebuild the pages and publish. Run it by hand any time from the repo's Actions tab ("Run workflow").
+# mark published articles in Notion (if the NOTION_TOKEN secret is set), rebuild and publish.
+# Run it by hand any time from the repo's Actions tab ("Run workflow").
 name: Sync Medium and Figma
 
 on:
@@ -12,7 +13,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: sync-feeds
+  group: site-bot
   cancel-in-progress: false
 
 jobs:
@@ -20,22 +21,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
+        with: { python-version: '3.12' }
       - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        with: { node-version: '20' }
 
       - name: Fetch new articles and files
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: |
           pip install --quiet pillow
           python scripts/sync_feeds.py
 
-      - name: Rebuild pages
-        run: SITE_URL=https://aakarsh.design node scripts/build-pages.js
+      - name: Rebuild assets if something came in
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then echo "Nothing new."; exit 0; fi
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          bash scripts/assets.sh
 
       - name: Publish if anything changed
         run: |
@@ -44,6 +47,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Sync: new Medium articles / Figma files, updated counts"
+          git pull --rebase
           git push
           # Ask GitHub Pages to rebuild, in case a bot push doesn't trigger it on its own.
           curl -s -o /dev/null -w "Pages build request: %{http_code}\n" -X POST \

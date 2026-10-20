@@ -104,6 +104,20 @@ The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js
 
 then rebuilds the pages and publishes. Auto-added entries are marked `auto:1` in `js/data.js`: rewrite the summary, reorder or delete them like any other entry. The share card for Freebies/Writing doesn't update itself; re-run `node scripts/og.js` if you want the counts on it refreshed.
 
+## Robots (GitHub Actions)
+
+| Workflow | When | What it does |
+|---|---|---|
+| **Rebuild assets** (`assets.yml`) | After every push that changes content or code | Runs `scripts/assets.sh`: small card covers, share cards, `resume.pdf`, pages. Commits only what changed. |
+| **Sync Medium and Figma** (`sync-feeds.yml`) | Daily 07:47 IST | New Medium articles and Figma files onto the site, Figma counts, then the same asset rebuild. With the `NOTION_TOKEN` secret it also marks articles Published in Notion. |
+| **Site health check** (`healthcheck.yml`) | Mondays 09:13 IST | Every page, file and outside link on the live site, plus Lighthouse scores. Problems open a GitHub issue (emailed to you); it closes itself once fixed. |
+
+All three can be run by hand from the repo's **Actions** tab → pick the workflow → **Run workflow**.
+
+**Resume PDF:** `resume.pdf` is printed from `resume.html` (which is built from `js/data.js`), so updating your experience in `data.js` updates the PDF too. The resume page's **Download PDF** button links to it.
+
+**Notion key (for marking articles Published):** at notion.so/profile/integrations create an internal integration, copy its secret, add it to this repo under Settings → Secrets and variables → Actions as `NOTION_TOKEN`, then on the Content HQ page in Notion use ••• → Connections → add the integration.
+
 ## Pages and URLs
 
 Every page has its own URL (`/projects`, `/projects/bose`, `/freebies`, `/about`…). The app routes in the browser, and `scripts/build-pages.js` writes a real `index.html` for each route with its own title, description and full page text (rendered from `js/views.js`), so links work on any static host and search engines see each project.
