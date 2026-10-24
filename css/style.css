@@ -440,3 +440,30 @@ h2{font-size:21px;margin:44px 0 14px}
 .board{height:clamp(440px,58vh,560px)}
 .next{margin-top:32px}.next b{font-size:19px}
 @media(max-width:820px){main{padding-top:24px}h1{font-size:clamp(34px,10vw,44px)}h2{margin-top:36px;font-size:20px}.pin.me{--w:96px}}
+
+/* Breathing room: keep the smaller type, give everything more space around it */
+body{line-height:1.6}
+@media(min-width:821px){aside{padding:24px 14px;gap:4px}.who{padding:0 6px 22px}}
+nav a{padding:8px 10px}
+.grp{padding:20px 10px 6px}
+main{padding:64px clamp(24px,5.5vw,88px) 112px}
+h1{margin-bottom:18px}
+.lead{margin-bottom:30px;line-height:1.65}
+.tags{margin-bottom:24px}
+h2{margin:80px 0 22px}
+.grid,.grid.two{gap:28px}
+.grid.four{gap:24px}
+.meta{padding:16px 20px 20px}
+.free p,.cert p{margin:-6px 20px 20px}
+.panel,.svc-card,.wfit section{padding:24px 26px}
+.svc,.wfit,.quotes,.certs,.tools{gap:24px}
+.proof{gap:16px;margin:36px 0 12px}.proof div{padding:20px 22px}
+.more{margin-top:24px}
+.sec{padding:30px 0;gap:28px}
+.facts{margin-top:36px;padding:24px 26px;gap:20px 28px}
+.cs-cover{margin-top:36px}
+.gallery{gap:24px;margin:40px 0 16px}
+.quote{padding:26px 28px}
+.next{margin-top:56px}
+.board{margin-top:8px}
+@media(max-width:820px){main{padding-top:32px}h2{margin-top:56px}.grid,.grid.two{gap:20px}.gallery{gap:16px}}
