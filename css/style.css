@@ -158,7 +158,9 @@ main{padding-top:32px;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px
 .jh .d{color:var(--mute);font-size:14px;white-space:nowrap}
 
 /* Case study gallery */
-.gallery{display:grid;gap:16px;margin:28px 0 12px}
+.gallery{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin:28px 0 12px}
+.gallery figure{grid-column:1/-1;min-width:0}.gallery .s2{grid-column:span 3}.gallery .s3{grid-column:span 2}
+@media(max-width:520px){.gallery .s3{grid-column:span 3}}
 .gallery img{display:block;width:100%;height:auto;border-radius:16px;border:1px solid var(--line);background:var(--hi)}
 
 /* Services: enquire */
