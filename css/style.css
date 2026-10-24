@@ -393,3 +393,16 @@ dialog[open]::backdrop{animation:fade-in var(--t-ui) var(--ease-out) both}
 .board-head{align-items:center;margin-bottom:6px}.board-head .hd{margin-bottom:0}
 .board-head+.board-hint{margin:0 0 20px;color:var(--mute)}
 .lead a{color:var(--a1)}
+
+/* Work with me */
+.proof{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px;margin:28px 0 8px}
+.proof div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column-reverse;gap:4px}
+.proof dd{margin:0;font:800 clamp(30px,3.4vw,40px)/1 'Bricolage Grotesque';letter-spacing:-.02em}
+.proof dt{font-weight:600}.proof dt span{display:block;color:var(--mute);font-weight:400;font-size:14px}
+.wfit{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px;margin:16px 0 8px}
+.wfit section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px}
+.wfit h2{margin:0 0 14px;font:600 20px 'Bricolage Grotesque'}
+.wfit .keys{margin:0}
+.wcta{margin-top:28px;text-align:center;padding:36px 24px}
+.wcta h2{margin:0 0 8px;font:700 clamp(24px,3vw,30px) 'Bricolage Grotesque'}
+.wcta p{margin:0 auto 20px;color:var(--mute);max-width:52ch}

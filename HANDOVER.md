@@ -13,7 +13,7 @@ Medium: https://aakarshbiju.medium.com/
 - `aakarsh-portfolio.html` (attached alongside this file): a single-file, dashboard-style portfolio. Rename to `index.html` in the repo.
 - A preview was published as a Claude artifact; the repo copy is the source of truth now.
 - Layout is modeled on a dark Framer "dashboard" template: left sidebar (name, role, numbered nav shortcuts 1-5, C for contact, S to search), content area on the right with a project card grid.
-- Views (hash-routed, no build step): Explore (home), Projects, Experience, Services, About, Contact, and a reusable case-study template at `#/p/<id>`.
+- Views (hash-routed, no build step): Explore (home), Projects, Experience, Work with me, Writing, Freebies, About, Contact, and a reusable case-study template at `#/p/<id>`.
 - Light/dark theme follows system preference, with a manual Theme toggle.
 - Fonts: Bricolage Grotesque (headings), Instrument Sans (body), Caveat (handwritten accents), loaded from Google Fonts.
 - Palette accents: cyan #5ad1f4, pink #ff5fa2, yellow #ffd23f, mint #7ee8c0.

@@ -83,9 +83,9 @@ Three palettes are built in: `cobalt` (current), `ember` and `forest`, each with
 
 `1`–`3`, `5`, `6` switch pages · `C` opens Contact · `S` focuses search.
 
-## Services and prices
+## Work with me and prices
 
-The Services page is hidden for now: set `SHOW_SERVICES` to `true` in `js/app.js` to bring it back. Edit `SERVICES` and `INVITE` in `js/data.js`. The sidebar counts for Projects and Services update automatically.
+The Work with me page (`/work-with-me`, the old `/services` link goes there too) is built from `SERVICES`, `INVITE`, `PROOF`, `FIT` and `STEPS` in `js/data.js`, plus the testimonials in `QUOTES`. Prices are hidden; set `SHOW_PRICES` to `true` to show the "from ₹…" starting prices.
 
 ## Writing (Medium articles on Explore)
 

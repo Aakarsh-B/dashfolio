@@ -20,7 +20,7 @@ function go(url){
  const u=new URL(url,document.baseURI);
  const from=path();history.replaceState({...history.state,y:scrollY},'');
  history.pushState({from},'',HASH?location.href.split('#')[0]+'#'+tidy('/'+u.pathname.slice(ROOT.length))+u.search:u);
- inSite++;render();window.scrollTo(0,0);
+ inSite++;render();window.scrollTo(0,0);count(location.pathname);
  if(document.activeElement!==q)$('main').focus({preventScroll:true});
 }
 function render(){swap(renderNow)}
@@ -172,11 +172,19 @@ function initForm(service){
   try{
    const r=await fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({...d,_subject:`Portfolio enquiry: ${d.service} from ${d.name}`,_template:'table',_replyto:d.email})});
    if(!r.ok)throw new Error(r.status);
-   f.reset();msg.textContent="Thanks, that's on its way. I'll reply by email soon.";msg.className='fmsg ok';
+   count('form sent: '+d.service,1);f.reset();msg.textContent="Thanks, that's on its way. I'll reply by email soon.";msg.className='fmsg ok';
   }catch(err){msg.innerHTML='That didn\'t send. Please email me at <a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a>.';msg.className='fmsg err'}
   btn.disabled=false;btn.textContent='Send message';
  };
 }
+
+/* ---------- Visitor counts ----------
+   GoatCounter (aakarsh.goatcounter.com): no cookies, so no consent banner. Counts page views, including in-site
+   navigation, plus a few events: contact form sent and clicks out to other sites. Set GC to '' to turn it off. */
+const GC='aakarsh';
+const count=(p,ev)=>{try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:p,title:ev?p:document.title,event:!!ev})}catch(e){}};
+if(GC&&!HASH){const s=document.createElement('script');s.async=true;s.src='https://gc.zgo.at/count.js';s.dataset.goatcounter=`https://${GC}.goatcounter.com/count`;document.head.append(s)}
+document.addEventListener('click',e=>{const a=e.target.closest('a[target="_blank"]');if(a)try{count('out: '+new URL(a.href).hostname.replace(/^www\./,''),1)}catch(err){}});
 
 /* ---------- Navigation, search, shortcuts, theme ---------- */
 document.addEventListener('click',e=>{
@@ -189,7 +197,7 @@ document.addEventListener('click',e=>{
  if(a.hasAttribute('data-back')&&inSite>0&&history.state&&history.state.from==='/projects'){history.back();return}
  if(HASH||u.href!==location.href)go(u.href);
 });
-addEventListener('popstate',e=>{inSite=Math.max(0,inSite-1);render();window.scrollTo(0,(e.state&&e.state.y)||0)});
+addEventListener('popstate',e=>{inSite=Math.max(0,inSite-1);render();count(location.pathname);window.scrollTo(0,(e.state&&e.state.y)||0)});
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 // Old #/ links move to real paths when served (they're the routing scheme when opened from disk).
 if(!HASH&&location.hash.startsWith('#/')){const [r0,qs]=location.hash.slice(1).split('?');history.replaceState({},'',new URL(tidy(r0).slice(1)+(qs?'?'+qs:''),document.baseURI))}

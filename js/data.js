@@ -129,6 +129,12 @@ const SERVICES = [
 {t:'Design audit',p:'₹15,000',w:'3 days',i:['Review of your brand and website','Recorded walkthrough','Prioritised list of fixes']}];
 const INVITE = {t:'Fractional design lead',p:'₹4,50,000',u:'/ month',w:'3-month minimum',s:'I join your team as a part-time head of design across brand, web and campaigns: setting direction, running the design system and working directly with founders. One team at a time, by invitation or referral only.'};
 
+// Work with me page. Proof numbers come from the resume: keep them to things you can back up.
+const SHOW_PRICES = false; // true shows the "from ₹…" starting prices on the service cards
+const PROOF = [['+50%','ad click-through rate','BiteSpeed'],['−50%','cost per demo','BiteSpeed'],['50 → 84','landing page PageSpeed','BiteSpeed'],['5+ yrs','brand, web and growth design','SaaS teams']];
+const FIT = ['SaaS, AI and e-commerce startups that have outgrown their first brand','Marketing teams that need landing pages and ads that convert, not just look good','Founders who need a pitch or sales deck that explains the product fast'];
+const STEPS = [['Intro call','30 minutes on what you\'re building, who it\'s for and what a good result looks like.'],['Fixed quote','A short proposal with scope, timeline and price, within two working days.'],['Design in rounds','Work in progress every week, so feedback lands early and nothing is a surprise.'],['Handover','Final files, a site your team can edit, and a walkthrough.']];
+
 // Freebies: Figma Community files (figma.com/@aakarsh). Uses = times duplicated, as reported by Figma when added.
 const COMMUNITY_URL = 'https://www.figma.com/@aakarsh';
 const COMMUNITY = [

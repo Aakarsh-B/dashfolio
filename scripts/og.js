@@ -18,6 +18,7 @@ const cards=[
  ['home','ex-CloudEagle.ai · Hexnode','Brand identities, websites and campaign creative',...ME],
  ['projects',`${PROJECTS.length} projects`,'Selected work: brand, web and marketing design',...ME],
  ['experience','BiteSpeed · CloudEagle.ai · Hexnode','5+ years of brand, web and growth design',...ME],
+ ['work-with-me','freelance','Brand, web and campaign design that gets results',...ME],
  ['writing','on Medium','Longer thoughts on design and the occasional expensive mistake',...ME],
  ['freebies',`${COMMUNITY.length} free Figma files`,'Free files to duplicate, take apart and reuse',...ME],
  ['about','about','Designer at work. Curious human otherwise.',...ME],
