@@ -408,3 +408,35 @@ dialog[open]::backdrop{animation:fade-in var(--t-ui) var(--ease-out) both}
 .wcta{margin-top:28px;text-align:center;padding:36px 24px}
 .wcta h2{margin:0 0 8px;font:700 clamp(24px,3vw,30px) 'Bricolage Grotesque'}
 .wcta p{margin:0 auto 20px;color:var(--mute);max-width:52ch}
+
+/* Compact pass: smaller type, tighter cards and sidebar */
+body{font-size:15px}
+@media(min-width:821px){aside{width:236px;padding:18px 12px;gap:2px}.who{padding:0 6px 14px}}
+.who b{font-size:16px}.who span{font-size:13px}
+nav a{padding:7px 10px;font-size:14.5px;gap:10px;border-radius:10px}
+.grp{font-size:12px;padding:12px 10px 2px}
+.search{padding:6px 10px;font-size:14px}.resume{padding:10px 14px;font-size:14px}
+main{padding:44px clamp(20px,4.5vw,64px) 80px;max-width:1100px}
+h1{font-size:clamp(36px,5vw,64px);margin-bottom:12px}
+.cs-t{font-size:clamp(30px,3.8vw,48px)}
+.lead{font-size:clamp(16px,1.45vw,18px);max-width:62ch;margin-bottom:20px}
+.lead.sm{font-size:15px}
+h2{font-size:21px;margin:44px 0 14px}
+.scrib{font-size:19px}.hand{font-size:20px;padding:1px 10px}
+.btn{padding:9px 16px;font-size:14.5px;border-radius:10px}.btn.sm{padding:6px 12px;font-size:13px}
+.open{font-size:13px;padding:5px 12px 5px 10px}
+.grid{gap:16px}
+.meta{padding:12px 16px}.meta b{font-size:16px}.meta span{font-size:13px}
+.card,.panel,.svc-card,.wfit section,.proof div{border-radius:14px}
+.panel,.svc-card,.wfit section{padding:18px 20px}
+.free p,.cert p{font-size:14px;margin:-4px 16px 16px}
+.pin.me{--w:clamp(130px,12vw,170px)}
+.sec{padding:18px 0;grid-template-columns:170px 1fr}
+.cs .sec>div{font-size:15.5px}.cs .sec h2{font-size:17px}
+.facts{gap:14px 20px}.facts dd{font-size:14.5px}
+.quote{padding:20px 22px}.quote p{font-size:15.5px}
+.jh h2{font-size:18px}
+.tool{padding:12px;border-radius:14px}.tool b{font-size:15px}.tool span{font-size:13px}
+.board{height:clamp(440px,58vh,560px)}
+.next{margin-top:32px}.next b{font-size:19px}
+@media(max-width:820px){main{padding-top:24px}h1{font-size:clamp(34px,10vw,44px)}h2{margin-top:36px;font-size:20px}.pin.me{--w:96px}}
