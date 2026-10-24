@@ -377,7 +377,7 @@ dialog[open]::backdrop{animation:fade-in var(--t-ui) var(--ease-out) both}
 .gallery figure{margin:0}
 .gallery figcaption{margin-top:8px;color:var(--mute);font-size:14px}
 .next{display:grid;grid-template-columns:160px 1fr auto;align-items:center;gap:20px;margin-top:40px;padding:12px 24px 12px 12px}
-.next img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block}
+.next img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block}
 .next span:not(.arr){display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
 .next b{display:block;font:600 22px 'Bricolage Grotesque';margin:4px 0 2px;color:var(--ink)}
 .next em{font-style:normal;color:var(--mute);font-size:14px}
