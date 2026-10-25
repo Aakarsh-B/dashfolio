@@ -45,28 +45,33 @@ const certs=()=>`<div class="certs">${CERTS.map(c=>`<a class="tile rv" href="${c
 const logo=c=>c.logo?`<img class="logo" src="${c.logo}" alt="" width="44" height="44">`:`<span class="logo" aria-hidden="true">${c.co.split(' ').map(w=>w[0]).slice(0,2).join('')}</span>`;
 
 /* ---------- Home ---------- */
+// Three objects from the job itself: a colour swatch (brand), a browser window (web) and an ad (growth).
 const heroCards=()=>`<div class="peek">
-<a class="pk pk1" href="./#work"><div class="pkh">Where I help</div><div class="pkb"><span class="chip3 c1">Brand</span><span class="chip3 c2">Web</span><span class="chip3 c3">Growth</span></div></a>
-<a class="pk pk2" href="./#story"><div class="pkh">How I got here</div><div class="pkb"><svg class="loop" viewBox="0 0 300 220" aria-hidden="true"><path d="M40 190C10 120 70 40 120 90s10 120 60 90 40-150 90-140"/></svg><img class="ph p-a" src="images/community/hotel-booking-app-ui.jpg" alt="" width="96" height="96"><img class="ph p-b" src="images/board/me.jpg" alt="" width="110" height="110"></div></a>
-<a class="pk pk3" href="./#life"><div class="pkh">Life off-screen</div><div class="pkb"><figure class="pola"><img src="images/board/bike.jpg" alt="" width="200" height="200"><figcaption>long roads</figcaption></figure><img class="ph p-c" src="images/board/cat.jpg" alt="" width="96" height="96"></div></a></div>`;
+<a class="obj swatch" href="./#work" aria-label="Brand work"><div class="sw-c"><span>Brand</span></div><div class="sw-t"><b>Cobalt 3350</b><span>Identities that hold up from favicon to billboard</span></div></a>
+<a class="obj win" href="./#work" aria-label="Web work"><div class="win-bar"><i></i><i></i><i></i><span>aakarsh.design</span></div><div class="win-b"><span class="wl w1"></span><span class="wl w2"></span><span class="wl w3"></span><span class="wbtn">Get started</span><span class="wtag">Web</span></div></a>
+<a class="obj ad" href="./#work" aria-label="Growth work"><div class="ad-img"><img src="images/projects/ads/cover-sm.jpg" alt="" width="600" height="450"></div><div class="ad-b"><span class="ad-k">Growth</span><span class="ad-n">CTR <b>+50%</b></span><svg viewBox="0 0 120 34" aria-hidden="true"><path d="M2 30 L22 26 L40 28 L58 18 L76 20 L94 9 L118 4"/></svg></div></a>
+<figure class="obj me-pin" aria-hidden="true"><img src="images/board/me.jpg" alt="" width="200" height="200"><figcaption>hi, I'm Aakarsh</figcaption></figure></div>`;
 
 const STATS=[['figma',`5+ years in design`,'Brand, web and growth design at BiteSpeed, CloudEagle.ai and Hexnode.'],['chart','+50% ad click-through','From creative testing on BiteSpeed\'s paid campaigns.'],['bolt',`${(Math.floor(USES/100)*100).toLocaleString('en-IN')}+ Figma duplicates`,'Free community files other designers actually use.']];
 
-const story=()=>STORY.map((c,i)=>`<article class="ch rv"><div class="ct"><h3>${c.t}</h3>${c.p.map(x=>`<p>${x}</p>`).join('')}${c.link?`<a class="more lt" href="${c.link[1]}">${c.link[0]} →</a>`:''}</div><div class="cc c${i}" aria-hidden="true">${c.img.map((s,j)=>`<img src="${s}" alt="" loading="lazy" style="--j:${j}">`).join('')}</div></article>`).join('<hr>');
+// The story as a metro line: one stop per chapter, each with its year, a few lines and two pictures.
+const story=()=>`<ol class="metro">${STORY.map((c,i)=>`<li class="stop rv"><span class="yr">${c.y}</span><div class="sb"><h3>${c.t}</h3>${c.p.map(x=>`<p>${x}</p>`).join('')}${c.link?`<a class="more lt" href="${c.link[1]}">${c.link[0]} →</a>`:''}</div><div class="sp2" aria-hidden="true">${c.img.slice(0,2).map(s=>`<img src="${s}" alt="" loading="lazy">`).join('')}</div></li>`).join('')}<li class="stop end"><span class="yr">Next</span><div class="sb"><h3>Your brand?</h3><p>I take on a few freelance projects alongside my work at BiteSpeed.</p><a class="more lt" href="work-with-me">Work with me →</a></div></li></ol>`;
 
-const world=()=>`<div class="world">${WORLD.map(w=>`<figure class="wp rv"><img src="${w.src}" alt="${w.alt}" loading="lazy"><figcaption>${w.caption}</figcaption></figure>`).join('')}</div>`;
+// The photo board: polaroids and sticky notes you can drag around (positions saved per visitor).
+const pin=(b,attrs='')=>{const t=attrs?'div':'figure',c=attrs?'div class="cap"':'figcaption';return `<${t} class="pin${b.note?' note':''}" style="--r:${b.r}deg;--c:${b.color}" ${attrs}>${b.note?'':`<img src="${b.src}" alt="${b.alt||b.caption}" draggable="false">`}<${c}>${b.caption}</${c.split(' ')[0]}></${t}>`};
+const board=()=>`<div class="board" id="board" role="region" aria-label="Photo board. Tab to a photo, arrow keys move it, Enter opens it."></div><div class="board-foot"><span>Go on, drag them around.</span><button class="btn sm" id="reset" type="button">Tidy up</button></div>`;
 
 const home=()=>`<section class="band dark hero"><div class="wrap">
-<p class="where"><i class="live" aria-hidden="true"></i>Bengaluru, IN · Remote · IST-friendly</p>
+<p class="where"><i class="live" aria-hidden="true"></i>Brand designer · Bengaluru · open to freelance</p>
 <h1>Aakarsh B</h1>
-<p class="lead">Brand designer who makes SaaS brands look credible, and makes their pages and ads pull their weight.</p>
+<p class="lead">I make SaaS brands look credible, and make their pages and ads pull their weight.</p>
 ${heroCards()}</div></section>${fade('d2l')}
-${sec('work','light',`<h2>Where I make<br>the difference</h2><p class="lead">Since 2020 I've designed where brand meets growth: identities, websites, landing pages and ads for SaaS teams. Built to look good, and to get results.</p>
+${sec('work','light',`<h2>Design that<br>pulls its weight</h2><p class="lead">Five years of brand, web and growth design for SaaS teams. The craft matters, and so do the numbers it moves.</p>
 <div class="stats">${STATS.map(s=>`<div class="stat rv"><span class="ic">${SVG(ICON[s[0]],16)}</span><b>${s[1]}</b><p>${s[2]}</p></div>`).join('')}</div>
-<h3 class="h3">Work I've shipped</h3><div class="tiles">${PROJECTS.slice(0,7).map(tile).join('')}${nextTile()}</div><a class="more" href="projects">All ${PROJECTS.length} projects →</a>
-<h3 class="h3 c">What people say</h3><div class="stack" id="stack" aria-roledescription="carousel">${QUOTES.map(qcard).join('')}</div><p class="stack-hint">Drag or tap the card to see the next one</p>`)}
-${fade('l2d')}${sec('story','dark',`<h2>How I found<br>my way in</h2>${story()}`)}${fade('d2l')}
-${sec('life','light',`<h2>What my world<br>looks like</h2><p class="lead">Rides, runs, travel, coffee, and a cat who runs the house.</p>${world()}`)}`;
+<h3 class="h3">Things I've made</h3><div class="tiles">${PROJECTS.slice(0,7).map(tile).join('')}${nextTile()}</div><a class="more" href="projects">All ${PROJECTS.length} projects →</a>
+<h3 class="h3 c">Kind words, unedited</h3><div class="stack" id="stack" aria-roledescription="carousel">${QUOTES.map(qcard).join('')}</div><p class="stack-hint">Flick the card to read the next one</p>`)}
+${fade('l2d')}${sec('story','dark',`<h2>The long<br>way round</h2><p class="lead">Five stops between a computer science degree and designing for growth.</p>${story()}`)}${fade('d2l')}
+${sec('life','light',`<h2>Off the clock</h2><p class="lead">Rides, runs, travel, coffee, and a cat who runs the house.</p>${board()}`)}`;
 
 /* ---------- Inner pages ---------- */
 const head=(t,lead,extra='')=>`<header class="ph-head"><h1>${t}</h1>${lead?`<p class="lead">${lead}</p>`:''}${extra}</header>`;

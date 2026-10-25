@@ -35,6 +35,7 @@ function renderNow(){
  document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t:TITLES[key]||'Aakarsh B')+' · Aakarsh B · Brand Designer';
  motion(main,firstRender);firstRender=false;
  if($('stack'))initStack($('stack'));
+ if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
 }
 
@@ -59,6 +60,82 @@ function initStack(el){
  };
  el.tabIndex=0;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();next()}};
 }
+
+/* ---------- Photo board ----------
+   Positions are stored as % of the board so they survive resizes, and saved per visitor in localStorage. */
+const KEY='dashfolio-board-v3';
+const loadPos=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+const savePos=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+let pos={},topZ=0;
+
+function initBoard(){
+ const el=$('board'),saved=loadPos(),narrow=el.clientWidth<600;
+ pos={};topZ=BOARD.length;
+ el.innerHTML=BOARD.map((b,i)=>{
+  // Narrow screens get a loose two-column scatter instead of the desktop layout.
+  const d=narrow?{x:(i%2?50:4)+(i%3-1)*2,y:Math.floor(i/2)*24+2}:b,s=saved[b.id]||{};
+  pos[b.id]={x:s.x??d.x,y:s.y??d.y,z:s.z||i+1};
+  topZ=Math.max(topZ,pos[b.id].z);
+  return pin(b,`data-id="${b.id}" tabindex="0" role="button" aria-label="${b.caption}. Drag or use arrow keys to move, Enter to open."`);
+ }).join('');
+ layout();
+ document.fonts?.ready.then(layout);
+ el.addEventListener('load',layout,true);
+ el.addEventListener('pointerdown',drag);
+ el.addEventListener('keydown',nudge);
+ $('reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}initBoard()};
+}
+
+// Clamp to the board in px (leaving room for the tape), then write back as %.
+function place(p){
+ const el=$('board'),W=el.clientWidth,H=el.clientHeight,s=pos[p.dataset.id];
+ const x=Math.min(Math.max(s.x/100*W,6),Math.max(6,W-p.offsetWidth-6));
+ const y=Math.min(Math.max(s.y/100*H,16),Math.max(16,H-p.offsetHeight-6));
+ p.style.left=x/W*100+'%';p.style.top=y/H*100+'%';p.style.zIndex=s.z;
+}
+function layout(){const el=$('board');if(el)el.querySelectorAll('.pin').forEach(place)}
+
+function drag(e){
+ const p=e.target.closest('.pin');if(!p||e.button>0)return;
+ e.preventDefault();p.focus({preventScroll:true});p.setPointerCapture(e.pointerId);
+ const el=$('board'),s=pos[p.dataset.id],sx=e.clientX,sy=e.clientY,ox=p.offsetLeft,oy=p.offsetTop;
+ let moved=false;
+ s.z=++topZ;p.style.zIndex=s.z;
+ const move=ev=>{
+  const dx=ev.clientX-sx,dy=ev.clientY-sy;
+  if(!moved){if(Math.hypot(dx,dy)<5)return;moved=true;p.classList.add('drag')}
+  s.x=(ox+dx)/el.clientWidth*100;s.y=(oy+dy)/el.clientHeight*100;place(p);
+ };
+ const up=ev=>{
+  p.classList.remove('drag');
+  p.removeEventListener('pointermove',move);p.removeEventListener('pointerup',up);p.removeEventListener('pointercancel',up);
+  if(moved){const el2=$('board');s.x=p.offsetLeft/el2.clientWidth*100;s.y=p.offsetTop/el2.clientHeight*100}
+  savePos(pos);
+  if(!moved&&ev.type==='pointerup')openPin(p.dataset.id);
+ };
+ p.addEventListener('pointermove',move);p.addEventListener('pointerup',up);p.addEventListener('pointercancel',up);
+}
+
+function nudge(e){
+ const p=e.target.closest('.pin');if(!p)return;
+ if(e.key==='Enter'||e.key===' '){e.preventDefault();openPin(p.dataset.id);return}
+ const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;
+ e.preventDefault();
+ const s=pos[p.dataset.id],step=e.shiftKey?8:2;
+ s.x+=d[0]*step;s.y+=d[1]*step;s.z=++topZ;place(p);
+ const el=$('board');s.x=p.offsetLeft/el.clientWidth*100;s.y=p.offsetTop/el.clientHeight*100;
+ savePos(pos);
+}
+
+function openPin(id){
+ const b=BOARD.find(x=>x.id===id),dlg=$('lightbox');
+ dlg.innerHTML=`<button class="btn x" type="button" aria-label="Close">Close</button>${pin(b)}`;
+ dlg.querySelector('.x').onclick=()=>dlg.close();
+ dlg.showModal();
+}
+$('lightbox').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
+addEventListener('resize',layout);
+
 
 /* ---------- Motion ----------
    Repeated items rise in as they scroll into view. On first load, anything already on screen just shows. */
