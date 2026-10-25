@@ -291,10 +291,10 @@ function initPalette(){
  const LOCK=SVG('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',18),OPEN=SVG('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',18);
  function gen(){hist.push(cols.map(c=>({...c})));const fresh=harmony(cols.filter(c=>c.lock).map(c=>c.h),cols.length);let k=0;cols=cols.map(c=>c.lock?c:{h:fresh[k++],lock:false});draw()}
  function draw(){
-  $('pal').innerHTML=cols.map((c,i)=>`<div class="pc${c.lock?' locked':''}" style="--c:${c.h};--on:${ink(c.h)}" data-i="${i}">
+  $('pal').innerHTML=cols.map((c,i)=>`<div class="pcol${c.lock?' locked':''}" style="--c:${c.h};--on:${ink(c.h)}" data-i="${i}">
    <div class="pc-tools"><button type="button" data-a="lock" aria-pressed="${c.lock}" aria-label="${c.lock?'Unlock':'Lock'} ${c.h}">${c.lock?LOCK:OPEN}</button><label class="pc-edit" aria-label="Change colour">${SVG('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',17)}<input type="color" value="${c.h}" data-a="edit"></label>${cols.length>2?`<button type="button" data-a="del" aria-label="Remove ${c.h}">${SVG('<path d="M6 6l12 12M18 6 6 18"/>',17)}</button>`:''}</div>
    <button type="button" class="pc-hex" data-a="copy">${c.h.slice(1).toUpperCase()}</button><span class="pc-n">${names[i]}</span></div>`).join('');
-  $('addc').disabled=cols.length>=5;$('undo').disabled=!hist.length;
+  $('addc').hidden=cols.length>=5;$('undo').disabled=!hist.length;
   scales();setQuery({c:cols.map(c=>c.h.slice(1)).join('-')});
  }
  let S=[];
@@ -305,12 +305,12 @@ function initPalette(){
  }
  $('scales').oninput=e=>{const t=e.target.closest('.sname');if(!t)return;const v=t.value.toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'')||'colour';const i=+t.dataset.i;if(i<cols.length)names[i]=v;S[i].n=v;$('pal').querySelectorAll('.pc-n')[i]&&($('pal').querySelectorAll('.pc-n')[i].textContent=v);code()};
  $('scales').onclick=e=>{const b=e.target.closest('.sw');if(b)copy(b.dataset.hex.toUpperCase())};
- $('pal').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName==='INPUT')return;const i=+b.closest('.pc').dataset.i,a=b.dataset.a;
+ $('pal').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName==='INPUT')return;const i=+b.closest('.pcol').dataset.i,a=b.dataset.a;
   if(a==='lock'){cols[i].lock=!cols[i].lock;draw()}
   if(a==='del'){hist.push(cols.map(c=>({...c})));cols.splice(i,1);names.splice(i,1);names.push(NAMES.find(n=>!names.includes(n))||'colour');draw()}
   if(a==='copy')copy(cols[i].h.toUpperCase())};
- $('pal').oninput=e=>{if(e.target.dataset.a!=='edit')return;const i=+e.target.closest('.pc').dataset.i;cols[i].h=e.target.value;const pc=e.target.closest('.pc');pc.style.setProperty('--c',cols[i].h);pc.style.setProperty('--on',ink(cols[i].h));pc.querySelector('.pc-hex').textContent=cols[i].h.slice(1).toUpperCase()};
- $('pal').onchange=e=>{if(e.target.dataset.a==='edit'){const i=+e.target.closest('.pc').dataset.i;cols[i].lock=true;draw()}};
+ $('pal').oninput=e=>{if(e.target.dataset.a!=='edit')return;const i=+e.target.closest('.pcol').dataset.i;cols[i].h=e.target.value;const pc=e.target.closest('.pcol');pc.style.setProperty('--c',cols[i].h);pc.style.setProperty('--on',ink(cols[i].h));pc.querySelector('.pc-hex').textContent=cols[i].h.slice(1).toUpperCase()};
+ $('pal').onchange=e=>{if(e.target.dataset.a==='edit'){const i=+e.target.closest('.pcol').dataset.i;cols[i].lock=true;draw()}};
  $('gen').onclick=gen;
  $('undo').onclick=()=>{if(hist.length){cols=hist.pop();draw()}};
  $('addc').onclick=()=>{if(cols.length>=5)return;hist.push(cols.map(c=>({...c})));cols.push({h:harmony(cols.map(c=>c.h),1)[0],lock:false});draw()};
@@ -353,11 +353,14 @@ function initImagePalette(){
   const k=+$('k').value,s=Math.min(1,110/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.max(1,Math.round(img.naturalWidth*s)),h=Math.max(1,Math.round(img.naturalHeight*s));
   const t=document.createElement('canvas');t.width=w;t.height=h;const tx=t.getContext('2d');tx.drawImage(img,0,0,w,h);const d=tx.getImageData(0,0,w,h).data,px=[];
   for(let i=0;i<d.length;i+=4)if(d[i+3]>127)px.push(lab(d[i],d[i+1],d[i+2]));
-  cols=kmeans(px,k);const tot=cols.reduce((a,c)=>a+c.n,0);
-  $('sw').innerHTML=cols.map(c=>`<li><button type="button" class="ipc" style="--c:${c.hex};--on:${ink(c.hex)}" data-hex="${c.hex}"><span>${c.hex.toUpperCase()}</span><small>${Math.round(c.n/tot*100)}%</small></button></li>`).join('');
+  cols=kmeans(px,k);list();
+ }
+ function list(){
+  const tot=cols.reduce((a,c)=>a+c.n,0)||1;
+  $('sw').innerHTML=cols.map(c=>`<li><button type="button" class="ipc" style="--c:${c.hex};--on:${ink(c.hex)}" data-hex="${c.hex}"><span>${c.hex.toUpperCase()}</span><small>${c.picked?'picked':Math.round(c.n/tot*100)+'%'}</small></button>${c.picked?`<button type="button" class="ipx" data-x="${c.hex}" aria-label="Remove ${c.hex}">×</button>`:''}</li>`).join('');
   $('toGen').href='tools/palette-generator?c='+cols.slice(0,5).map(c=>c.hex.slice(1)).join('-');
  }
- $('sw').onclick=e=>{const b=e.target.closest('.ipc');if(b)copy(b.dataset.hex.toUpperCase())};
+ $('sw').onclick=e=>{const x=e.target.closest('.ipx');if(x){cols=cols.filter(c=>c.hex!==x.dataset.x);list();return}const b=e.target.closest('.ipc');if(b)copy(b.dataset.hex.toUpperCase())};
  $('k').onchange=()=>img&&run();
  $('files').onchange=()=>{const f=$('files').files[0];if(f){load(URL.createObjectURL(f));$('files').value=''}};
  const drop=$('drop');['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
@@ -365,7 +368,10 @@ function initImagePalette(){
  cv.onclick=e=>{if(!img)return;const r=cv.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height),d=ctx.getImageData(x,y,1,1).data;
   picked=C.toHex([d[0]/255,d[1]/255,d[2]/255]);const pk=$('pick');pk.hidden=false;pk.style.left=(e.clientX-r.left)+'px';pk.style.top=(e.clientY-r.top)+'px';pk.style.setProperty('--c',picked);
   const pd=$('picked');pd.hidden=false;pd.innerHTML=`<span class="fix-s" style="--c:${picked}"></span><span><b>${picked.toUpperCase()}</b><small>Picked from the image</small></span><button class="btn sm" type="button" id="pcpy">Copy</button><button class="btn sm" type="button" id="padd">Add to palette</button>`;
-  $('pcpy').onclick=()=>copy(picked.toUpperCase());$('padd').onclick=()=>{cols=[{hex:picked,n:0},...cols.filter(c=>c.hex!==picked)].slice(0,8);const tot=1;$('sw').insertAdjacentHTML('afterbegin',`<li><button type="button" class="ipc" style="--c:${picked};--on:${ink(picked)}" data-hex="${picked}"><span>${picked.toUpperCase()}</span><small>picked</small></button></li>`);$('toGen').href='tools/palette-generator?c='+cols.slice(0,5).map(c=>c.hex.slice(1)).join('-');toast('Added to the palette')}};
+  $('pcpy').onclick=()=>copy(picked.toUpperCase());$('padd').onclick=()=>{
+   if(cols.some(c=>c.hex===picked)){toast('That colour is already in the palette');return}
+   if(cols.length>=7){toast('The palette holds 7 colours. Remove one first.');return}
+   cols.push({hex:picked,n:0,picked:true});list();toast('Added to the palette')}};
  $('cpyAll').onclick=()=>copy(cols.map(c=>c.hex.toUpperCase()).join(', '),'the hex codes');
  $('dlp').onclick=()=>{const W=1200,c=document.createElement('canvas'),ih=Math.round(W*cv.height/cv.width);c.width=W;c.height=ih+170;const x=c.getContext('2d');x.drawImage(cv,0,0,W,ih);const w=W/cols.length;cols.forEach((k,i)=>{x.fillStyle=k.hex;x.fillRect(i*w,ih,w,170);x.fillStyle=ink(k.hex);x.font='600 20px system-ui, sans-serif';x.fillText(k.hex.toUpperCase(),i*w+18,ih+140)});c.toBlob(b=>save(b,'image-palette.png'),'image/png')};
  load('images/board/coffee.jpg');

@@ -135,7 +135,7 @@ const V={
 <div class="tk">
  <label class="drop slim" id="drop" for="files"><span class="drop-ic" aria-hidden="true">${SVG('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',22)}</span><b>Drop an image, or click to choose</b><span>JPG, PNG or WebP · the example below is a coffee photo</span><input type="file" id="files" accept="image/*"></label>
  <div class="ip"><div class="ip-img"><canvas id="cv" aria-label="Your image. Click to pick a colour."></canvas><span class="ip-pick" id="pick" hidden></span></div>
- <div class="ip-side"><div class="ip-h"><b>Main colours</b><label class="opt">How many <select id="k"><option>4</option><option selected>5</option><option>6</option><option>8</option></select></label></div><ol class="ip-sw" id="sw"></ol>
+ <div class="ip-side"><div class="ip-h"><b>Main colours</b><label class="opt">How many <select id="k"><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label></div><ol class="ip-sw" id="sw"></ol>
  <div class="ip-picked" id="picked" hidden></div>
  <div class="ip-act"><a class="btn p sm" id="toGen" href="tools/palette-generator">Open in palette generator →</a><button class="btn sm" type="button" id="cpyAll">Copy hex codes</button><button class="btn sm" type="button" id="dlp">Download PNG</button></div></div></div>
  <p class="tool-cta">Want full 50–950 scales from these? <b>Open in palette generator</b> takes them with you.</p>
