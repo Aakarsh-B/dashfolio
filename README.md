@@ -1,6 +1,6 @@
 # dashfolio
 
-Portfolio for Aakarsh B, brand and visual designer. Dashboard layout, a draggable photo board, and no build step.
+Portfolio for Aakarsh B, brand and visual designer. Dark and light bands with a floating header, a draggable photo board, and no build step.
 
 ## Run locally
 
@@ -13,21 +13,21 @@ Then open the printed URL. You can also just double-click `index.html`: from dis
 ## Structure
 
 ```
-index.html        page shell: sidebar, main area, theme button
+index.html        page shell: header bar, main area, footer
 css/style.css     all styles and colour tokens (light + dark)
 js/data.js        CONTENT: projects and photo-board items. Edit this.
 js/views.js       page templates (used by the browser and by scripts/build-pages.js)
-js/app.js         router, search, photo board, shortcuts
+js/app.js         router, header menu, testimonial stack, photo board
 images/board/     photos for the board
 images/projects/  project cover images
 images/logos/     company logos (from each company's site)
 images/certs/     certificate previews
 images/tools/     tool icons (Simple Icons 9.0.0)
-resume.html       printable resume, built from js/data.js (sidebar "View resume")
+resume.html       printable resume, built from js/data.js (linked from Experience and the footer)
 HANDOVER.md       brief, facts, rules and open items
 ```
 
-## Add a photo to the board (on Explore, "Off the grid")
+## Add a photo to the board (home page, "Off the clock")
 
 1. Drop the image in `images/board/`. A JPG or WebP about 800px wide keeps the page fast.
 2. Add a line to `BOARD` in `js/data.js`:
@@ -41,7 +41,7 @@ HANDOVER.md       brief, facts, rules and open items
 - `note: true` with a `color` makes a sticky note instead of a polaroid.
 - Entries without `src` show as a coloured "photo placeholder".
 
-Visitors can drag photos around (mouse, touch, or keyboard arrows). Each visitor's layout is saved only in their own browser, and **Reset layout** restores yours. If you add or remove photos, bump `KEY` in `js/app.js` (for example to `dashfolio-board-v2`) so returning visitors get the new layout.
+Visitors can drag photos around (mouse, touch, or keyboard arrows). Each visitor's layout is saved only in their own browser, and **Tidy up** restores yours. If you add or remove photos, bump `KEY` in `js/app.js` (for example to `dashfolio-board-v4`) so returning visitors get the new layout.
 
 ## Add a project
 
@@ -75,13 +75,12 @@ Cards come from `COMMUNITY` in `js/data.js`; thumbnails live in `images/communit
 
 Submissions are emailed to aakarshbiju@gmail.com through [FormSubmit](https://formsubmit.co) (free, no account). The **first** submission sends an activation email; click the link once and the form is live. FormSubmit then offers a random alias to use in `FORM_ENDPOINT` (`js/app.js`) so the address isn't in the page source.
 
-## Colour palette
+## Home page sections
 
-Three palettes are built in: `cobalt` (current), `ember` and `forest`, each with light and dark. The active one is set by `data-palette` on the `<html>` tag in `index.html` (remove it for `ember`). Preview: `docs/palettes.png`.
-
-## Keyboard shortcuts
-
-`1`–`3`, `5`, `6` switch pages · `C` opens Contact · `S` focuses search.
+- **Hero checkpoints**: `ROUTE` in `js/views.js` (title, subtitle, section link, photo).
+- **The long way round**: `STORY` in `js/data.js`, one metro stop per year (`y`), with two images each.
+- **Brands I've designed for** (footer): `BRANDS` in `js/data.js`. Names show by default; set `SHOW_LOGOS` to `true` to show the white logo files in `images/brands/` instead.
+- **Logo**: a cobalt circle (`.dot` in the CSS, `favicon.svg` for the tab). Reuse `.dot` for small accents.
 
 ## Work with me and prices
 

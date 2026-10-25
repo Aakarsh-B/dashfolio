@@ -141,7 +141,7 @@ const INVITE = {t:'Fractional design lead',p:'₹4,50,000',u:'/ month',w:'3-mont
 
 // Work with me page. Proof numbers come from the resume: keep them to things you can back up.
 const SHOW_PRICES = false; // true shows the "from ₹…" starting prices on the service cards
-const PROOF = [['+50%','ad click-through rate','BiteSpeed'],['−50%','cost per demo','BiteSpeed'],['50 → 84','landing page PageSpeed','BiteSpeed'],['5+ yrs','brand, web and growth design','SaaS teams']];
+const PROOF = [['+50%','ad click-through rate','BiteSpeed'],['−50%','cost per demo','BiteSpeed'],['50 → 84','landing page PageSpeed','BiteSpeed'],['5+ yrs','brand, web, growth','SaaS teams']];
 const FIT = ['SaaS, AI and e-commerce startups that have outgrown their first brand','Marketing teams that need landing pages and ads that convert, not just look good','Founders who need a pitch or sales deck that explains the product fast'];
 const STEPS = [['Intro call','30 minutes on what you\'re building, who it\'s for and what a good result looks like.'],['Fixed quote','A short proposal with scope, timeline and price, within two working days.'],['Design in rounds','Work in progress every week, so feedback lands early and nothing is a surprise.'],['Handover','Final files, a site your team can edit, and a walkthrough.']];
 
@@ -184,4 +184,5 @@ const BRANDS = [
 {n:'Hexnode',url:'https://www.hexnode.com',logo:'hexnode.svg'},
 {n:'Mavion',url:'https://mavion.in',logo:'mavion.png'},
 {n:'Creativate',url:'https://creativate.in',logo:'creativate.svg'},
-{n:'Galeno Hygiene'},{n:'Education Today'},{n:'Wedding Memories'},{n:'Daksha Retreat'},{n:'Azure Constructions'}];
+{n:'Galeno Hygiene'},{n:'Education Today'},{n:'Wedding Memories'},{n:'Daksha Ayr Retreat'},{n:'Azure Constructions'},{n:'ASSURI'},{n:'Travel Memories'},{n:'Personova'}];
+const SHOW_LOGOS = false; // true shows the white logo files instead of names
