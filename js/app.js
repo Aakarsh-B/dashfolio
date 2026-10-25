@@ -41,6 +41,7 @@ function renderNow(){
  if(key==='/tools/image-compressor')initCompressor();
  if(key==='/tools/palette-generator')initPalette();
  if(key==='/tools/contrast-checker')initContrast();
+ if(key==='/tools/image-palette')initImagePalette();
 }
 
 /* ---------- Header ---------- */
@@ -273,32 +274,101 @@ function bindColour(id,cb){
 }
 const setQuery=o=>{const u=new URL(location.href);Object.entries(o).forEach(([k,v])=>u.searchParams.set(k,v));if(!HASH)history.replaceState(history.state,'',u)};
 
+// Coolors-style generator: 2–5 colours, lock the ones you like, generate the rest around them.
+const NAMES=['primary','secondary','tertiary','accent','highlight'];
+function harmony(locked,n){
+ const base=locked.length?C.oklch(locked[Math.floor(Math.random()*locked.length)]):[0,0,Math.random()*Math.PI*2];
+ const D=Math.PI/180,schemes=[[0,25,-25,50,-50],[0,180,160,200,20],[0,120,240,140,260],[0,150,210,30,330],[0,90,180,270,45]];
+ const sc=schemes[Math.floor(Math.random()*schemes.length)],Ls=[.95,.86,.72,.6,.48,.36,.24].sort(()=>Math.random()-.5);
+ return Array.from({length:n},(_,i)=>{const L=Ls[i%Ls.length],edge=L>.9||L<.3;return C.fromLch(L,(edge?.03:.08)+Math.random()*(edge?.05:.12),base[2]+(sc[(i+1)%sc.length]+(Math.random()*20-10))*D)});
+}
 function initPalette(){
- const qs=query();let hex=C.hex(qs.get('c'))||'#3350f5',name=(qs.get('n')||'brand').replace(/[^a-z0-9-]/gi,'').toLowerCase()||'brand',fmt='css',main=[],neu=[];
- const set=bindColour('base',h=>{hex=h;draw()});set(hex);$('pname').value=name;
- $('pname').oninput=e=>{name=e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'')||'brand';code()};
- $('rand').onclick=()=>{hex=C.fromLch(.55+Math.random()*.1,.12+Math.random()*.1,Math.random()*Math.PI*2);set(hex);draw()};
- const sw=x=>{const w=C.ratio(x.hex,'#ffffff'),b=C.ratio(x.hex,INK),on=w>=b?'#ffffff':INK,r=Math.max(w,b);
-  return `<button type="button" role="listitem" class="sw${x.base?' base':''}" style="--c:${x.hex};--on:${on}" data-hex="${x.hex}" aria-label="${x.s}, ${x.hex.toUpperCase()}. Copy"><span class="sw-c"><b>Aa</b><small>${C.r2(r)}${r>=4.5?'':' · large only'}</small>${x.base?'<i>yours</i>':''}</span><span class="sw-t"><b>${x.s}</b><code>${x.hex.toUpperCase()}</code></span></button>`};
- function draw(){main=shades(hex);neu=shades(hex,true);$('scale').innerHTML=main.map(sw).join('');$('neutral').innerHTML=neu.map(sw).join('');code();setQuery({c:hex.slice(1),n:name})}
- document.querySelectorAll('.scale').forEach(el=>el.onclick=e=>{const b=e.target.closest('.sw');if(b)copy(b.dataset.hex.toUpperCase())});
+ const qs=query();
+ let cols=(qs.get('c')||'').split('-').map(C.hex).filter(Boolean).slice(0,5).map(h=>({h,lock:false}));
+ if(cols.length<2)cols=[{h:'#2f56f5',lock:true},...harmony(['#2f56f5'],4).map(h=>({h,lock:false}))];
+ let names=NAMES.slice(),fmt='css',hist=[];
+ const ink=h=>C.ratio(h,'#ffffff')>=C.ratio(h,INK)?'#ffffff':INK;
+ const LOCK=SVG('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',18),OPEN=SVG('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',18);
+ function gen(){hist.push(cols.map(c=>({...c})));const fresh=harmony(cols.filter(c=>c.lock).map(c=>c.h),cols.length);let k=0;cols=cols.map(c=>c.lock?c:{h:fresh[k++],lock:false});draw()}
+ function draw(){
+  $('pal').innerHTML=cols.map((c,i)=>`<div class="pc${c.lock?' locked':''}" style="--c:${c.h};--on:${ink(c.h)}" data-i="${i}">
+   <div class="pc-tools"><button type="button" data-a="lock" aria-pressed="${c.lock}" aria-label="${c.lock?'Unlock':'Lock'} ${c.h}">${c.lock?LOCK:OPEN}</button><label class="pc-edit" aria-label="Change colour">${SVG('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',17)}<input type="color" value="${c.h}" data-a="edit"></label>${cols.length>2?`<button type="button" data-a="del" aria-label="Remove ${c.h}">${SVG('<path d="M6 6l12 12M18 6 6 18"/>',17)}</button>`:''}</div>
+   <button type="button" class="pc-hex" data-a="copy">${c.h.slice(1).toUpperCase()}</button><span class="pc-n">${names[i]}</span></div>`).join('');
+  $('addc').disabled=cols.length>=5;$('undo').disabled=!hist.length;
+  scales();setQuery({c:cols.map(c=>c.h.slice(1)).join('-')});
+ }
+ let S=[];
+ function scales(){
+  S=cols.map((c,i)=>({n:names[i],a:shades(c.h)})).concat([{n:'neutral',a:shades(cols[0].h,true)}]);
+  $('scales').innerHTML=S.map((x,i)=>`<div class="srow"><input class="sname" value="${x.n}" data-i="${i}" aria-label="Name for this scale" spellcheck="false"><div class="scale xs">${x.a.map(s=>`<button type="button" class="sw" style="--c:${s.hex};--on:${ink(s.hex)}" data-hex="${s.hex}" title="${s.s} · ${s.hex.toUpperCase()}"><span class="sw-c">${s.base?'<i>●</i>':''}</span><span class="sw-t"><b>${s.s}</b></span></button>`).join('')}</div></div>`).join('');
+  code();
+ }
+ $('scales').oninput=e=>{const t=e.target.closest('.sname');if(!t)return;const v=t.value.toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'')||'colour';const i=+t.dataset.i;if(i<cols.length)names[i]=v;S[i].n=v;$('pal').querySelectorAll('.pc-n')[i]&&($('pal').querySelectorAll('.pc-n')[i].textContent=v);code()};
+ $('scales').onclick=e=>{const b=e.target.closest('.sw');if(b)copy(b.dataset.hex.toUpperCase())};
+ $('pal').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName==='INPUT')return;const i=+b.closest('.pc').dataset.i,a=b.dataset.a;
+  if(a==='lock'){cols[i].lock=!cols[i].lock;draw()}
+  if(a==='del'){hist.push(cols.map(c=>({...c})));cols.splice(i,1);names.splice(i,1);names.push(NAMES.find(n=>!names.includes(n))||'colour');draw()}
+  if(a==='copy')copy(cols[i].h.toUpperCase())};
+ $('pal').oninput=e=>{if(e.target.dataset.a!=='edit')return;const i=+e.target.closest('.pc').dataset.i;cols[i].h=e.target.value;const pc=e.target.closest('.pc');pc.style.setProperty('--c',cols[i].h);pc.style.setProperty('--on',ink(cols[i].h));pc.querySelector('.pc-hex').textContent=cols[i].h.slice(1).toUpperCase()};
+ $('pal').onchange=e=>{if(e.target.dataset.a==='edit'){const i=+e.target.closest('.pc').dataset.i;cols[i].lock=true;draw()}};
+ $('gen').onclick=gen;
+ $('undo').onclick=()=>{if(hist.length){cols=hist.pop();draw()}};
+ $('addc').onclick=()=>{if(cols.length>=5)return;hist.push(cols.map(c=>({...c})));cols.push({h:harmony(cols.map(c=>c.h),1)[0],lock:false});draw()};
+ document.onkeydown=e=>{if(path()!=='/tools/palette-generator'){document.onkeydown=null;return}if(e.code==='Space'&&!e.target.closest('input,textarea,select,button,a')){e.preventDefault();gen()}};
  const out=()=>{
-  const css=`:root {\n${main.map(x=>`  --${name}-${x.s}: ${x.hex};`).join('\n')}\n\n${neu.map(x=>`  --${name}-neutral-${x.s}: ${x.hex};`).join('\n')}\n}\n`;
-  const tw=`// tailwind.config.js → theme.extend.colors\n'${name}': {\n${main.map(x=>`  ${x.s}: '${x.hex}',`).join('\n')}\n},\n'${name}-neutral': {\n${neu.map(x=>`  ${x.s}: '${x.hex}',`).join('\n')}\n},\n`;
-  const tok=a=>Object.fromEntries(a.map(x=>[x.s,{$type:'color',$value:x.hex}]));
-  const json=JSON.stringify({[name]:tok(main),[name+'-neutral']:tok(neu)},null,2)+'\n';
+  const css=`:root {\n${S.map(x=>x.a.map(s=>`  --${x.n}-${s.s}: ${s.hex};`).join('\n')).join('\n\n')}\n}\n`;
+  const tw=`// tailwind.config.js → theme.extend.colors\n${S.map(x=>`'${x.n}': {\n${x.a.map(s=>`  ${s.s}: '${s.hex}',`).join('\n')}\n},`).join('\n')}\n`;
+  const json=JSON.stringify(Object.fromEntries(S.map(x=>[x.n,Object.fromEntries(x.a.map(s=>[s.s,{$type:'color',$value:s.hex}]))])),null,2)+'\n';
   return {css:[css,'css','text/css'],tw:[tw,'js','text/javascript'],json:[json,'json','application/json']}[fmt]};
  function code(){$('code').textContent=out()[0]}
  document.querySelectorAll('.exp [role=tab]').forEach(b=>b.onclick=()=>{fmt=b.dataset.f;document.querySelectorAll('.exp [role=tab]').forEach(x=>x.setAttribute('aria-selected',x===b));code()});
  $('cpy').onclick=()=>copy(out()[0],'the code');
- $('dlf').onclick=()=>{const [t,ext,type]=out();save(new Blob([t],{type}),`${name}-palette.${ext}`)};
+ $('dlf').onclick=()=>{const [t,ext,type]=out();save(new Blob([t],{type}),`palette.${ext}`)};
  $('dlp').onclick=()=>{
-  const W=1320,cw=W/11,c=document.createElement('canvas');c.width=W;c.height=448;const x=c.getContext('2d');
-  x.fillStyle='#ffffff';x.fillRect(0,0,W,448);x.textBaseline='top';
-  [[main,0,name],[neu,220,name+' neutral']].forEach(([a,y,lab])=>{x.fillStyle=INK;x.font='600 18px system-ui, sans-serif';x.fillText(lab,20,y+16);
-   a.forEach((s,i)=>{x.fillStyle=s.hex;x.fillRect(i*cw,y+48,cw,120);x.fillStyle=INK;x.font='600 14px system-ui, sans-serif';x.fillText(String(s.s),i*cw+12,y+176);x.font='13px ui-monospace, monospace';x.fillStyle='#55585f';x.fillText(s.hex.toUpperCase(),i*cw+12,y+196)})});
-  c.toBlob(b=>save(b,`${name}-palette.png`),'image/png')};
+  const W=1320,cw=W/11,rh=150,H=40+cols.length*0+180+S.length*rh,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.fillStyle='#ffffff';x.fillRect(0,0,W,H);x.textBaseline='top';
+  const pw=W/cols.length;cols.forEach((k,i)=>{x.fillStyle=k.h;x.fillRect(i*pw,0,pw,150);x.fillStyle=ink(k.h);x.font='600 18px system-ui, sans-serif';x.fillText(k.h.toUpperCase(),i*pw+16,112)});
+  S.forEach((r,j)=>{const y=180+j*rh;x.fillStyle=INK;x.font='600 16px system-ui, sans-serif';x.fillText(r.n,16,y);r.a.forEach((s,i)=>{x.fillStyle=s.hex;x.fillRect(i*cw,y+26,cw,76);x.fillStyle=INK;x.font='600 12px system-ui, sans-serif';x.fillText(String(s.s),i*cw+10,y+108);x.fillStyle='#55585f';x.font='12px ui-monospace, monospace';x.fillText(s.hex.toUpperCase(),i*cw+10,y+124)})});
+  c.toBlob(b=>save(b,'palette.png'),'image/png')};
  draw();
+}
+
+// Palette from image: k-means in OKLab on a shrunken copy; click the image to sample one pixel.
+function lab(r,g,b){[r,g,b]=[r,g,b].map(v=>C.lin(v/255));const l=Math.cbrt(.4122214708*r+.5363325363*g+.0514459929*b),m=Math.cbrt(.2119034982*r+.6806995451*g+.1073969566*b),s=Math.cbrt(.0883024619*r+.2817188376*g+.6299787005*b);return [.2104542553*l+.793617785*m-.0040720468*s,1.9779984951*l-2.428592205*m+.4505937099*s,.0259040371*l+.7827717662*m-.808675766*s]}
+function unlab([L,A,B]){return C.toHex(C.raw(L,Math.hypot(A,B),Math.atan2(B,A)).map(C.gam))}
+function kmeans(px,k){
+ const d=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;
+ const cs=[px[Math.floor(Math.random()*px.length)]];
+ while(cs.length<k){const ds=px.map(p=>Math.min(...cs.map(c=>d(p,c))));let r=Math.random()*ds.reduce((a,b)=>a+b,0);let i=0;for(;i<ds.length-1&&(r-=ds[i])>0;i++);cs.push(px[i])}
+ let as=new Array(px.length).fill(0);
+ for(let it=0;it<14;it++){as=px.map(p=>{let b=0,bd=1e9;cs.forEach((c,j)=>{const v=d(p,c);if(v<bd){bd=v;b=j}});return b});
+  cs.forEach((_,j)=>{const m=px.filter((_,i)=>as[i]===j);if(m.length)cs[j]=[0,1,2].map(t=>m.reduce((s,p)=>s+p[t],0)/m.length)})}
+ return cs.map((c,j)=>({hex:unlab(c),n:as.filter(a=>a===j).length})).sort((a,b)=>b.n-a.n);
+}
+function initImagePalette(){
+ const cv=$('cv'),ctx=cv.getContext('2d',{willReadFrequently:true});let img=null,cols=[],picked=null;
+ const ink=h=>C.ratio(h,'#ffffff')>=C.ratio(h,INK)?'#ffffff':INK;
+ function load(src){const i=new Image();i.onload=()=>{img=i;const W=Math.min(1200,i.naturalWidth),H=Math.round(W*i.naturalHeight/i.naturalWidth);cv.width=W;cv.height=H;ctx.drawImage(i,0,0,W,H);run()};i.onerror=()=>toast('That image could not be opened.');i.src=src}
+ function run(){
+  const k=+$('k').value,s=Math.min(1,110/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.max(1,Math.round(img.naturalWidth*s)),h=Math.max(1,Math.round(img.naturalHeight*s));
+  const t=document.createElement('canvas');t.width=w;t.height=h;const tx=t.getContext('2d');tx.drawImage(img,0,0,w,h);const d=tx.getImageData(0,0,w,h).data,px=[];
+  for(let i=0;i<d.length;i+=4)if(d[i+3]>127)px.push(lab(d[i],d[i+1],d[i+2]));
+  cols=kmeans(px,k);const tot=cols.reduce((a,c)=>a+c.n,0);
+  $('sw').innerHTML=cols.map(c=>`<li><button type="button" class="ipc" style="--c:${c.hex};--on:${ink(c.hex)}" data-hex="${c.hex}"><span>${c.hex.toUpperCase()}</span><small>${Math.round(c.n/tot*100)}%</small></button></li>`).join('');
+  $('toGen').href='tools/palette-generator?c='+cols.slice(0,5).map(c=>c.hex.slice(1)).join('-');
+ }
+ $('sw').onclick=e=>{const b=e.target.closest('.ipc');if(b)copy(b.dataset.hex.toUpperCase())};
+ $('k').onchange=()=>img&&run();
+ $('files').onchange=()=>{const f=$('files').files[0];if(f){load(URL.createObjectURL(f));$('files').value=''}};
+ const drop=$('drop');['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
+ drop.addEventListener('drop',e=>{const f=[...e.dataTransfer.files].find(f=>f.type.startsWith('image/'));if(f)load(URL.createObjectURL(f))});
+ cv.onclick=e=>{if(!img)return;const r=cv.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*cv.width),y=Math.floor((e.clientY-r.top)/r.height*cv.height),d=ctx.getImageData(x,y,1,1).data;
+  picked=C.toHex([d[0]/255,d[1]/255,d[2]/255]);const pk=$('pick');pk.hidden=false;pk.style.left=(e.clientX-r.left)+'px';pk.style.top=(e.clientY-r.top)+'px';pk.style.setProperty('--c',picked);
+  const pd=$('picked');pd.hidden=false;pd.innerHTML=`<span class="fix-s" style="--c:${picked}"></span><span><b>${picked.toUpperCase()}</b><small>Picked from the image</small></span><button class="btn sm" type="button" id="pcpy">Copy</button><button class="btn sm" type="button" id="padd">Add to palette</button>`;
+  $('pcpy').onclick=()=>copy(picked.toUpperCase());$('padd').onclick=()=>{cols=[{hex:picked,n:0},...cols.filter(c=>c.hex!==picked)].slice(0,8);const tot=1;$('sw').insertAdjacentHTML('afterbegin',`<li><button type="button" class="ipc" style="--c:${picked};--on:${ink(picked)}" data-hex="${picked}"><span>${picked.toUpperCase()}</span><small>picked</small></button></li>`);$('toGen').href='tools/palette-generator?c='+cols.slice(0,5).map(c=>c.hex.slice(1)).join('-');toast('Added to the palette')}};
+ $('cpyAll').onclick=()=>copy(cols.map(c=>c.hex.toUpperCase()).join(', '),'the hex codes');
+ $('dlp').onclick=()=>{const W=1200,c=document.createElement('canvas'),ih=Math.round(W*cv.height/cv.width);c.width=W;c.height=ih+170;const x=c.getContext('2d');x.drawImage(cv,0,0,W,ih);const w=W/cols.length;cols.forEach((k,i)=>{x.fillStyle=k.hex;x.fillRect(i*w,ih,w,170);x.fillStyle=ink(k.hex);x.font='600 20px system-ui, sans-serif';x.fillText(k.hex.toUpperCase(),i*w+18,ih+140)});c.toBlob(b=>save(b,'image-palette.png'),'image/png')};
+ load('images/board/coffee.jpg');
 }
 
 function initContrast(){

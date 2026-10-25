@@ -79,7 +79,7 @@ Submissions are emailed to aakarshbiju@gmail.com through [FormSubmit](https://fo
 
 ## Free tools
 
-`/tools` lists them; each lives at `/tools/<id>` and runs entirely in the browser (nothing uploaded, nothing to host). The list is `FREE` in `js/views.js`; card images are in `images/tools-preview/` (`<id>.jpg` 1200×900 and `<id>-sm.jpg` 600×450).
+`/tools` lists them; each lives at `/tools/<id>` and runs entirely in the browser (nothing uploaded, nothing to host): image compressor, palette generator (lock and generate up to five colours, then full scales), palette from image, contrast checker. The list is `FREE` in `js/views.js`, and each card's picture is drawn in HTML in `ART` next to it.
 
 ## Home page sections
 
