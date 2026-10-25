@@ -33,20 +33,17 @@ const cards=[
 
 const page=([,tag,title,img,cap])=>`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="css/fonts.css"><style>
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:630px;overflow:hidden;background:#eef0f5 radial-gradient(#cfd5e3 1.4px,transparent 1.6px) 0 0/26px 26px;color:#0e1324;font-family:'Instrument Sans';display:grid;grid-template-columns:1fr auto;align-items:center;gap:40px;padding:64px 72px}
-.who{display:flex;align-items:center;gap:16px}
-.av{width:60px;height:60px;border-radius:50%;background:conic-gradient(#9fb2ff,#7fd8ee,#d6f26b,#3350f5,#9fb2ff);display:grid;place-items:center;font:800 23px 'Bricolage Grotesque'}
-.who b{display:block;font:700 26px 'Bricolage Grotesque'}.who span{color:#555d76;font-size:20px}
-.tag{display:inline-block;margin:44px 0 18px;background:#d6f26b;font:600 30px 'Caveat';padding:2px 16px;border-radius:6px;transform:rotate(-1.5deg)}
-h1{font:800 ${title.length>40?56:title.length>28?62:66}px/1.04 'Bricolage Grotesque';letter-spacing:-.02em;max-width:${img===ME[0]?620:560}px;text-wrap:balance}
-.url{margin-top:30px;font:600 22px 'Instrument Sans';color:#3350f5}
-.pin{position:relative;background:#fffdf8;padding:14px 14px ${cap?0:14}px;border-radius:5px;box-shadow:0 2px 4px rgba(14,19,36,.1),0 22px 44px rgba(14,19,36,.22);transform:rotate(${cap?4:3}deg)}
-.pin::before{content:'';position:absolute;left:50%;top:-14px;width:90px;height:28px;transform:translateX(-50%) rotate(-3deg);background:rgba(255,255,255,.6);border:1px solid rgba(22,24,29,.06)}
-.pin img{display:block;width:${cap?330:470}px;aspect-ratio:${cap?'1':'4/3'};object-fit:cover}
-.pin p{font:600 34px 'Caveat';text-align:center;padding:10px 0 12px}
-</style></head><body><div><div class="who"><div class="av">AB</div><div><b>Aakarsh B</b><span>Brand Designer · Bengaluru</span></div></div>
-<span class="tag">${esc(tag)}</span><h1>${esc(title)}</h1><div class="url">aakarsh.design</div></div>
-<figure class="pin"><img src="${img}" alt="">${cap?`<p>${esc(cap)}</p>`:''}</figure></body></html>`;
+body{width:1200px;height:630px;overflow:hidden;background:#000;color:#fff;font-family:'Instrument Sans';display:grid;grid-template-columns:1fr auto;align-items:center;gap:48px;padding:64px 72px;position:relative}
+body::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#000 0%,#000 40%,#040b26 60%,#0f2a9e 78%,#2f56f5 91%,#7cc9ff 100%);z-index:-1}
+.who{display:flex;align-items:center;gap:12px;font-size:22px;color:rgba(255,255,255,.72)}
+.dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b7c6ff,#3a5cff 55%,#1a2fc2)}
+.tag{margin:52px 0 14px;font-size:22px;font-weight:600;color:#8fb0ff}
+h1{font-weight:700;font-stretch:85%;font-size:${title.length>40?62:title.length>28?70:78}px;line-height:1;letter-spacing:-.02em;max-width:${cap?640:560}px;text-wrap:balance}
+.url{margin-top:34px;font-size:22px;font-weight:600}
+img{display:block;width:${cap?330:470}px;aspect-ratio:${cap?'4/5':'4/3'};object-fit:cover;border-radius:18px;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 30px 60px -20px rgba(0,0,0,.9)}
+</style></head><body><div><div class="who"><i class="dot"></i>Aakarsh B · Brand designer</div>
+<p class="tag">${esc(tag)}</p><h1>${esc(title)}</h1><div class="url">aakarsh.design</div></div>
+<img src="${img}" alt=""></body></html>`;
 
 (async()=>{
  fs.mkdirSync(path.join(root,'images/og'),{recursive:true});
