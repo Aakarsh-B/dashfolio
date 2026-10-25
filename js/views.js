@@ -32,9 +32,10 @@ const fade=dir=>`<div class="fade ${dir}" aria-hidden="true"></div>`;
 const tile=(p,i=9)=>`<a class="tile rv" href="projects/${p.id}"><div class="th"><b>${p.t.split(' · ')[0]}</b></div><div class="tb full"><img src="${coverSm(p)}" srcset="${coverSm(p)} 600w, ${cover(p)} 1200w" sizes="(max-width:760px) 92vw, 440px" width="1200" height="900" alt="${p.t} cover" ${i<2?'':'loading="lazy"'}></div><div class="tf">${p.ty}</div></a>`;
 const nextTile=()=>`<a class="tile rv next-up" href="work-with-me"><div class="th"><b>What's next?</b></div><div class="tb"><span class="sticker" aria-hidden="true">open<br>for work</span></div><div class="tf">Freelance brand, web and campaign design</div></a>`;
 // Free tools: each runs in the browser, so they cost nothing to host however many people use them.
-const FREE=[['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
+const FREE=[['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
 // Each tool card shows what the tool makes, drawn in HTML so it stays sharp and readable at any size.
 const ART={
+ 'text-match-cut':`<div class="art-m"><span style="--r:-9deg;--x:-70px"></span><span style="--r:7deg;--x:70px"></span><div><em>The Morning Shrug</em><i></i><b>Local man says <mark>match cut</mark> was his idea</b><i></i><i></i><i style="width:70%"></i><i></i></div></div>`,
  'image-compressor':`<div class="art-c"><img src="images/board/bike.jpg" alt="" width="400" height="400" loading="lazy"><span class="art-badge">WebP</span><span class="art-size"><s>2.4 MB</s> 412 KB</span><span class="art-pc">−83%</span></div>`,
  'palette-generator':`<div class="art-p">${['#1b2a6b','#2f56f5','#7fd8ee','#f2efe6','#f2a33a'].map((c,i)=>`<span style="--c:${c};--t:${i>1&&i<5?'#0b0b0c':'#fff'}"><i>${i===1?'🔒':''}</i><b>${c.slice(1).toUpperCase()}</b></span>`).join('')}</div>`,
  'image-palette':`<div class="art-i"><img src="images/board/coffee.jpg" alt="" width="400" height="400" loading="lazy"><span class="art-dots">${['#21211f','#5e3b20','#93693d','#a58a67','#adada5'].map(c=>`<i style="--c:${c}"></i>`).join('')}</span></div>`,
@@ -146,6 +147,30 @@ const V={
  <div><h3>Moodboards work best</h3><p>A screenshot of a moodboard or a brand photo gives a more usable palette than a busy scene with many objects.</p></div>
  <div><h3>Private by design</h3><p>Your image never leaves your device. Everything happens in your browser.</p></div>
 </div></section>`,
+'/tools/text-match-cut':()=>{const rad=(n,a)=>a.map(([v,l],i)=>`<label><input type="radio" name="${n}" value="${v}"${i?'':' checked'}><span>${l}</span></label>`).join(''),grp=(t,n,a)=>`<div><span class="ol" aria-hidden="true">${t}</span><fieldset class="seg"><legend>${t}</legend>${rad(n,a)}</fieldset></div>`;
+ return `${head('Text match cut','Type a word or phrase and get a fast-cut video: your words stay highlighted in the same spot while made-up newspapers and web pages flash past. Free, no watermark, made in your browser.')}
+<div class="tk">
+ <div class="opts mc-in"><div class="opt mc-t"><label for="mcT">Your phrase</label><input id="mcT" value="Brand designer" maxlength="32" spellcheck="false" autocomplete="off"></div>${grp('Pages','mst',[['news','Newspapers'],['web','Websites'],['mix','Mix']])}</div>
+ <div class="mc-grid">
+  <div class="mc-stage"><canvas id="mc" width="540" height="960" aria-label="Preview of your match cut video"></canvas></div>
+  <div class="mc-side">
+   ${grp('Size','mar',[['9:16','9:16'],['1:1','1:1'],['16:9','16:9']])}
+   <div><span class="ol" aria-hidden="true">Highlight</span><fieldset class="mc-sw"><legend>Highlight</legend>${[['#ffe45c','Yellow'],['#9ec5ff','Blue'],['#ff9fcf','Pink'],['#a6f0b4','Green'],['','None']].map(([c,l],i)=>`<label${c?'':' class="no"'}><input type="radio" name="mhl" value="${c}"${i?'':' checked'} aria-label="${l}"><span style="--c:${c||'#fff'}"></span></label>`).join('')}</fieldset></div>
+   ${grp('Length','mdu',[['5','5 s'],['3','3 s'],['8','8 s']])}
+   ${grp('Sound','msn',[['none','None'],['paper','Paper'],['shutter','Shutter']])}
+   <div class="opt"><label for="mcs">Cuts per second <output id="mcsv" for="mcs">12</output></label><input type="range" id="mcs" min="4" max="20" step="1" value="12"></div>
+   <div class="opt"><label for="mbl">Focus blur</label><input type="range" id="mbl" min="0" max="20" step="1" value="10"></div>
+   <div class="mc-act"><button class="btn sm" type="button" id="mcR">Shuffle pages</button><button class="btn p sm" type="button" id="mcD">Download video</button></div>
+   <p class="mc-n" id="mcN" role="status" aria-live="polite">Saves as MP4 in Chrome and Safari, WebM in Firefox.</p>
+  </div>
+ </div>
+</div>
+<section class="tips"><h2 class="h3">Good to know</h2><div class="tip-grid">
+ <div><h3>What's a match cut?</h3><p>A cut that keeps one thing in the same place while everything around it changes. Your eye stays on the words, which is why these videos are so hard to scroll past.</p></div>
+ <div><h3>Keep it short</h3><p>Two or three words read best at 12 cuts a second. Shorter phrases also come out bigger.</p></div>
+ <div><h3>Where to post it</h3><p>9:16 for Reels, Shorts and TikTok, 1:1 or 16:9 for X and LinkedIn. Add sound in the app, or pick a cut sound here.</p></div>
+ <div><h3>Every page is made up</h3><p>The papers, headlines and websites are invented on the spot, so there's nothing to license. The video is recorded in your browser; nothing is uploaded.</p></div>
+</div></section>`},
 '/tools/contrast-checker':()=>`${head('Contrast checker','Check whether text is readable on its background, against the WCAG 2.2 standards. If it fails, get the nearest colour that passes.')}
 <div class="tk">
  <div class="opts cc-in">${cfield('fg','Text','#5b6170')}<button class="btn sm swap" type="button" id="swap" aria-label="Swap text and background">⇄ Swap</button>${cfield('bg','Background','#ffffff')}</div>
@@ -183,7 +208,7 @@ function caseStudy(p){
 
 // Unknown routes (old links, typos) get an honest page instead of quietly showing the home page.
 const notFound=()=>`${head('This page wandered off','The link might be old, or I moved things around. Here\'s some work to look at instead.','<div class="btns"><a class="btn p" href="./">Back home</a><a class="btn" href="contact">Say hi</a></div>')}<div class="tiles">${PROJECTS.slice(0,4).map(tile).join('')}</div>`;
-const TITLES={'/tools':'Free design tools','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
+const TITLES={'/tools':'Free design tools','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
 // Resolve a route (e.g. /projects/bitespeed) to its key, project, page content and header links.
 function page(h){
  let html,key=h;

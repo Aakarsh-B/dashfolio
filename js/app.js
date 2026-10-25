@@ -42,6 +42,7 @@ function renderNow(){
  if(key==='/tools/palette-generator')initPalette();
  if(key==='/tools/contrast-checker')initContrast();
  if(key==='/tools/image-palette')initImagePalette();
+ if(key==='/tools/text-match-cut')initMatchCut();
 }
 
 /* ---------- Header ---------- */
@@ -395,6 +396,170 @@ function initContrast(){
   setQuery({fg:fg.slice(1),bg:bg.slice(1)});
  }
  draw();
+}
+
+/* ---------- Text match cut ----------
+   A fast run of made-up newspaper and web pages, each with the phrase highlighted in exactly the same spot, so the
+   eye stays locked on it while everything around it changes. Each page is drawn on the fly from a seed (nothing is
+   stored), and the video is recorded straight off the canvas with MediaRecorder, so it all runs in the browser. */
+const MC={
+ mast:['The Daily Bystander','The Morning Shrug','The Borough Mumble','The Lukewarm Ledger','The Small Print','The Sideways Gazette','The Overheard Tribune','The Midweek Murmur','The Thursday Times','The Fine Print Post','The Evening Shrug','The Corner Shop Courier'],
+ head:[['',' spotted at local bus stop'],['Experts warn ',' is here to stay'],['Council votes to rename Tuesday after ',''],['',' declines to comment'],['Local man insists ',' was his idea'],['Markets rally on rumours of ',''],['Is ',' the new normal?'],['',': what we know so far'],['Sources say ',' is "not a phase"'],['Grandmother, 92, finally explains ',''],['Weekend forecast: ',', then light rain'],['Scientists baffled as ',' doubles overnight'],['We need to talk about ',''],['Startup raises millions to disrupt ',''],['Mayor calls ',' "a bold new chapter"'],['"Nobody told us about ','," say residents'],['Five signs your cat secretly loves ',''],['Breaking: ',' arrives two hours early']],
+ say:['Officials could not confirm the details.','The committee met on Thursday to discuss the matter at length.','Nobody present could recall who had called the meeting.','Residents were advised to remain calm and carry on.','A spokesperson said more would be shared in due course.','The figures, released late on Friday, surprised almost everyone.','Shop owners on the high street reported a busy afternoon.','Several people were seen nodding thoughtfully.','The report runs to four hundred pages and an appendix.','Critics called the move unexpected, if not entirely unwelcome.','Tea was served, and the debate went on well past six.','It is not the first time the town has seen something like this.','Questions remain about what happens next.','One witness described the scene as "mostly fine".','Local schools will open as usual on Monday.','The plan was approved by a narrow margin.','Further updates are expected later this week.','Experts agree it is far too early to say.'],
+ web:[['The future of ',' is here'],['Meet ',''],['',' for teams'],['',', made simple'],['Say hello to ',''],['Built for ',''],['Rethinking ',''],['',' that just works']],
+ sub:[['The simplest way to get it done,','without the busywork.'],['Everything your team needs,','in one tidy place.'],['Plan it, ship it, celebrate it,','all before lunch.']],
+ nav:['Product','Pricing','Customers','Docs','Blog'],
+ brand:['Nimbus','Ottr','Fieldnote','Brightline','Kettle','Parcel','Lumen','Pebble','Tandem'],
+ paper:['#f3efe4','#efe9da','#f6f3ec','#ebe5d5','#f1ece0'],
+ site:[['#ffffff','#0b0b0c','#2f56f5'],['#f5f5f2','#16181d','#0f9d63'],['#0d0e12','#f4f4f6','#7c9cff'],['#eef1ff','#141a3a','#2f56f5'],['#111827','#f9fafb','#f2a33a']],
+ serif:['Georgia, "Times New Roman", serif','"Times New Roman", Times, serif','"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif','Baskerville, "Baskerville Old Face", Georgia, serif'],
+ sans:['"Instrument Sans", system-ui, sans-serif','"Helvetica Neue", Helvetica, Arial, sans-serif','system-ui, -apple-system, "Segoe UI", Roboto, sans-serif']
+};
+const rng=s=>()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+
+// Draws one page with the phrase centred on the canvas, at the same width on every page. Returns its size and kind.
+function drawCut(x,W,H,o,seed){
+ const r=rng(seed),pick=a=>a[Math.floor(r()*a.length)],cx=W/2,cy=H/2,m=Math.min(W,H),P=o.text,tw=s=>x.measureText(s).width;
+ const kind=o.style==='mix'?(r()<.5?'news':'web'):o.style;
+ // Filler words, read in order from the made-up sentences: fill() runs to at least a width, wrap() to at most one.
+ let wq=[],si=Math.floor(r()*99);
+ const word=()=>{while(!wq.length)wq=MC.say[si++%MC.say.length].split(' ');return wq.shift()};
+ const fill=w=>{let s=word();while(tw(s)<w)s+=' '+word();return s};
+ const wrap=w=>{let s=word();for(;;){const n=word(),t=s+' '+n;if(tw(t)>w){wq.unshift(n);return s}s=t}};
+ const fit=f=>{x.font=f(100);return Math.min(100*(W>H?.5:.74)*W/Math.max(1,tw(P)),.2*m)};
+ const hair=k=>Math.max(1,F*k);
+ x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.globalCompositeOperation='source-over';x.textBaseline='middle';x.textAlign='left';
+ let F,pw;
+ if(kind==='news'){
+  const fam=pick(MC.serif),ink='#1d1b18';
+  x.fillStyle=pick(MC.paper);x.fillRect(0,0,W,H);
+  x.translate(cx,cy);x.rotate((r()-.5)*.06);x.translate(-cx,-cy);x.fillStyle=ink;
+  // Columns of small body text, with a thin rule between them.
+  const cols=(L,top,bottom,n,s)=>{x.font=`400 ${s}px ${fam}`;const cw=s*13,g=s*1.5,lh=s*1.38;
+   for(let c=0;c<n;c++){const X=L+c*(cw+g);x.fillRect(X-g/2,top,Math.max(1,s*.06),bottom-top);for(let y=top+lh/2;y<bottom;y+=lh)x.fillText(wrap(cw),X,y)}};
+  if(r()<.55){ // In a headline, under a masthead
+   const it=r()<.3?'italic ':'',wt=r()<.8?700:400,hf=s=>`${it}${wt} ${s}px ${fam}`;
+   F=fit(hf);x.font=hf(F);pw=tw(P);
+   const [a,b]=pick(MC.head),L=cx-pw/2-tw(a),cw=Math.max(tw(a)+pw+tw(b),F*5.5),lh=F*1.1,up=Math.floor(r()*2),dn=1+Math.floor(r()*2);
+   x.fillText(a,L,cy);x.fillText(P,cx-pw/2,cy);x.fillText(b,cx+pw/2,cy);
+   for(let i=1;i<=up;i++)x.fillText(wrap(cw),L,cy-lh*i);
+   for(let i=1;i<=dn;i++)x.fillText(wrap(cw),L,cy+lh*i);
+   const rw=Math.max(cw,W)*1.8,rx=cx-rw/2;let y=cy-lh*(up+.5)-F*.3;
+   x.fillRect(rx,y,rw,hair(.025));y-=F*.28;
+   x.font=`600 ${F*.19}px ${fam}`;x.textAlign='center';x.fillText(pick(['LATE EDITION','WEEKEND EDITION','PRICE: ONE RUPEE','EST. 1911','VOL. CXII, No. 4,821']),cx,y);
+   y-=F*.28;x.fillRect(rx,y,rw,hair(.05));x.fillRect(rx,y-F*.08,rw,hair(.025));
+   x.font=`700 ${F*1.6}px ${fam}`;x.fillText(pick(MC.mast),cx+(r()-.5)*F*2,y-F*1.05);x.textAlign='left';
+   y=cy+lh*(dn+.6)+F*.1;x.font=`italic 400 ${F*.42}px ${fam}`;
+   for(let i=0;i<2;i++){x.fillText(wrap(cw),L,y);y+=F*.52}
+   x.font=`700 ${F*.2}px ${fam}`;x.fillText('BY '+pick(['OUR STAFF REPORTER','A SPECIAL CORRESPONDENT','THE NIGHT DESK','THE WEEKEND EDITOR','OUR MAN AT THE BUS STOP']),L,y);y+=F*.3;
+   x.fillRect(L,y,rw,hair(.02));
+   const s=F*.25,step=s*14.5;cols(L,y+F*.15,H*1.2,Math.ceil((W*1.2-L)/step)+1,s);
+   if(L>-W*.1){const n=Math.ceil((L+W*.2)/step);cols(L-n*step,-H*.2,H*1.2,n,s)} // An older story to the left
+  }else{ // Mid-paragraph, read close up
+   const bf=s=>`400 ${s}px ${fam}`;F=fit(bf);x.font=bf(F);pw=tw(P);
+   const a=fill(F*(.6+r()*3.5))+' ',b=' '+fill(F*(.6+r()*3.5)),L=cx-pw/2-tw(a),cw=tw(a)+pw+tw(b),lh=F*1.32,g=F*1.2,k=Math.ceil(H*.65/lh);
+   x.fillText(a,L,cy);x.fillText(P,cx-pw/2,cy);x.fillText(b,cx+pw/2,cy);
+   for(let c=-Math.ceil((L+W*.2)/(cw+g));L+c*(cw+g)<W*1.2;c++){const X=L+c*(cw+g);if(c)x.fillRect(X-g/2,-H*.2,hair(.03),H*1.4);
+    for(let j=-k;j<=k;j++)if(c||j)x.fillText(r()<.1?wrap(cw*(.3+r()*.5)):wrap(cw),X,cy+j*lh)}
+  }
+  if(o.hl){ // A marker stroke: slightly uneven, multiplied over the ink like the real thing
+   const p=F*.1,j=()=>(r()-.5)*F*.08,l=cx-pw/2-p,rt=cx+pw/2+p,t=cy-F*.5,bt=cy+F*.52;
+   x.globalCompositeOperation='multiply';x.fillStyle=o.hl;x.beginPath();x.moveTo(l+j(),t+j());x.lineTo(rt+j(),t+j());x.lineTo(rt+j(),bt+j());x.lineTo(l+j(),bt+j());x.closePath();x.fill();x.globalCompositeOperation='source-over'}
+ }else{
+  const [bg,fg,ac]=pick(MC.site),fam=pick(MC.sans),role=pick(['hero','hero','card','search']),hf=s=>`700 ${s}px ${fam}`;
+  x.fillStyle=bg;x.fillRect(0,0,W,H);F=fit(hf);x.font=hf(F);pw=tw(P);
+  const box=(X,Y,w,h,rad,fc,sc)=>{x.beginPath();x.roundRect(X,Y,w,h,rad);if(fc){x.fillStyle=fc;x.fill()}if(sc){x.strokeStyle=sc;x.lineWidth=hair(.02);x.stroke()}};
+  if(role==='hero'){ // A landing page hero
+   const [a,b]=pick(MC.web),[s1,s2]=pick(MC.sub);x.fillStyle=fg;x.fillText(a,cx-pw/2-tw(a),cy);x.fillText(b,cx+pw/2,cy);
+   x.textAlign='center';x.font=`600 ${F*.28}px ${fam}`;const eb=pick(['New: now in beta','Version 2.0 is here','Loved by 4,000 teams']),ew=tw(eb)+F*.8;
+   box(cx-ew/2,cy-F*1.6,ew,F*.56,F*.28,null,fg+'33');x.fillStyle=fg;x.fillText(eb,cx,cy-F*1.32);
+   x.font=`400 ${F*.4}px ${fam}`;x.fillStyle=fg+'a6';x.fillText(s1,cx,cy+F*1.1);x.fillText(s2,cx,cy+F*1.62);
+   x.font=`600 ${F*.34}px ${fam}`;const b1='Get started',b2='Book a demo',w1=tw(b1)+F*1.1,w2=tw(b2)+F*1.1,by=cy+F*2.25,bh=F*.86,gx=F*.12;
+   box(cx-gx-w1,by,w1,bh,bh/2,ac);box(cx+gx,by,w2,bh,bh/2,null,fg+'40');x.fillStyle='#fff';x.fillText(b1,cx-gx-w1/2,by+bh/2);x.fillStyle=fg;x.fillText(b2,cx+gx+w2/2,by+bh/2);
+   const sw=Math.max(pw,F*6)*1.5,sy=cy+F*3.6;box(cx-sw/2,sy,sw,sw*.62,F*.2,fg+'0d',fg+'1f');
+   for(let i=0;i<5;i++)box(cx-sw/2+F*.4,sy+F*(.5+i*.5),sw*(i?.5:.25),F*.2,F*.1,fg+(i?'14':'26'));
+   x.textAlign='left';const ny=cy-F*2.9,nx=cx-Math.max(pw,F*6)*.8;
+   x.fillStyle=ac;x.beginPath();x.arc(nx,ny,F*.14,0,7);x.fill();x.fillStyle=fg;x.font=`700 ${F*.4}px ${fam}`;x.fillText(pick(MC.brand),nx+F*.26,ny);
+   x.font=`500 ${F*.3}px ${fam}`;x.fillStyle=fg+'b3';let lx=cx-F*.9;MC.nav.forEach(n=>{x.fillText(n,lx,ny);lx+=tw(n)+F*.5});
+   const su='Sign up',uw=tw(su)+F*.6;box(lx+F*.2,ny-F*.32,uw,F*.64,F*.32,fg);x.fillStyle=bg;x.fillText(su,lx+F*.5,ny);
+  }else if(role==='card'){ // One card in a grid of them
+   const cw=Math.max(pw+F*.8,F*5),ch=F*4.4,g=F*.45,ix=cx-pw/2-F*.4,top=cy-F*2.6;
+   for(let i=-3;i<=3;i++)for(let j=-3;j<=3;j++){const X=ix+i*(cw+g),Y=top+j*(ch+g);if(X>W||X+cw<0||Y>H||Y+ch<0)continue;
+    box(X,Y,cw,ch,F*.18,fg+'0a',fg+'1a');const gr=x.createLinearGradient(X,Y,X+cw,Y+F*2.1);gr.addColorStop(0,ac+'66');gr.addColorStop(1,ac+'14');box(X+F*.15,Y+F*.15,cw-F*.3,F*1.95,F*.12,gr);
+    x.font=hf(F);x.fillStyle=fg;if(i||j)x.fillText(wrap(cw-F*.8),X+F*.4,Y+F*2.6);
+    x.font=`400 ${F*.26}px ${fam}`;x.fillStyle=fg+'99';x.fillText(wrap(cw-F*.8),X+F*.4,Y+F*3.3);x.fillText(wrap(cw-F*.8),X+F*.4,Y+F*3.68)}
+  }else{ // Typed into a search box, results underneath
+   const bh=F*1.5,bl=cx-pw/2-F*1.1,bw=Math.max(pw+F*2.2,F*8),slug=P.toLowerCase().replace(/[^a-z0-9]+/g,'')||'example';
+   x.font=`700 ${F*.9}px ${fam}`;x.textAlign='center';x.fillStyle=fg;x.fillText(pick(MC.brand).toLowerCase(),bl+bw/2,cy-F*1.9);x.textAlign='left';
+   box(bl,cy-bh/2,bw,bh,bh/2,bg,fg+'40');x.strokeStyle=fg+'99';x.lineWidth=F*.06;x.beginPath();x.arc(bl+F*.55,cy-F*.05,F*.17,0,7);x.stroke();x.beginPath();x.moveTo(bl+F*.67,cy+F*.08);x.lineTo(bl+F*.8,cy+F*.21);x.stroke();
+   x.fillStyle=ac;x.fillRect(cx+pw/2+F*.1,cy-F*.45,hair(.05),F*.9);
+   let y=cy+bh/2+F*.75;for(let i=0;i<6;i++){x.font=`400 ${F*.2}px ${fam}`;x.fillStyle=fg+'80';x.fillText(`www.${slug}.com › ${word().toLowerCase().replace(/[^a-z]/g,'')}`,bl+F*.3,y);y+=F*.4;
+    x.font=`600 ${F*.36}px ${fam}`;x.fillStyle=ac;x.fillText(P+' '+pick(['explained','for beginners','near me','in 2026: the full guide','vs everything else',': a short history']),bl+F*.3,y);y+=F*.45;
+    x.font=`400 ${F*.24}px ${fam}`;x.fillStyle=fg+'a6';x.fillText(wrap(bw),bl+F*.3,y);y+=F*.34;x.fillText(wrap(bw),bl+F*.3,y);y+=F*.75}
+  }
+  if(o.hl){x.fillStyle=o.hl;x.fillRect(cx-pw/2-F*.04,cy-F*.56,pw+F*.08,F*1.1)} // Like selected text
+  x.font=hf(F);x.fillStyle=o.hl?'#0b0b0c':fg;x.fillText(P,cx-pw/2,cy);
+ }
+ return {F,kind};
+}
+let mcGrain;
+const grain=()=>{if(!mcGrain){mcGrain=document.createElement('canvas');mcGrain.width=mcGrain.height=160;const g=mcGrain.getContext('2d'),d=g.createImageData(160,160);for(let i=0;i<d.data.length;i+=4){d.data[i]=d.data[i+1]=d.data[i+2]=220+Math.random()*35;d.data[i+3]=255}g.putImageData(d,0,0)}return mcGrain};
+// The camera look: a sharp band through the phrase, soft above and below, paper grain and a light vignette.
+function mcCompose(out,pg,tiny,mask,{F,kind},blur){
+ const W=pg.width,H=pg.height;out.setTransform(1,0,0,1,0,0);out.globalAlpha=1;out.globalCompositeOperation='source-over';
+ if(blur>0){
+  const k=Math.round(3+blur*6);tiny.width=Math.max(1,W/k|0);tiny.height=Math.max(1,H/k|0);
+  const t=tiny.getContext('2d');t.imageSmoothingQuality='high';t.drawImage(pg,0,0,tiny.width,tiny.height);out.imageSmoothingQuality='high';out.drawImage(tiny,0,0,W,H);
+  mask.width=W;mask.height=H;const m=mask.getContext('2d'),a=Math.min(.4,F*.7/H),b=Math.min(.499,a+.2),g=m.createLinearGradient(0,0,0,H);
+  m.drawImage(pg,0,0);m.globalCompositeOperation='destination-in';
+  [[0,0],[.5-b,0],[.5-a,1],[.5+a,1],[.5+b,0],[1,0]].forEach(([s,v])=>g.addColorStop(s,`rgba(0,0,0,${v})`));
+  m.fillStyle=g;m.fillRect(0,0,W,H);out.drawImage(mask,0,0);
+ }else out.drawImage(pg,0,0);
+ if(kind==='news'){out.globalCompositeOperation='multiply';out.globalAlpha=.6;out.fillStyle=out.createPattern(grain(),'repeat');out.fillRect(0,0,W,H);out.globalAlpha=1;out.globalCompositeOperation='source-over'}
+ const v=out.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.hypot(W,H)*.6);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.3)');out.fillStyle=v;out.fillRect(0,0,W,H);
+}
+function initMatchCut(){
+ const cv=$('mc'),ctx=cv.getContext('2d'),pg=document.createElement('canvas'),tiny=document.createElement('canvas'),mask=document.createElement('canvas'),inp=$('mcT');
+ const DIM={'9:16':[1080,1920],'1:1':[1080,1080],'16:9':[1920,1080]},val=n=>document.querySelector(`input[name="${n}"]:checked`).value;
+ const q=query().get('t');if(q)inp.value=q.slice(0,32);
+ let seed=Math.random()*2**32>>>0,last=-1,t0=performance.now(),scale=.5,rec=null,ac=null,noise=null,dest=null;
+ const opts=()=>({text:inp.value.trim()||'Your phrase',style:val('mst'),hl:val('mhl'),ratio:val('mar'),dur:+val('mdu'),snd:val('msn'),fps:+$('mcs').value,blur:+$('mbl').value/10});
+ const size=()=>{const [w,h]=DIM[val('mar')];cv.width=pg.width=Math.round(w*scale);cv.height=pg.height=Math.round(h*scale);last=-1};
+ const draw=(i,o)=>mcCompose(ctx,pg,tiny,mask,drawCut(pg.getContext('2d'),pg.width,pg.height,o,rng(seed+i*7919)()*2**32>>>0),o.blur);
+ // Cut sounds are made here too: a burst of noise, filtered and faded out fast.
+ const audio=()=>{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;if(!ac){ac=new A();noise=ac.createBuffer(1,ac.sampleRate*.12|0,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}if(ac.state==='suspended')ac.resume()};
+ function blip(type){const t=ac.currentTime,s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noise;
+  if(type==='shutter'){f.type='highpass';f.frequency.value=3000;g.gain.setValueAtTime(.6,t);g.gain.exponentialRampToValueAtTime(.001,t+.04)}
+  else{f.type='bandpass';f.frequency.value=700+Math.random()*900;f.Q.value=.7;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(.5,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.09)}
+  s.connect(f);f.connect(g);g.connect(ac.destination);if(dest)g.connect(dest);s.start(t);s.stop(t+.12)}
+ function tick(now){
+  if(!cv.isConnected){if(rec){rec.cancel=1;rec.mr.stop()}return}
+  const o=rec?rec.o:opts(),el=(now-t0)/1000,n=Math.max(1,Math.round(o.dur*o.fps));
+  if(rec&&!rec.end&&el>=o.dur+.1){rec.end=1;rec.mr.stop()}
+  const i=Math.min(n-1,Math.floor((rec?el:el%o.dur)*o.fps));
+  if(i!==last&&!(rec&&rec.end)){last=i;draw(i,o);if(ac&&o.snd!=='none')blip(o.snd)}
+  if(rec&&!rec.end)$('mcN').textContent=`Recording ${Math.min(el,o.dur).toFixed(1)} of ${o.dur} seconds. Keep this tab open.`;
+  requestAnimationFrame(tick);
+ }
+ const busy=on=>{$('mcD').disabled=$('mcR').disabled=on;$('mcD').textContent=on?'Recording…':'Download video'};
+ inp.oninput=()=>{last=-1;setQuery({t:inp.value})};
+ document.querySelectorAll('.mc-side input').forEach(e=>e.addEventListener(e.type==='range'?'input':'change',()=>{if(rec)return;if(e.name==='mar')size();if(e.name==='msn'&&e.value!=='none')audio();$('mcsv').value=$('mcs').value;last=-1}));
+ $('mcR').onclick=()=>{seed=Math.random()*2**32>>>0;t0=performance.now();last=-1};
+ $('mcD').onclick=()=>{
+  if(rec)return;
+  if(!window.MediaRecorder||!cv.captureStream){toast("This browser can't record video. Try Chrome, Edge or Safari.");return}
+  const o=opts();scale=1;size();const st=cv.captureStream(30);
+  if(o.snd!=='none'){audio();if(ac){dest=ac.createMediaStreamDestination();dest.stream.getAudioTracks().forEach(t=>st.addTrack(t))}}
+  const au=st.getAudioTracks().length?',mp4a.40.2':'',types=[`video/mp4;codecs=avc1.640028${au}`,`video/mp4;codecs=avc1.42E01E${au}`,`video/mp4;codecs=avc1${au}`,`video/webm;codecs=vp9${au?',opus':''}`,'video/webm','video/mp4'];
+  const type=types.find(t=>MediaRecorder.isTypeSupported(t))||'',mr=new MediaRecorder(st,{...(type&&{mimeType:type}),videoBitsPerSecond:16e6}),parts=[];
+  mr.ondataavailable=e=>{if(e.data.size)parts.push(e.data)};
+  mr.onstop=()=>{st.getTracks().forEach(t=>t.stop());dest=null;const c=rec.cancel;rec=null;scale=.5;size();busy(false);if(c)return;
+   const mt=mr.mimeType||type||'video/webm',mp4=mt.includes('mp4'),name=o.text.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'video';
+   save(new Blob(parts,{type:mt}),`match-cut-${name}.${mp4?'mp4':'webm'}`);
+   $('mcN').textContent=mp4?'Saved as MP4.':'Saved as WebM, which this browser records. Most apps take it; Chrome and Safari save MP4.';count('match cut: download',1)};
+  rec={o,mr};busy(true);t0=performance.now();last=0;draw(0,o);if(ac&&o.snd!=='none')blip(o.snd);mr.start(250);
+ };
+ size();requestAnimationFrame(tick);
 }
 
 /* ---------- Visitor counts ----------
