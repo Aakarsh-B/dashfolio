@@ -83,6 +83,26 @@ const V={
 '/writing':()=>`${head('Writing','Longer thoughts on design, process and the occasional expensive mistake. Each one opens on Medium.')}<div class="tiles">${WRITING.map(post).join('')}</div><a class="more" href="${WRITING_URL}" target="_blank" rel="noopener">Follow me on Medium ↗</a>`,
 '/freebies':()=>`${head('Freebies','Free Figma files I\'ve published. Duplicate them, take them apart and use them in your own work.')}<div class="tiles">${COMMUNITY.map(freebie).join('')}</div><a class="more" href="${COMMUNITY_URL}" target="_blank" rel="noopener">See everything on Figma ↗</a>`,
 '/about':()=>`${head('About','I\'m a brand and visual designer who likes where craft meets business results. My work spans identity, websites, campaigns and presentations, from concept through production.')}<p class="lead">I care less about the tool and more about what we're trying to achieve with it. I like getting involved beyond the design file: understanding the audience, thinking about conversion and improving the website.</p><p class="lead">Designer at work. Curious human otherwise. Usually planning a ride, playing chess, travelling, or being managed by my cat.</p><h2 class="h3">Certificates</h2>${certs()}`,
+// Free tools. Each runs entirely in the visitor's browser: no uploads, no server.
+'/tools/image-compressor':()=>`${head('Image compressor','Make JPG, PNG and WebP images smaller, or turn them into WebP. It all happens in your browser, so your images never leave your device.')}
+<div class="tk">
+ <label class="drop" id="drop" for="files"><span class="drop-ic" aria-hidden="true">${SVG('<path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',26)}</span><b>Drop images here, or click to choose</b><span>JPG, PNG or WebP · up to 20 at a time</span><input type="file" id="files" accept="image/jpeg,image/png,image/webp" multiple></label>
+ <div class="opts">
+  <fieldset class="seg"><legend>Save as</legend><label><input type="radio" name="fmt" value="image/webp" checked><span>WebP</span></label><label><input type="radio" name="fmt" value="image/jpeg"><span>JPEG</span></label></fieldset>
+  <div class="opt"><label for="q">Quality <output id="qv" for="q">80</output></label><input type="range" id="q" min="40" max="100" step="1" value="80"></div>
+  <div class="opt"><label for="mw">Max width</label><select id="mw"><option value="0">Keep original</option><option>2560</option><option>1920</option><option>1600</option><option>1280</option><option>800</option></select></div>
+ </div>
+ <p class="tnote" id="tnote" role="status" aria-live="polite"></p>
+ <div class="sum" id="sum" hidden><span id="sumt"></span><span class="sum-b"><button class="btn sm" id="clear" type="button">Clear</button><button class="btn p sm" id="all" type="button">Download all</button></span></div>
+ <ol class="res" id="res"></ol>
+ <figure class="cmp" id="cmp" hidden><div class="cmp-v"><img id="cmpA" alt="Original"><img id="cmpB" alt="Compressed"><span class="cmp-l">Original</span><span class="cmp-r">Compressed</span></div><input type="range" id="cmpR" min="0" max="100" value="50" aria-label="Compare original and compressed"><figcaption id="cmpC"></figcaption></figure>
+</div>
+<section class="tips"><h2 class="h3">Good to know</h2><div class="tip-grid">
+ <div><h3>Why WebP?</h3><p>WebP files are usually 25–35% smaller than JPEGs that look the same, and every current browser shows them. Use it for anything that goes on a website.</p></div>
+ <div><h3>Which quality?</h3><p>Around 80 suits photos. Screenshots and graphics with text stay crisper at 90. If you can't spot a difference in the compare view, go lower.</p></div>
+ <div><h3>Resize first</h3><p>A 4000px photo in a 1200px slot wastes most of its weight. Set a max width to match where the image is shown: 1920 for full-width, 1280 or less for content.</p></div>
+ <div><h3>Private by design</h3><p>Nothing is uploaded. Your browser does the work, so it's as fast as your device and works offline once the page has loaded.</p></div>
+</div><p class="tool-cta">I took a landing page from 50 to 84 on PageSpeed, mostly by fixing images like this. <a href="work-with-me">Need a faster site?</a></p></section>`,
 '/contact':()=>`${head('Say hi','Hiring, or working on a brand, website or campaign that needs clearer design? Tell me a little about it and I\'ll reply within two working days.')}<div class="contact"><form id="cf" class="panel form" novalidate><div class="f2"><label>Name<input name="name" required autocomplete="name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label></div><div class="f2"><label><span>Phone <span class="opt">optional</span></span><input name="phone" type="tel" autocomplete="tel"></label><label>Looking for<select name="service">${['Not sure yet',INVITE.t,...SERVICES.map(x=>x.t),'Full-time role'].map(o=>`<option>${o}</option>`).join('')}</select></label></div><label>About the project<textarea name="message" rows="5" required placeholder="What you're building, timeline, budget range"></textarea></label><input type="text" name="_honey" class="sr" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="btn p" type="submit">Send message</button><p class="fmsg" id="fmsg" role="status" aria-live="polite"></p></form><div class="elsewhere"><h2>Or reach me directly</h2><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a>${SOCIAL.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]} ↗</a>`).join('')}</div></div>`
 };
 
@@ -105,7 +125,7 @@ function caseStudy(p){
 
 // Unknown routes (old links, typos) get an honest page instead of quietly showing the home page.
 const notFound=()=>`${head('This page wandered off','The link might be old, or I moved things around. Here\'s some work to look at instead.','<div class="btns"><a class="btn p" href="./">Back home</a><a class="btn" href="contact">Say hi</a></div>')}<div class="tiles">${PROJECTS.slice(0,4).map(tile).join('')}</div>`;
-const TITLES={'/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
+const TITLES={'/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
 // Resolve a route (e.g. /projects/bitespeed) to its key, project, page content and header links.
 function page(h){
  let html,key=h;

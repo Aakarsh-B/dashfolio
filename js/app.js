@@ -38,6 +38,7 @@ function renderNow(){
  if($('stack'))initStack($('stack'));
  if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
+ if(key==='/tools/image-compressor')initCompressor();
 }
 
 /* ---------- Header ---------- */
@@ -156,6 +157,70 @@ function swap(update){
  let done=false;const run=()=>{if(!done){done=true;update()}};
  try{document.startViewTransition(run)}catch(e){run()}
  setTimeout(run,300);
+}
+
+/* ---------- Image compressor ----------
+   Decodes each image, resizes it on a canvas and re-encodes it as WebP or JPEG, all in the browser. */
+const fmtB=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(n<10240?1:0)+' KB':(n/1048576).toFixed(2)+' MB';
+let shrink=[];
+function initCompressor(){
+ const files=$('files'),drop=$('drop'),res=$('res'),q=$('q'),mw=$('mw'),note=$('tnote');
+ shrink.forEach(x=>{URL.revokeObjectURL(x.src);x.out&&URL.revokeObjectURL(x.out.url)});shrink=[];
+ const opts=()=>({type:document.querySelector('input[name=fmt]:checked').value,q:q.value/100,mw:+mw.value});
+ const add=list=>{
+  const ok=[...list].filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type));
+  const skipped=list.length-ok.length;
+  const room=Math.max(0,20-shrink.length);
+  ok.slice(0,room).forEach(f=>shrink.push({file:f,src:URL.createObjectURL(f),id:Math.random().toString(36).slice(2)}));
+  note.textContent=[skipped?`${skipped} file${skipped>1?'s':''} skipped: only JPG, PNG and WebP work here.`:'',ok.length>room?`Only the first 20 images are kept.`:''].filter(Boolean).join(' ');
+  runAll();
+ };
+ files.onchange=()=>{add(files.files);files.value=''};
+ ['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));
+ ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
+ drop.addEventListener('drop',e=>add(e.dataTransfer.files));
+ let t;const again=()=>{clearTimeout(t);t=setTimeout(runAll,250)};
+ q.oninput=()=>{$('qv').textContent=q.value;again()};
+ mw.onchange=again;document.querySelectorAll('input[name=fmt]').forEach(r=>r.onchange=again);
+ $('clear').onclick=()=>{shrink.forEach(x=>{URL.revokeObjectURL(x.src);x.out&&URL.revokeObjectURL(x.out.url)});shrink=[];$('cmp').hidden=true;note.textContent='';draw()};
+ $('all').onclick=async()=>{for(const x of shrink){if(!x.out)continue;dl(x);await new Promise(r=>setTimeout(r,350))}};
+ $('cmpR').oninput=e=>$('cmp').style.setProperty('--p',e.target.value+'%');
+ let run=0;
+ async function runAll(){
+  const n=++run,o=opts();draw();
+  for(const x of shrink){if(n!==run)return;x.busy=true;draw();try{await encode(x,o)}catch(e){x.err='This image could not be read.'}x.busy=false;if(n===run)draw()}
+  if(n===run&&$('cmp').dataset.id){const x=shrink.find(y=>y.id===$('cmp').dataset.id);if(x)compare(x)}
+ }
+ function draw(){
+  $('sum').hidden=!shrink.length;
+  const done=shrink.filter(x=>x.out),a=done.reduce((s,x)=>s+x.file.size,0),b=done.reduce((s,x)=>s+best(x).size,0);
+  $('sumt').innerHTML=done.length?`<b>${fmtB(a)} → ${fmtB(b)}</b> · saved ${Math.max(0,Math.round((1-b/a)*100))}% across ${done.length} image${done.length>1?'s':''}`:'Working…';
+  res.innerHTML=shrink.map(x=>{
+   const o=x.out,bb=o&&best(x),pc=o&&Math.round((1-bb.size/x.file.size)*100);
+   return `<li class="ri" data-id="${x.id}"><img src="${o?o.url:x.src}" alt="" width="64" height="64"><div class="rn"><b>${x.file.name.replace(/</g,'&lt;')}</b><span>${x.err?x.err:o?`${o.w}×${o.h} · ${fmtB(x.file.size)} → ${fmtB(bb.size)}${o.kept?' (original kept: it was already smaller)':''}`:'Compressing…'}</span></div>${o&&!x.busy?`<span class="pc${pc>0?'':' z'}">${pc>0?'−'+pc+'%':'0%'}</span><button class="btn sm" type="button" data-cmp>Compare</button><button class="btn p sm" type="button" data-dl>Download</button>`:''}</li>`;
+  }).join('');
+ }
+ res.onclick=e=>{const li=e.target.closest('.ri');if(!li)return;const x=shrink.find(y=>y.id===li.dataset.id);if(!x||!x.out)return;if(e.target.closest('[data-dl]'))dl(x);if(e.target.closest('[data-cmp]'))compare(x,true)};
+ function compare(x,scroll){const c=$('cmp');c.hidden=false;c.dataset.id=x.id;$('cmpA').src=x.src;$('cmpB').src=best(x).url;$('cmpC').textContent=`${x.file.name}: ${fmtB(x.file.size)} original, ${fmtB(best(x).size)} compressed. Drag the slider to compare.`;if(scroll)c.scrollIntoView({behavior:'smooth',block:'center'})}
+ draw();
+}
+// The smaller of the new file and the original (re-encoding an already tiny file can make it bigger).
+const best=x=>x.out.kept?{size:x.file.size,url:x.src,name:x.file.name}:x.out;
+function dl(x){const b=best(x),a=document.createElement('a');a.href=b.url;a.download=b.name;document.body.append(a);a.click();a.remove()}
+async function encode(x,o){
+ const img=await (window.createImageBitmap?createImageBitmap(x.file):new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=x.src}));
+ const k=o.mw&&img.width>o.mw?o.mw/img.width:1,w=Math.round(img.width*k),h=Math.round(img.height*k);
+ const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');
+ ctx.imageSmoothingQuality='high';
+ if(o.type==='image/jpeg'){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h)}
+ ctx.drawImage(img,0,0,w,h);img.close&&img.close();
+ let blob=await new Promise(r=>c.toBlob(r,o.type,o.q));
+ // Some browsers (older Safari) can't write WebP and quietly hand back a PNG: fall back to JPEG and say so.
+ let type=o.type;
+ if(!blob||blob.type!==o.type){type='image/jpeg';ctx.globalCompositeOperation='destination-over';ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);blob=await new Promise(r=>c.toBlob(r,type,o.q));$('tnote').textContent='Your browser can\'t save WebP, so these were saved as JPEG. Chrome, Edge and Firefox can save WebP.'}
+ if(x.out)URL.revokeObjectURL(x.out.url);
+ const ext=type==='image/webp'?'webp':'jpg';
+ x.out={size:blob.size,url:URL.createObjectURL(blob),w,h,name:x.file.name.replace(/\.[^.]+$/,'')+'.'+ext,kept:blob.size>=x.file.size&&k===1&&x.file.type===type};
 }
 
 /* ---------- Visitor counts ----------

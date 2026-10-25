@@ -37,6 +37,7 @@ const pages=[
  ['projects','Projects · '+base,'Brand identity, website and marketing design by Aakarsh B, including BiteSpeed, Bose Professional, Mavion and Creativate.'],
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
  ['work-with-me','Work with me · '+base,'Hire Aakarsh B for freelance brand identity, websites, landing pages, decks and campaign creative for startups and SaaS teams.'],
+ ['tools/image-compressor','Free image compressor and WebP converter · '+base,'Compress JPG, PNG and WebP images and convert them to WebP for free, right in your browser. No uploads, no sign-up.'],
  ['writing','Writing · '+base,'Articles by Aakarsh B on design, process and lessons learned the hard way.'],
  ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],
  ['about','About · '+base,'Aakarsh B, brand and visual designer in Bengaluru: how I work, and certificates from Google and CalArts.'],
@@ -69,7 +70,7 @@ for(const [dir,title,desc,img] of pages){
   .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(desc))
   .replace(/(<meta property="og:title" content=")[^"]*/,'$1'+esc(title))
   .replace(/(<meta property="og:description" content=")[^"]*/,'$1'+esc(desc));
- if(SITE)html=html.replace('</title>',()=>`</title>${ogTags(og(p?p.id:dir,img||'images/board/me.jpg'))}`);
+ if(SITE)html=html.replace('</title>',()=>`</title>${ogTags(og(p?p.id:dir.split('/').pop(),img||'images/board/me.jpg'))}`);
  if(SITE)html=html.replace('</title>',`</title>\n<link rel="canonical" href="${url}">${social(url,p?p.t+', cover':'Aakarsh B, smiling')}`);
  // Project pages: say what the work is and who made it, plus a Projects › title breadcrumb.
  if(SITE&&p)html=html.replace('</head>',()=>ld({'@context':'https://schema.org','@graph':[
