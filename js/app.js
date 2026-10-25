@@ -39,6 +39,8 @@ function renderNow(){
  if($('board'))initBoard();
  if(key==='/contact')initForm(query().get('s'));
  if(key==='/tools/image-compressor')initCompressor();
+ if(key==='/tools/palette-generator')initPalette();
+ if(key==='/tools/contrast-checker')initContrast();
 }
 
 /* ---------- Header ---------- */
@@ -161,6 +163,7 @@ function swap(update){
 
 /* ---------- Image compressor ----------
    Decodes each image, resizes it on a canvas and re-encodes it as WebP or JPEG, all in the browser. */
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
 const fmtB=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(n<10240?1:0)+' KB':(n/1048576).toFixed(2)+' MB';
 let shrink=[];
 function initCompressor(){
@@ -183,7 +186,7 @@ function initCompressor(){
  q.oninput=()=>{$('qv').textContent=q.value;again()};
  mw.onchange=again;document.querySelectorAll('input[name=fmt]').forEach(r=>r.onchange=again);
  $('clear').onclick=()=>{shrink.forEach(x=>{URL.revokeObjectURL(x.src);x.out&&URL.revokeObjectURL(x.out.url)});shrink=[];$('cmp').hidden=true;note.textContent='';draw()};
- $('all').onclick=async()=>{for(const x of shrink){if(!x.out)continue;dl(x);await new Promise(r=>setTimeout(r,350))}};
+ $('all').textContent='Download all';$('all').onclick=async()=>{for(const x of shrink){if(!x.out)continue;dl(x);await new Promise(r=>setTimeout(r,350))}};
  $('cmpR').oninput=e=>$('cmp').style.setProperty('--p',e.target.value+'%');
  let run=0;
  async function runAll(){
@@ -197,7 +200,8 @@ function initCompressor(){
   $('sumt').innerHTML=done.length?`<b>${fmtB(a)} → ${fmtB(b)}</b> · saved ${Math.max(0,Math.round((1-b/a)*100))}% across ${done.length} image${done.length>1?'s':''}`:'Working…';
   res.innerHTML=shrink.map(x=>{
    const o=x.out,bb=o&&best(x),pc=o&&Math.round((1-bb.size/x.file.size)*100);
-   return `<li class="ri" data-id="${x.id}"><img src="${o?o.url:x.src}" alt="" width="64" height="64"><div class="rn"><b>${x.file.name.replace(/</g,'&lt;')}</b><span>${x.err?x.err:o?`${o.w}×${o.h} · ${fmtB(x.file.size)} → ${fmtB(bb.size)}${o.kept?' (original kept: it was already smaller)':''}`:'Compressing…'}</span></div>${o&&!x.busy?`<span class="pc${pc>0?'':' z'}">${pc>0?'−'+pc+'%':'0%'}</span><button class="btn sm" type="button" data-cmp>Compare</button><button class="btn p sm" type="button" data-dl>Download</button>`:''}</li>`;
+   const ext=f=>(f.split('.').pop()||'').toUpperCase().replace('JPEG','JPG'),from=ext(x.file.name),to=o?ext(bb.name):'';
+   return `<li class="ri" data-id="${x.id}"><img src="${o?o.url:x.src}" alt="" width="64" height="64"><div class="rn"><b>${esc(o?bb.name:x.file.name)}</b><span>${x.err?x.err:o?`<i class="fx">${from}${o.kept?'':` → <em>${to}</em>`}</i>${o.w}×${o.h} · ${fmtB(x.file.size)} → ${fmtB(bb.size)}${o.kept?' · kept the original, it was already smaller':''}`:'Compressing…'}</span></div>${o&&!x.busy?`<span class="pc${pc>0?'':' z'}">${pc>0?'−'+pc+'%':'0%'}</span><button class="btn sm" type="button" data-cmp>Compare</button><button class="btn p sm" type="button" data-dl>Download ${to==='WEBP'?'WebP':to}</button>`:''}</li>`;
   }).join('');
  }
  res.onclick=e=>{const li=e.target.closest('.ri');if(!li)return;const x=shrink.find(y=>y.id===li.dataset.id);if(!x||!x.out)return;if(e.target.closest('[data-dl]'))dl(x);if(e.target.closest('[data-cmp]'))compare(x,true)};
@@ -221,6 +225,100 @@ async function encode(x,o){
  if(x.out)URL.revokeObjectURL(x.out.url);
  const ext=type==='image/webp'?'webp':'jpg';
  x.out={size:blob.size,url:URL.createObjectURL(blob),w,h,name:x.file.name.replace(/\.[^.]+$/,'')+'.'+ext,kept:blob.size>=x.file.size&&k===1&&x.file.type===type};
+}
+
+/* ---------- Colour tools ----------
+   OKLCH maths (Björn Ottosson's OKLab) for even shade steps, and WCAG 2.2 contrast ratios. */
+const C={
+ hex(h){h=String(h).trim().replace(/^#/,'');if(/^[0-9a-f]{3}$/i.test(h))h=h.replace(/./g,c=>c+c);return /^[0-9a-f]{6}$/i.test(h)?'#'+h.toLowerCase():null},
+ rgb(h){const n=parseInt(h.slice(1),16);return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255]},
+ toHex(c){return '#'+c.map(v=>Math.round(Math.min(1,Math.max(0,v))*255).toString(16).padStart(2,'0')).join('')},
+ lin:v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4,
+ gam:v=>v<=.0031308?12.92*v:1.055*v**(1/2.4)-.055,
+ oklch(h){const [r,g,b]=C.rgb(h).map(C.lin);
+  const l=Math.cbrt(.4122214708*r+.5363325363*g+.0514459929*b),m=Math.cbrt(.2119034982*r+.6806995451*g+.1073969566*b),s=Math.cbrt(.0883024619*r+.2817188376*g+.6299787005*b);
+  const L=.2104542553*l+.793617785*m-.0040720468*s,A=1.9779984951*l-2.428592205*m+.4505937099*s,B=.0259040371*l+.7827717662*m-.808675766*s;
+  return [L,Math.hypot(A,B),Math.atan2(B,A)]},
+ raw(L,c,h){const A=c*Math.cos(h),B=c*Math.sin(h);
+  const l=(L+.3963377774*A+.2158037573*B)**3,m=(L-.1055613458*A-.0638541728*B)**3,s=(L-.0894841775*A-1.291485548*B)**3;
+  return [4.0767416621*l-3.3077115913*m+.2309699292*s,-1.2684380046*l+2.6097574011*m-.3413193965*s,-.0041960863*l-.7034186147*m+1.707614701*s]},
+ // Back to hex, lowering chroma until the colour fits in sRGB (keeps hue and lightness).
+ fromLch(L,c,h){let lo=0,hi=c,v=C.raw(L,c,h);const ok=v=>v.every(x=>x>=-1e-4&&x<=1+1e-4);if(!ok(v)){for(let i=0;i<24;i++){const mid=(lo+hi)/2;ok(C.raw(L,mid,h))?lo=mid:hi=mid}v=C.raw(L,lo,h)}return C.toHex(v.map(C.gam))},
+ lum(h){const [r,g,b]=C.rgb(h).map(C.lin);return .2126*r+.7152*g+.0722*b},
+ ratio(a,b){const x=C.lum(a),y=C.lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)},
+ r2:r=>(Math.floor(r*100)/100).toFixed(2)
+};
+const SHADE=[50,100,200,300,400,500,600,700,800,900,950],LT=[.975,.935,.875,.805,.72,.635,.55,.465,.385,.31,.225],CK=[.13,.24,.42,.62,.82,.96,1,.94,.82,.68,.55];
+const INK='#0b0b0c';
+// A shade scale around one colour: it sits on the step nearest its lightness; the rest follow even OKLCH steps.
+function shades(hex,neutral){
+ const [L,c,h]=C.oklch(hex),k=LT.reduce((b,t,i)=>Math.abs(t-L)<Math.abs(LT[b]-L)?i:b,0);
+ const peak=neutral?Math.min(.025,c*.15):c/CK[k];
+ return SHADE.map((s,i)=>({s,hex:!neutral&&i===k?hex:C.fromLch(LT[i],peak*(neutral?1:CK[i]),h),base:!neutral&&i===k}));
+}
+function copy(text,what){
+ const done=()=>toast(`Copied ${what||text}`);
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done,()=>fallback());else fallback();
+ function fallback(){const t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.append(t);t.select();try{document.execCommand('copy');done()}catch(e){toast('Copy didn\'t work. Select the text and copy it yourself.')}t.remove()}
+}
+function toast(msg){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.append(t)}t.textContent=msg;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1800)}
+function save(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+// Keep a colour box and its native picker in step; call back with a valid hex.
+function bindColour(id,cb){
+ const t=$(id),p=$(id+'P');
+ t.oninput=()=>{const h=C.hex(t.value);t.setAttribute('aria-invalid',!h);if(h){p.value=h;cb(h)}};
+ t.onblur=()=>{const h=C.hex(t.value);if(h)t.value=h.toUpperCase()};
+ p.oninput=()=>{t.value=p.value.toUpperCase();t.setAttribute('aria-invalid','false');cb(p.value)};
+ return h=>{t.value=h.toUpperCase();p.value=h;t.setAttribute('aria-invalid','false')};
+}
+const setQuery=o=>{const u=new URL(location.href);Object.entries(o).forEach(([k,v])=>u.searchParams.set(k,v));if(!HASH)history.replaceState(history.state,'',u)};
+
+function initPalette(){
+ const qs=query();let hex=C.hex(qs.get('c'))||'#3350f5',name=(qs.get('n')||'brand').replace(/[^a-z0-9-]/gi,'').toLowerCase()||'brand',fmt='css',main=[],neu=[];
+ const set=bindColour('base',h=>{hex=h;draw()});set(hex);$('pname').value=name;
+ $('pname').oninput=e=>{name=e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,'')||'brand';code()};
+ $('rand').onclick=()=>{hex=C.fromLch(.55+Math.random()*.1,.12+Math.random()*.1,Math.random()*Math.PI*2);set(hex);draw()};
+ const sw=x=>{const w=C.ratio(x.hex,'#ffffff'),b=C.ratio(x.hex,INK),on=w>=b?'#ffffff':INK,r=Math.max(w,b);
+  return `<button type="button" role="listitem" class="sw${x.base?' base':''}" style="--c:${x.hex};--on:${on}" data-hex="${x.hex}" aria-label="${x.s}, ${x.hex.toUpperCase()}. Copy"><span class="sw-c"><b>Aa</b><small>${C.r2(r)}${r>=4.5?'':' · large only'}</small>${x.base?'<i>yours</i>':''}</span><span class="sw-t"><b>${x.s}</b><code>${x.hex.toUpperCase()}</code></span></button>`};
+ function draw(){main=shades(hex);neu=shades(hex,true);$('scale').innerHTML=main.map(sw).join('');$('neutral').innerHTML=neu.map(sw).join('');code();setQuery({c:hex.slice(1),n:name})}
+ document.querySelectorAll('.scale').forEach(el=>el.onclick=e=>{const b=e.target.closest('.sw');if(b)copy(b.dataset.hex.toUpperCase())});
+ const out=()=>{
+  const css=`:root {\n${main.map(x=>`  --${name}-${x.s}: ${x.hex};`).join('\n')}\n\n${neu.map(x=>`  --${name}-neutral-${x.s}: ${x.hex};`).join('\n')}\n}\n`;
+  const tw=`// tailwind.config.js → theme.extend.colors\n'${name}': {\n${main.map(x=>`  ${x.s}: '${x.hex}',`).join('\n')}\n},\n'${name}-neutral': {\n${neu.map(x=>`  ${x.s}: '${x.hex}',`).join('\n')}\n},\n`;
+  const tok=a=>Object.fromEntries(a.map(x=>[x.s,{$type:'color',$value:x.hex}]));
+  const json=JSON.stringify({[name]:tok(main),[name+'-neutral']:tok(neu)},null,2)+'\n';
+  return {css:[css,'css','text/css'],tw:[tw,'js','text/javascript'],json:[json,'json','application/json']}[fmt]};
+ function code(){$('code').textContent=out()[0]}
+ document.querySelectorAll('.exp [role=tab]').forEach(b=>b.onclick=()=>{fmt=b.dataset.f;document.querySelectorAll('.exp [role=tab]').forEach(x=>x.setAttribute('aria-selected',x===b));code()});
+ $('cpy').onclick=()=>copy(out()[0],'the code');
+ $('dlf').onclick=()=>{const [t,ext,type]=out();save(new Blob([t],{type}),`${name}-palette.${ext}`)};
+ $('dlp').onclick=()=>{
+  const W=1320,cw=W/11,c=document.createElement('canvas');c.width=W;c.height=448;const x=c.getContext('2d');
+  x.fillStyle='#ffffff';x.fillRect(0,0,W,448);x.textBaseline='top';
+  [[main,0,name],[neu,220,name+' neutral']].forEach(([a,y,lab])=>{x.fillStyle=INK;x.font='600 18px system-ui, sans-serif';x.fillText(lab,20,y+16);
+   a.forEach((s,i)=>{x.fillStyle=s.hex;x.fillRect(i*cw,y+48,cw,120);x.fillStyle=INK;x.font='600 14px system-ui, sans-serif';x.fillText(String(s.s),i*cw+12,y+176);x.font='13px ui-monospace, monospace';x.fillStyle='#55585f';x.fillText(s.hex.toUpperCase(),i*cw+12,y+196)})});
+  c.toBlob(b=>save(b,`${name}-palette.png`),'image/png')};
+ draw();
+}
+
+function initContrast(){
+ const qs=query();let fg=C.hex(qs.get('fg'))||'#5b6170',bg=C.hex(qs.get('bg'))||'#ffffff';
+ const setF=bindColour('fg',h=>{fg=h;draw()}),setB=bindColour('bg',h=>{bg=h;draw()});setF(fg);setB(bg);
+ $('swap').onclick=()=>{[fg,bg]=[bg,fg];setF(fg);setB(bg);draw()};
+ const CHECKS=[['Body text','AA',4.5],['Large text','AA',3],['Body text','AAA',7],['Large text','AAA',4.5],['Buttons, icons, borders','AA',3]];
+ // The nearest colour to the text colour (same hue, only lightness changed) that reaches 4.5:1.
+ function nearest(){const [L,c,h]=C.oklch(fg);let best=null;
+  for(const dir of [-1,1])for(let d=.005;d<=1;d+=.005){const l=L+dir*d;if(l<0||l>1)break;const x=C.fromLch(l,c,h);if(C.ratio(x,bg)>=4.5){if(!best||d<best.d)best={x,d};break}}
+  return best&&best.x}
+ function draw(){
+  const r=C.ratio(fg,bg),p=$('prev');p.style.setProperty('--fg',fg);p.style.setProperty('--bg',bg);
+  $('ratio').innerHTML=`${C.r2(r)}<span>:1</span>`;
+  $('checks').innerHTML=CHECKS.map(([t,l,n])=>{const ok=r>=n;return `<li class="${ok?'ok':'no'}"><span class="ck" aria-hidden="true">${ok?'✓':'✕'}</span><span>${t} <small>${l} · needs ${n}:1</small></span><b>${ok?'Pass':'Fail'}</b></li>`}).join('');
+  const f=$('fix');
+  if(r<4.5){const x=nearest();f.hidden=!x;if(x)f.innerHTML=`<span class="fix-s" style="--c:${x}" aria-hidden="true"></span><span><b>Try ${x.toUpperCase()}</b><small>${C.r2(C.ratio(x,bg))}:1 · passes AA for body text</small></span><button class="btn p sm" type="button" id="use">Use this</button>`;if(x)$('use').onclick=()=>{fg=x;setF(fg);draw();toast('Text colour updated')}}else f.hidden=true;
+  setQuery({fg:fg.slice(1),bg:bg.slice(1)});
+ }
+ draw();
 }
 
 /* ---------- Visitor counts ----------

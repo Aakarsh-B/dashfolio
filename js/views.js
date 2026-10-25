@@ -75,6 +75,8 @@ ${sec('life','light',`<h2>Off the clock</h2><p class="lead">Rides, runs, travel,
 
 /* ---------- Inner pages ---------- */
 const head=(t,lead,extra='')=>`<header class="ph-head"><h1>${t}</h1>${lead?`<p class="lead">${lead}</p>`:''}${extra}</header>`;
+// Colour field: the native picker (a swatch you click) beside a hex box you can type or paste into.
+const cfield=(id,label,val)=>`<div class="cf"><label for="${id}">${label}</label><div class="cf-in"><input type="color" id="${id}P" value="${val}" aria-label="${label} picker"><input id="${id}" value="${val.toUpperCase()}" spellcheck="false" autocomplete="off" maxlength="7" inputmode="text"></div></div>`;
 const V={
 '/':home,
 '/projects':()=>`${head('Projects','Brand, web and marketing design, from identities to the ads that sell them.')}<div class="tiles" id="pg">${projectGrid()}</div>`,
@@ -103,6 +105,36 @@ const V={
  <div><h3>Resize first</h3><p>A 4000px photo in a 1200px slot wastes most of its weight. Set a max width to match where the image is shown: 1920 for full-width, 1280 or less for content.</p></div>
  <div><h3>Private by design</h3><p>Nothing is uploaded. Your browser does the work, so it's as fast as your device and works offline once the page has loaded.</p></div>
 </div><p class="tool-cta">I took a landing page from 50 to 84 on PageSpeed, mostly by fixing images like this. <a href="work-with-me">Need a faster site?</a></p></section>`,
+'/tools/palette-generator':()=>`${head('Palette generator','Pick one brand colour and get a full shade scale from 50 to 950, with the text colour each shade needs to stay readable. Copy a colour with one click, or export the lot.')}
+<div class="tk">
+ <div class="opts pg-in">${cfield('base','Brand colour','#3350f5')}<div class="cf"><label for="pname">Name</label><input id="pname" class="tin" value="brand" spellcheck="false" maxlength="24"></div><button class="btn sm" type="button" id="rand">Surprise me</button></div>
+ <div class="scale" id="scale" role="list" aria-label="Shade scale"></div>
+ <p class="hint">Click a shade to copy its hex. <span class="sw-key"><b>Aa</b> shows the text colour that passes WCAG AA on it.</span></p>
+ <h2 class="h4">Tinted neutrals</h2><div class="scale sm" id="neutral" role="list" aria-label="Neutral scale"></div>
+ <div class="exp"><div class="exp-h"><div class="seg" role="tablist" aria-label="Export format"><button role="tab" type="button" data-f="css" aria-selected="true">CSS</button><button role="tab" type="button" data-f="tw" aria-selected="false">Tailwind</button><button role="tab" type="button" data-f="json" aria-selected="false">JSON</button></div><span class="exp-b"><button class="btn sm" type="button" id="cpy">Copy code</button><button class="btn sm" type="button" id="dlf">Download file</button><button class="btn p sm" type="button" id="dlp">Download PNG</button></span></div><pre class="code" id="code" tabindex="0"></pre></div>
+ <p class="tool-cta">Checking a pair of colours? Try the <a href="tools/contrast-checker">contrast checker</a>.</p>
+</div>
+<section class="tips"><h2 class="h3">Good to know</h2><div class="tip-grid">
+ <div><h3>Your colour stays put</h3><p>The scale is built around the exact colour you pick: it lands on the step that matches its lightness, and the other steps are spaced evenly around it.</p></div>
+ <div><h3>Even steps, not guesses</h3><p>Shades are made in OKLCH, a colour space where equal steps look equally different to the eye. That's why the middle of the scale doesn't turn muddy.</p></div>
+ <div><h3>Readable by default</h3><p>Each shade shows whether white or near-black text passes WCAG AA (4.5:1) on it, so buttons and badges are accessible from the start.</p></div>
+ <div><h3>Use it anywhere</h3><p>Export CSS variables, a Tailwind colour block or JSON tokens, or a PNG to drop into Figma or a brand deck.</p></div>
+</div><p class="tool-cta">Need a whole brand system, not just a palette? <a href="work-with-me">Work with me</a>.</p></section>`,
+'/tools/contrast-checker':()=>`${head('Contrast checker','Check whether text is readable on its background, against the WCAG 2.2 standards. If it fails, get the nearest colour that passes.')}
+<div class="tk">
+ <div class="opts cc-in">${cfield('fg','Text','#5b6170')}<button class="btn sm swap" type="button" id="swap" aria-label="Swap text and background">⇄ Swap</button>${cfield('bg','Background','#ffffff')}</div>
+ <div class="cc-grid">
+  <div class="cc-prev" id="prev"><p class="cc-k">Preview</p><h3>Readable type is good design</h3><p>Body text needs a contrast ratio of at least 4.5:1. Large text, 24px and up or 18.5px bold, needs 3:1.</p><span class="cc-btn">Button label</span></div>
+  <div class="cc-res"><p class="cc-k">Contrast ratio</p><p class="ratio" id="ratio" aria-live="polite">–</p><ul class="checks" id="checks"></ul><div class="fix" id="fix" hidden></div></div>
+ </div>
+ <p class="tool-cta">Building a full set of colours? Try the <a href="tools/palette-generator">palette generator</a>.</p>
+</div>
+<section class="tips"><h2 class="h3">Good to know</h2><div class="tip-grid">
+ <div><h3>What AA and AAA mean</h3><p>AA is the level most laws and style guides ask for: 4.5:1 for body text, 3:1 for large text. AAA is stricter, 7:1 and 4.5:1.</p></div>
+ <div><h3>Buttons and icons count too</h3><p>Borders, icons and focus rings need 3:1 against what's next to them, so people can see what they can click.</p></div>
+ <div><h3>Grey on grey is the usual culprit</h3><p>Light grey captions and placeholder text fail most often. Nudge them darker until they pass; it rarely changes the look.</p></div>
+ <div><h3>How the fix works</h3><p>When a pair fails, the checker keeps your text colour's hue and adjusts only its lightness until it passes, so it still feels like your colour.</p></div>
+</div></section>`,
 '/contact':()=>`${head('Say hi','Hiring, or working on a brand, website or campaign that needs clearer design? Tell me a little about it and I\'ll reply within two working days.')}<div class="contact"><form id="cf" class="panel form" novalidate><div class="f2"><label>Name<input name="name" required autocomplete="name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label></div><div class="f2"><label><span>Phone <span class="opt">optional</span></span><input name="phone" type="tel" autocomplete="tel"></label><label>Looking for<select name="service">${['Not sure yet',INVITE.t,...SERVICES.map(x=>x.t),'Full-time role'].map(o=>`<option>${o}</option>`).join('')}</select></label></div><label>About the project<textarea name="message" rows="5" required placeholder="What you're building, timeline, budget range"></textarea></label><input type="text" name="_honey" class="sr" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="btn p" type="submit">Send message</button><p class="fmsg" id="fmsg" role="status" aria-live="polite"></p></form><div class="elsewhere"><h2>Or reach me directly</h2><a href="mailto:aakarshbiju@gmail.com">aakarshbiju@gmail.com</a>${SOCIAL.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]} ↗</a>`).join('')}</div></div>`
 };
 
@@ -125,7 +157,7 @@ function caseStudy(p){
 
 // Unknown routes (old links, typos) get an honest page instead of quietly showing the home page.
 const notFound=()=>`${head('This page wandered off','The link might be old, or I moved things around. Here\'s some work to look at instead.','<div class="btns"><a class="btn p" href="./">Back home</a><a class="btn" href="contact">Say hi</a></div>')}<div class="tiles">${PROJECTS.slice(0,4).map(tile).join('')}</div>`;
-const TITLES={'/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
+const TITLES={'/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
 // Resolve a route (e.g. /projects/bitespeed) to its key, project, page content and header links.
 function page(h){
  let html,key=h;

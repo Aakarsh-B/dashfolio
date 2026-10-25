@@ -38,6 +38,8 @@ const pages=[
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
  ['work-with-me','Work with me · '+base,'Hire Aakarsh B for freelance brand identity, websites, landing pages, decks and campaign creative for startups and SaaS teams.'],
  ['tools/image-compressor','Free image compressor and WebP converter · '+base,'Compress JPG, PNG and WebP images and convert them to WebP for free, right in your browser. No uploads, no sign-up.'],
+ ['tools/palette-generator','Free colour palette generator · '+base,'Turn one brand colour into a full 50–950 shade scale with accessible text colours. Export CSS, Tailwind, JSON or PNG. Free, in your browser.'],
+ ['tools/contrast-checker','Free colour contrast checker · '+base,'Check text and background colours against WCAG 2.2 AA and AAA, and get the nearest colour that passes. Free, in your browser.'],
  ['writing','Writing · '+base,'Articles by Aakarsh B on design, process and lessons learned the hard way.'],
  ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],
  ['about','About · '+base,'Aakarsh B, brand and visual designer in Bengaluru: how I work, and certificates from Google and CalArts.'],

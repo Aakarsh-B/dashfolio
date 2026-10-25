@@ -20,6 +20,8 @@ const cards=[
  ['experience','BiteSpeed · CloudEagle.ai · Hexnode','5+ years of brand, web and growth design',...ME],
  ['work-with-me','freelance','Brand, web and campaign design that gets results',...ME],
  ['image-compressor','free tool','Compress images and convert to WebP, in your browser',...ME],
+ ['palette-generator','free tool','One brand colour in, a full accessible palette out',...ME],
+ ['contrast-checker','free tool','Is your text readable? Check it against WCAG',...ME],
  ['writing','on Medium','Longer thoughts on design and the occasional expensive mistake',...ME],
  ['freebies',`${COMMUNITY.length} free Figma files`,'Free files to duplicate, take apart and reuse',...ME],
  ['about','about','Designer at work. Curious human otherwise.',...ME],
