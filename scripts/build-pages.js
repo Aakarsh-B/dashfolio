@@ -16,7 +16,8 @@ const tpl=stamp(fs.readFileSync(path.join(root,'index.html'),'utf8'))
  .replace(/\n<link rel="canonical"[^>]*>|\n<meta property="og:(?:url|image|image:alt|image:width|image:height|site_name|locale)"[^>]*>|\n<meta name="twitter:image"[^>]*>|\n<base [^>]*>|\n<script type="application\/ld\+json">[^<]*<\/script>/g,'')
  .replace(/(<nav aria-label="Main" id="nav">)[\s\S]*?(<\/nav>)/,'$1$2')
  .replace(/<main id="main"[^>]*>[\s\S]*?<\/main>/,'<main id="main" tabindex="-1"></main>')
- .replace(/(<nav class="tabbar" id="tabs" aria-label="Main \(mobile\)">)[\s\S]*?(<\/nav>)/,'$1$2');
+ .replace(/(<nav class="tabbar" id="tabs" aria-label="Main \(mobile\)">)[\s\S]*?(<\/nav>)/,'$1$2')
+ .replace(/<ul id="brands">[\s\S]*?<\/ul>/,'<ul id="brands"></ul>');
 // A copy in a sub-folder (or 404.html, at any depth) resolves every relative link from the site root.
 const rel=(html,pre)=>html.replace('<meta charset="utf-8">',`<meta charset="utf-8">\n<base href="${pre}">`);
 const src=f=>fs.readFileSync(path.join(root,f),'utf8');
@@ -26,6 +27,7 @@ const PROJ=Object.fromEntries(data.PROJECTS.map(p=>['projects/'+p.id,p]));
 const fill=(html,route)=>{const p=data.page(route);return html
  .replace('<nav aria-label="Main" id="nav"></nav>',()=>`<nav aria-label="Main" id="nav">${p.nav}</nav>`)
  .replace('<main id="main" tabindex="-1"></main>',()=>`<main id="main" tabindex="-1" data-pre="${route}">${p.html}</main>`)
+ .replace('<ul id="brands"></ul>',()=>`<ul id="brands">${p.brands}</ul>`)
  .replace('<nav class="tabbar" id="tabs" aria-label="Main (mobile)"></nav>',()=>`<nav class="tabbar" id="tabs" aria-label="Main (mobile)">${p.tabs}</nav>`)};
 const SITE=(process.env.SITE_URL||'').replace(/\/$/,'');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');

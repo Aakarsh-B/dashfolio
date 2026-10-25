@@ -32,6 +32,7 @@ function renderNow(){
  if(!(firstRender&&main.dataset.pre===path()))main.innerHTML=html;
  main.removeAttribute('data-pre');
  $('nav').innerHTML=nav;menu(false);
+ if(!$('brands').children.length)$('brands').innerHTML=brands();
  document.title=key==='/'&&!proj?'Aakarsh B · Brand & Visual Designer in Bengaluru':(proj?proj.t:TITLES[key]||'Aakarsh B')+' · Aakarsh B · Brand Designer';
  motion(main,firstRender);firstRender=false;
  if($('stack'))initStack($('stack'));

@@ -176,3 +176,12 @@ const STORY = [
 
 // "What my world looks like": the board photos. Add more by dropping images in images/board/ and listing them here.
 const WORLD = BOARD.filter(b=>b.src).concat([{src:'images/board/me.jpg',alt:'Aakarsh, smiling',caption:'hi, that\'s me'}]);
+
+// Brands I've designed for, in the footer. A logo file in images/brands/ shows as a white mark; otherwise the name shows.
+const BRANDS = [
+{n:'BiteSpeed',url:'https://www.bitespeed.co',logo:'bitespeed.svg'},
+{n:'CloudEagle.ai',url:'https://www.cloudeagle.ai',logo:'cloudeagle.svg'},
+{n:'Hexnode',url:'https://www.hexnode.com',logo:'hexnode.svg'},
+{n:'Mavion',url:'https://mavion.in',logo:'mavion.png'},
+{n:'Creativate',url:'https://creativate.in',logo:'creativate.svg'},
+{n:'Galeno Hygiene'},{n:'Education Today'},{n:'Wedding Memories'},{n:'Daksha Retreat'},{n:'Azure Constructions'}];

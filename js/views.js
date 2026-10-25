@@ -29,7 +29,7 @@ const sec=(id,cls,inner)=>`<section class="band ${cls}"${id?` id="${id}"`:''}><d
 const fade=dir=>`<div class="fade ${dir}" aria-hidden="true"></div>`;
 
 // A project tile: title strip, the cover on a soft panel, and the kind of work underneath.
-const tile=(p,i=9)=>`<a class="tile rv" href="projects/${p.id}"><div class="th"><b>${p.t.split(' · ')[0]}</b></div><div class="tb"><img src="${coverSm(p)}" srcset="${coverSm(p)} 600w, ${cover(p)} 1200w" sizes="(max-width:760px) 92vw, 440px" width="1200" height="900" alt="${p.t} cover" ${i<2?'':'loading="lazy"'}></div><div class="tf">${p.ty}</div></a>`;
+const tile=(p,i=9)=>`<a class="tile rv" href="projects/${p.id}"><div class="th"><b>${p.t.split(' · ')[0]}</b></div><div class="tb full"><img src="${coverSm(p)}" srcset="${coverSm(p)} 600w, ${cover(p)} 1200w" sizes="(max-width:760px) 92vw, 440px" width="1200" height="900" alt="${p.t} cover" ${i<2?'':'loading="lazy"'}></div><div class="tf">${p.ty}</div></a>`;
 const nextTile=()=>`<a class="tile rv next-up" href="work-with-me"><div class="th"><b>What's next?</b></div><div class="tb"><span class="sticker" aria-hidden="true">open<br>for work</span></div><div class="tf">Freelance brand, web and campaign design</div></a>`;
 const projectGrid=()=>PROJECTS.map(tile).join('');
 
@@ -44,13 +44,13 @@ const tools=()=>`<div class="tools">${TOOLS.map(t=>`<div class="tool"><span clas
 const certs=()=>`<div class="certs">${CERTS.map(c=>`<a class="tile rv" href="${c.url}" target="_blank" rel="noopener"><div class="th"><b>${c.t}</b><span class="get">Verify ↗</span></div><div class="tb img"><img src="${c.img}" alt="${c.t} certificate for Aakarsh B" loading="lazy"></div><div class="tf">${c.by} · ${c.d}</div></a>`).join('')}</div>`;
 const logo=c=>c.logo?`<img class="logo" src="${c.logo}" alt="" width="44" height="44">`:`<span class="logo" aria-hidden="true">${c.co.split(' ').map(w=>w[0]).slice(0,2).join('')}</span>`;
 
+// Footer brand list: white logos where there's a file, names otherwise; linked where there's a site.
+const brands=()=>BRANDS.map(b=>{const m=b.logo?`<img src="images/brands/${b.logo}" alt="${b.n}" height="24">`:`<span>${b.n}</span>`;return `<li>${b.url?`<a href="${b.url}" target="_blank" rel="noopener">${m}</a>`:m}</li>`}).join('');
+
 /* ---------- Home ---------- */
-// Three objects from the job itself: a colour swatch (brand), a browser window (web) and an ad (growth).
-const heroCards=()=>`<div class="peek">
-<a class="obj swatch" href="./#work" aria-label="Brand work"><div class="sw-c"><span>Brand</span></div><div class="sw-t"><b>Cobalt 3350</b><span>Identities that hold up from favicon to billboard</span></div></a>
-<a class="obj win" href="./#work" aria-label="Web work"><div class="win-bar"><i></i><i></i><i></i><span>aakarsh.design</span></div><div class="win-b"><span class="wl w1"></span><span class="wl w2"></span><span class="wl w3"></span><span class="wbtn">Get started</span><span class="wtag">Web</span></div></a>
-<a class="obj ad" href="./#work" aria-label="Growth work"><div class="ad-img"><img src="images/projects/ads/cover-sm.jpg" alt="" width="600" height="450"></div><div class="ad-b"><span class="ad-k">Growth</span><span class="ad-n">CTR <b>+50%</b></span><svg viewBox="0 0 120 34" aria-hidden="true"><path d="M2 30 L22 26 L40 28 L58 18 L76 20 L94 9 L118 4"/></svg></div></a>
-<figure class="obj me-pin" aria-hidden="true"><img src="images/board/me.jpg" alt="" width="200" height="200"><figcaption>hi, I'm Aakarsh</figcaption></figure></div>`;
+// Three checkpoints: the work, the road here, and life off the clock. One line of circles ties them together.
+const ROUTE=[['Where I help','Brand · Web · Growth','./#work','images/projects/bitespeed/cover.jpg'],['How I got here','2020 → now','./#story','images/board/travel.jpg'],['Off the clock','Rides, runs and Tinki','./#life','images/board/bike.jpg']];
+const heroCards=()=>`<div class="route">${ROUTE.map(r=>`<a class="cp" href="${r[2]}"><img src="${r[3]}" alt="" width="600" height="750"><span class="cpl"><b>${r[0]}</b><small>${r[1]}</small></span></a>`).join('')}</div><div class="rline" aria-hidden="true"><i></i><i></i><i></i></div>`;
 
 const STATS=[['figma',`5+ years in design`,'Brand, web and growth design at BiteSpeed, CloudEagle.ai and Hexnode.'],['chart','+50% ad click-through','From creative testing on BiteSpeed\'s paid campaigns.'],['bolt',`${(Math.floor(USES/100)*100).toLocaleString('en-IN')}+ Figma duplicates`,'Free community files other designers actually use.']];
 
@@ -68,7 +68,7 @@ const home=()=>`<section class="band dark hero"><div class="wrap">
 ${heroCards()}</div></section>${fade('d2l')}
 ${sec('work','light',`<h2>Design that<br>pulls its weight</h2><p class="lead">Five years of brand, web and growth design for SaaS teams. The craft matters, and so do the numbers it moves.</p>
 <div class="stats">${STATS.map(s=>`<div class="stat rv"><span class="ic">${SVG(ICON[s[0]],16)}</span><b>${s[1]}</b><p>${s[2]}</p></div>`).join('')}</div>
-<h3 class="h3">Things I've made</h3><div class="tiles">${PROJECTS.slice(0,7).map(tile).join('')}${nextTile()}</div><a class="more" href="projects">All ${PROJECTS.length} projects →</a>
+<h3 class="h3">Things I've made</h3><div class="tiles">${PROJECTS.slice(0,6).map(tile).join('')}</div><a class="more" href="projects">All ${PROJECTS.length} projects →</a>
 <h3 class="h3 c">Kind words, unedited</h3><div class="stack" id="stack" aria-roledescription="carousel">${QUOTES.map(qcard).join('')}</div><p class="stack-hint">Flick the card to read the next one</p>`)}
 ${fade('l2d')}${sec('story','dark',`<h2>The long<br>way round</h2><p class="lead">Five stops between a computer science degree and designing for growth.</p>${story()}`)}${fade('d2l')}
 ${sec('life','light',`<h2>Off the clock</h2><p class="lead">Rides, runs, travel, coffee, and a cat who runs the house.</p>${board()}`)}`;
@@ -77,7 +77,7 @@ ${sec('life','light',`<h2>Off the clock</h2><p class="lead">Rides, runs, travel,
 const head=(t,lead,extra='')=>`<header class="ph-head"><h1>${t}</h1>${lead?`<p class="lead">${lead}</p>`:''}${extra}</header>`;
 const V={
 '/':home,
-'/projects':()=>`${head('Projects','Brand, web and marketing design, from identities to the ads that sell them.')}<div class="tiles" id="pg">${projectGrid()}${nextTile()}</div>`,
+'/projects':()=>`${head('Projects','Brand, web and marketing design, from identities to the ads that sell them.')}<div class="tiles" id="pg">${projectGrid()}</div>`,
 '/experience':()=>`${head('Experience','5+ years of brand, web and growth design across SaaS and marketing teams, most recently cutting cost per demo by 50% at BiteSpeed.','<div class="btns"><a class="btn" href="resume.html" target="_blank" rel="noopener">View resume ↗</a></div>')}<div class="xp">${EXPERIENCE.map(c=>`<section class="job rv">${logo(c)}<div class="jb"><div class="jh"><h2>${c.co}${c.where?` <span class="where2">${c.where}</span>`:''}</h2><span class="d">${c.roles.length>1?c.roles[c.roles.length-1].d.split(' – ')[0]+' – '+c.roles[0].d.split(' – ')[1]:c.roles[0].d}</span></div>${c.roles.map(r=>`<div class="role"><b>${r.t}</b>${c.roles.length>1?` <span class="where2">${r.d}</span>`:''}${r.p.length?`<ul>${r.p.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>`).join('')}</div></section>`).join('')}</div><h2 class="h3">Tools I use</h2>${tools()}`,
 '/work-with-me':()=>`${head('Work with me','Freelance brand, web and campaign design for startups and SaaS teams. The same work I do in-house: brands that look credible, and pages and ads that get results.',`<div class="btns"><a class="btn p" href="contact?s=${encodeURIComponent('Not sure yet')}">Tell me about your project</a><a class="btn" href="projects">See the work</a></div>`)}<dl class="proof">${PROOF.map(x=>`<div><dt>${x[1]}<span>${x[2]}</span></dt><dd>${x[0]}</dd></div>`).join('')}</dl><h2 class="h3">What I can help with</h2><div class="svc">${SERVICES.map(svc).join('')}</div><article class="invite"><div><span class="pill">By referral</span><h3>${INVITE.t}</h3><p>${INVITE.s}</p></div><div class="inv-price">${SHOW_PRICES?`<p class="price"><span>from</span> ${INVITE.p} <span>${INVITE.u}</span></p>`:''}<p class="when">${INVITE.w}</p><a class="btn" href="contact?s=${encodeURIComponent(INVITE.t)}">Ask for an introduction</a></div></article><div class="wfit"><section><h2>Good fit if you're</h2><ul class="keys">${FIT.map(f=>`<li>${f}</li>`).join('')}</ul></section><section><h2>How a project works</h2><ol class="steps">${STEPS.map(x=>`<li><b>${x[0]}</b><span>${x[1]}</span></li>`).join('')}</ol></section></div><h2 class="h3">What people say</h2>${quotes()}`,
 '/writing':()=>`${head('Writing','Longer thoughts on design, process and the occasional expensive mistake. Each one opens on Medium.')}<div class="tiles">${WRITING.map(post).join('')}</div><a class="more" href="${WRITING_URL}" target="_blank" rel="noopener">Follow me on Medium ↗</a>`,
@@ -116,5 +116,5 @@ function page(h){
  if(key==='/services')key='/work-with-me';
  if(!html){if(V[key]&&!(m&&!proj))html=V[key]();else{key='/404';html=notFound()}}
  const nav=N.map(n=>`<a href="${n[1]}"${'/'+n[1]===key?' aria-current="page"':''}>${n[0]}</a>`).join('');
- return {key,proj,html,nav,dark:key==='/'};
+ return {key,proj,html,nav,brands:brands(),dark:key==='/'};
 }
