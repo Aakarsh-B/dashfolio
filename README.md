@@ -65,6 +65,8 @@ Pages end with a **Next project** card and a contact prompt.
 
 ## Testimonials
 
+Add `img:'images/people/<name>.jpg'` to a quote in `QUOTES` to show the person's photo.
+
 `QUOTES` in `js/data.js` (shown on Explore as "Kind words"). Quote LinkedIn recommendations as written; trim only at sentence ends.
 
 ## Freebies (Figma Community files)
@@ -74,6 +76,10 @@ Cards come from `COMMUNITY` in `js/data.js`; thumbnails live in `images/communit
 ## Contact form
 
 Submissions are emailed to aakarshbiju@gmail.com through [FormSubmit](https://formsubmit.co) (free, no account). The **first** submission sends an activation email; click the link once and the form is live. FormSubmit then offers a random alias to use in `FORM_ENDPOINT` (`js/app.js`) so the address isn't in the page source.
+
+## Free tools
+
+`/tools` lists them; each lives at `/tools/<id>` and runs entirely in the browser (nothing uploaded, nothing to host). The list is `FREE` in `js/views.js`; card images are in `images/tools-preview/` (`<id>.jpg` 1200×900 and `<id>-sm.jpg` 600×450).
 
 ## Home page sections
 

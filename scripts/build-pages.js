@@ -37,6 +37,7 @@ const pages=[
  ['projects','Projects · '+base,'Brand identity, website and marketing design by Aakarsh B, including BiteSpeed, Bose Professional, Mavion and Creativate.'],
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
  ['work-with-me','Work with me · '+base,'Hire Aakarsh B for freelance brand identity, websites, landing pages, decks and campaign creative for startups and SaaS teams.'],
+ ['tools','Free design tools · '+base,'Free tools for designers and marketers by Aakarsh B: image compressor and WebP converter, palette generator and contrast checker. No sign-up, no uploads.'],
  ['tools/image-compressor','Free image compressor and WebP converter · '+base,'Compress JPG, PNG and WebP images and convert them to WebP for free, right in your browser. No uploads, no sign-up.'],
  ['tools/palette-generator','Free colour palette generator · '+base,'Turn one brand colour into a full 50–950 shade scale with accessible text colours. Export CSS, Tailwind, JSON or PNG. Free, in your browser.'],
  ['tools/contrast-checker','Free colour contrast checker · '+base,'Check text and background colours against WCAG 2.2 AA and AAA, and get the nearest colour that passes. Free, in your browser.'],

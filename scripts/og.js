@@ -19,6 +19,7 @@ const cards=[
  ['projects',`${PROJECTS.length} projects`,'Selected work: brand, web and marketing design',...ME],
  ['experience','BiteSpeed · CloudEagle.ai · Hexnode','5+ years of brand, web and growth design',...ME],
  ['work-with-me','freelance','Brand, web and campaign design that gets results',...ME],
+ ['tools','free forever','Free tools for designers: compress, colour, contrast',...ME],
  ['image-compressor','free tool','Compress images and convert to WebP, in your browser',...ME],
  ['palette-generator','free tool','One brand colour in, a full accessible palette out',...ME],
  ['contrast-checker','free tool','Is your text readable? Check it against WCAG',...ME],
