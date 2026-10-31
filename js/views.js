@@ -32,7 +32,7 @@ const fade=dir=>`<div class="fade ${dir}" aria-hidden="true"></div>`;
 const tile=(p,i=9)=>`<a class="tile rv" href="projects/${p.id}"><div class="th"><b>${p.t.split(' · ')[0]}</b></div><div class="tb full"><img src="${coverSm(p)}" srcset="${coverSm(p)} 600w, ${cover(p)} 1200w" sizes="(max-width:760px) 92vw, 440px" width="1200" height="900" alt="${p.t} cover" ${i<2?'':'loading="lazy"'}></div><div class="tf">${p.ty}</div></a>`;
 const nextTile=()=>`<a class="tile rv next-up" href="work-with-me"><div class="th"><b>What's next?</b></div><div class="tb"><span class="sticker" aria-hidden="true">open<br>for work</span></div><div class="tf">Freelance brand, web and campaign design</div></a>`;
 // Free tools: each runs in the browser, so they cost nothing to host however many people use them.
-const FREE=[['webflow-speed','Webflow speed check','A Lighthouse-style score for Webflow, with the files to fix'],['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
+const FREE=[['webflow-speed','Webflow speed check','A Lighthouse-style audit for Webflow: speed, SEO and accessibility'],['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
 // Each tool card shows what the tool makes, drawn in HTML so it stays sharp and readable at any size.
 const ART={
  'webflow-speed':`<div class="art-w"><span class="wf-ring o big" style="--p:64"><b>64</b></span><ul><li><i class="r">✕</i>Video placed twice<em>−5.8 MB</em></li><li><i class="r">✕</i>Hero image lazy loaded</li><li><i class="o">!</i>Convert to WebP<em>−663 KB</em></li><li><i class="g">✓</i>No GIFs</li></ul></div>`,
@@ -172,27 +172,35 @@ const V={
  <div><h3>Where to post it</h3><p>9:16 for Reels, Shorts and TikTok, 1:1 or 16:9 for X and LinkedIn. Add sound in the app, or pick a cut sound here.</p></div>
  <div><h3>Every page is made up</h3><p>The papers, headlines and websites are invented on the spot, so there's nothing to license. The video is recorded in your browser; nothing is uploaded.</p></div>
 </div></section>`},
-'/tools/webflow-speed':()=>`${head('Webflow speed check','A Lighthouse-style report made for Webflow. Get a speed score, the fixes worth making, and exactly where each heavy file lives: the page, section and element, in the class names you see in the Designer.')}
+'/tools/webflow-speed':()=>{const seg=(n,a,c=0)=>a.map(([v,l],i)=>`<label><input type="radio" name="${n}" value="${v}"${i===c?' checked':''}><span>${l}</span></label>`).join('');
+ return `${head('Webflow speed check','A free Lighthouse-style audit made for Webflow. Scan the whole site, not one page, and get a speed score, SEO and accessibility checks, and fixes in Webflow\'s own words, down to the section and class name.')}
 <div class="tk">
  <form class="wf-f" id="wfF" novalidate>
   <label for="wfU">Your Webflow site</label>
-  <div class="wf-in"><input id="wfU" type="url" inputmode="url" placeholder="yoursite.com" autocomplete="url" spellcheck="false" required><button class="btn p" type="submit">Scan site</button></div>
-  <div class="wf-o"><span class="ol" aria-hidden="true">Pages to scan</span><fieldset class="seg"><legend>Pages to scan</legend>${[['30','30'],['100','100'],['300','300']].map(([v,l],i)=>`<label><input type="radio" name="wfp" value="${v}"${i?'':' checked'}><span>${l}</span></label>`).join('')}</fieldset><span class="wf-h">Blog-heavy site? Pick 300 to include the posts.</span></div>
-  <div class="wf-pb"><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
+  <div class="wf-in"><input id="wfU" type="url" inputmode="url" placeholder="yoursite.com" autocomplete="url" spellcheck="false"><button class="btn p" type="submit" id="wfGo">Scan site</button></div>
+  <div class="wf-o"><span class="ol" aria-hidden="true">Pages to scan</span><fieldset class="seg"><legend>Pages to scan</legend>${seg('wfp',[['30','30'],['100','100'],['500','500']],1)}</fieldset><span class="wf-h">Lots of blog posts? Pick 500.</span></div>
+  <p class="wf-try">No site handy? Try ${['webflow.com','relume.io','finsweet.com'].map(s=>`<button type="button" class="wf-ex" data-try="${s}">${s}</button>`).join('')}</p>
+  <div class="wf-pb" id="wfPb" hidden><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
  </form>
- <section class="wf-r" id="wfR" hidden aria-label="Results">
+ <div class="wf-intro" id="wfIntro">${[['The whole site, not one page','Up to 500 pages in one go, blog posts included. Lighthouse checks one address at a time.'],['Same site, same score','It reads what your site actually sends instead of simulating a slow phone, so the score doesn\'t jump between runs.'],['Fixes in Webflow\'s words','Each check names the panel or setting to change, and points to the page, section and class.'],['Speed, SEO and accessibility','Heavy files, broken links, duplicate titles, an indexable staging site, missing alt text and form labels.']].map(([t,p])=>`<div><b>${t}</b><p>${p}</p></div>`).join('')}</div>
+ <section class="wf-r" id="wfR" hidden aria-label="Report">
   <div class="wf-score" id="wfScore"></div>
-  <div id="wfAud"></div>
-  <h3 class="wf-h3">Heaviest pages</h3><p class="wf-note">Everything each page pulls from Webflow's CDN, at full size. Start with these.</p><ul class="wf-items wf-box" id="wfPages"></ul>
-  <h3 class="wf-h3">Heaviest files, and where they're used</h3>
-  <div class="wf-sum" id="wfSum"></div>
-  <p class="wf-note" id="wfNote"></p>
-  <div class="wf-bar"><fieldset class="seg"><legend>Show</legend>${[['all','All'],['image','Images'],['video','Videos'],['lottie','Lottie'],['font','Fonts'],['code','Code']].map(([v,l],i)=>`<label><input type="radio" name="wfk" value="${v}"${i?'':' checked'}><span>${l}</span></label>`).join('')}</fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div>
-  <ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button>
+  <div class="wf-nav" id="wfNav"><div class="wf-tabs" role="tablist" aria-label="Report sections" id="wfTabs"></div><div class="wf-acts"><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div>
+  ${['overview','speed','seo','a11y'].map((id,i)=>`<div class="wf-pan" id="wfpan-${id}" role="tabpanel" aria-labelledby="wft-${id}"${i?' hidden':''}></div>`).join('')}
+  <div class="wf-pan" id="wfpan-pages" role="tabpanel" aria-labelledby="wft-pages" hidden><div class="wf-bar"><select id="wfSec" aria-label="Part of the site"></select><select id="wfSort" aria-label="Sort pages"><option value="w">Heaviest first</option><option value="i">Most issues first</option><option value="a">A to Z</option></select><input id="wfPQ" type="search" placeholder="Find a page" aria-label="Find a page"></div><ol class="wf-l" id="wfPl"></ol><button class="btn sm" type="button" id="wfPMore" hidden>Show all</button></div>
+  <div class="wf-pan" id="wfpan-files" role="tabpanel" aria-labelledby="wft-files" hidden><div class="wf-sum" id="wfSum"></div><div class="wf-bar"><fieldset class="seg"><legend>Show</legend>${seg('wfk',[['all','All'],['image','Images'],['video','Videos'],['lottie','Lottie'],['font','Fonts'],['code','Code']])}</fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div><ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button></div>
  </section>
  <label class="drop wf-drop" id="wfDrop" for="wfFile"><span class="drop-ic" aria-hidden="true">${SVG('<path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',26)}</span><b>Got your bandwidth report? Drop the CSV here</b><span>In Webflow: Site settings → Site usage → pick a date range → download CSV. It's read on your device, never uploaded.</span><input type="file" id="wfFile" accept=".csv,text/csv"></label>
  <section class="wf-r" id="wfC" hidden aria-label="Bandwidth from your CSV"><h2 class="h3">What's using your bandwidth</h2><p class="wf-note" id="wfCh"></p><ol class="wf-l wf-cl" id="wfCl"></ol></section>
 </div>
+<section class="tips"><h2 class="h3">How it works</h2><div class="tip-grid">
+ <div><h3>How the score works</h3><p>Each check scores from 0 to 100 by how much it affects the site, and each category averages its checks. The speed score is the average of Images, Video &amp; animation, Loading, and Fonts &amp; code. SEO and accessibility are scored on their own.</p></div>
+ <div><h3>Why it differs from Lighthouse</h3><p>Lighthouse loads one page on a simulated slow phone and times it, so its score moves between runs. This reads every page's code and files directly. Use both: this says what to fix, Lighthouse how it feels.</p></div>
+ <div><h3>Authority, for free</h3><p>Moz DA and Ahrefs DR are paid. The overview shows the free Tranco rank instead: where the site sits among the top million by popularity, with its 30-day trend.</p></div>
+ <div><h3>Real visitors</h3><p>When available, the overview also shows Core Web Vitals from real Chrome visitors over the last 28 days, the numbers Google uses for ranking.</p></div>
+ <div><h3>What it can't see</h3><p>It doesn't run the site's scripts, so files loaded later by interactions or Lottie may be missed. Page weight counts every file a page references, at full size.</p></div>
+ <div><h3>Private and free</h3><p>No sign-up. Up to 500 pages a scan. Your bandwidth CSV is read in your browser and never uploaded.</p></div>
+</div></section>
 <section class="tips"><h2 class="h3">Make a Webflow site faster</h2><div class="tip-grid">
  <div><h3>Convert images to WebP</h3><p>Select images in the Assets panel and convert them to WebP or AVIF. Same look, often half the size. Upload at the largest size they're shown, usually 1920 px wide or less.</p></div>
  <div><h3>Go easy on background videos</h3><p>Keep them under 2–3 MB and a few seconds long. A desktop and a mobile copy of the same section can mean the video downloads twice.</p></div>
@@ -200,7 +208,7 @@ const V={
  <div><h3>Trim Lottie files</h3><p>Lotties with embedded images can weigh more than a video. Remove the images, simplify the paths, and only autoplay what's on screen.</p></div>
  <div><h3>Fewer fonts and weights</h3><p>Every weight is another file. Upload WOFF2, keep to two or three weights, and don't load a Google Font you've also uploaded.</p></div>
  <div><h3>Check your custom code</h3><p>Chat widgets, tag managers and embeds in site settings often cost more than images. Load them after the page, or on interaction.</p></div>
-</div></section>`,
+</div></section>`},
 '/tools/contrast-checker':()=>`${head('Contrast checker','Check whether text is readable on its background, against the WCAG 2.2 standards. If it fails, get the nearest colour that passes.')}
 <div class="tk">
  <div class="opts cc-in">${cfield('fg','Text','#5b6170')}<button class="btn sm swap" type="button" id="swap" aria-label="Swap text and background">⇄ Swap</button>${cfield('bg','Background','#ffffff')}</div>

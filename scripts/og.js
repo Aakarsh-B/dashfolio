@@ -20,7 +20,7 @@ const cards=[
  ['experience','BiteSpeed · CloudEagle.ai · Hexnode','5+ years of brand, web and growth design',...ME],
  ['work-with-me','freelance','Brand, web and campaign design that gets results',...ME],
  ['tools','free forever','Free tools for designers: compress, colour, contrast',...ME],
- ['webflow-speed','free tool','A Lighthouse-style speed report for Webflow sites',...ME],
+ ['webflow-speed','free tool','A Lighthouse-style audit made for Webflow sites',...ME],
  ['text-match-cut','free tool','Your phrase, highlighted on page after page',...ME],
  ['image-compressor','free tool','Compress images and convert to WebP, in your browser',...ME],
  ['palette-generator','free tool','Lock the colours you love, generate the rest',...ME],

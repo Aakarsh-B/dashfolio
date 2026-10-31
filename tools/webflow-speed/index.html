@@ -14,11 +14,11 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:image" content="https://aakarsh.design/images/og/webflow-speed.jpg">
-<meta name="description" content="A free Lighthouse-style speed report for Webflow sites: a score, the fixes worth making, and exactly where each heavy file is used. No login.">
+<meta name="description" content="Free Lighthouse-style audit for Webflow sites: a stable speed score, SEO and accessibility checks, broken links, staging indexing and fixes in Webflow's own words. Up to 500 pages, no login.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:title" content="Webflow speed check · Aakarsh B · Brand Designer">
-<meta property="og:description" content="A free Lighthouse-style speed report for Webflow sites: a score, the fixes worth making, and exactly where each heavy file is used. No login.">
+<meta property="og:description" content="Free Lighthouse-style audit for Webflow sites: a stable speed score, SEO and accessibility checks, broken links, staging indexing and fixes in Webflow's own words. Up to 500 pages, no login.">
 <meta name="theme-color" content="#000000">
 <script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro')</script>
 <link rel="icon" href="favicon-dot.svg" type="image/svg+xml">
@@ -26,7 +26,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/instrument-sans-wd.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/style.css?v=3a405fac">
+<link rel="stylesheet" href="css/style.css?v=8d639db4">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -38,27 +38,34 @@
  <a class="hire" href="work-with-me">Work with me</a>
  <button class="mb" id="mb" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
 </div></header>
-<main id="main" tabindex="-1" data-pre="/tools/webflow-speed"><header class="ph-head"><h1>Webflow speed check</h1><p class="lead">A Lighthouse-style report made for Webflow. Get a speed score, the fixes worth making, and exactly where each heavy file lives: the page, section and element, in the class names you see in the Designer.</p></header>
+<main id="main" tabindex="-1" data-pre="/tools/webflow-speed"><header class="ph-head"><h1>Webflow speed check</h1><p class="lead">A free Lighthouse-style audit made for Webflow. Scan the whole site, not one page, and get a speed score, SEO and accessibility checks, and fixes in Webflow's own words, down to the section and class name.</p></header>
 <div class="tk">
  <form class="wf-f" id="wfF" novalidate>
   <label for="wfU">Your Webflow site</label>
-  <div class="wf-in"><input id="wfU" type="url" inputmode="url" placeholder="yoursite.com" autocomplete="url" spellcheck="false" required><button class="btn p" type="submit">Scan site</button></div>
-  <div class="wf-o"><span class="ol" aria-hidden="true">Pages to scan</span><fieldset class="seg"><legend>Pages to scan</legend><label><input type="radio" name="wfp" value="30" checked><span>30</span></label><label><input type="radio" name="wfp" value="100"><span>100</span></label><label><input type="radio" name="wfp" value="300"><span>300</span></label></fieldset><span class="wf-h">Blog-heavy site? Pick 300 to include the posts.</span></div>
-  <div class="wf-pb"><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
+  <div class="wf-in"><input id="wfU" type="url" inputmode="url" placeholder="yoursite.com" autocomplete="url" spellcheck="false"><button class="btn p" type="submit" id="wfGo">Scan site</button></div>
+  <div class="wf-o"><span class="ol" aria-hidden="true">Pages to scan</span><fieldset class="seg"><legend>Pages to scan</legend><label><input type="radio" name="wfp" value="30"><span>30</span></label><label><input type="radio" name="wfp" value="100" checked><span>100</span></label><label><input type="radio" name="wfp" value="500"><span>500</span></label></fieldset><span class="wf-h">Lots of blog posts? Pick 500.</span></div>
+  <p class="wf-try">No site handy? Try <button type="button" class="wf-ex" data-try="webflow.com">webflow.com</button><button type="button" class="wf-ex" data-try="relume.io">relume.io</button><button type="button" class="wf-ex" data-try="finsweet.com">finsweet.com</button></p>
+  <div class="wf-pb" id="wfPb" hidden><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
  </form>
- <section class="wf-r" id="wfR" hidden aria-label="Results">
+ <div class="wf-intro" id="wfIntro"><div><b>The whole site, not one page</b><p>Up to 500 pages in one go, blog posts included. Lighthouse checks one address at a time.</p></div><div><b>Same site, same score</b><p>It reads what your site actually sends instead of simulating a slow phone, so the score doesn't jump between runs.</p></div><div><b>Fixes in Webflow's words</b><p>Each check names the panel or setting to change, and points to the page, section and class.</p></div><div><b>Speed, SEO and accessibility</b><p>Heavy files, broken links, duplicate titles, an indexable staging site, missing alt text and form labels.</p></div></div>
+ <section class="wf-r" id="wfR" hidden aria-label="Report">
   <div class="wf-score" id="wfScore"></div>
-  <div id="wfAud"></div>
-  <h3 class="wf-h3">Heaviest pages</h3><p class="wf-note">Everything each page pulls from Webflow's CDN, at full size. Start with these.</p><ul class="wf-items wf-box" id="wfPages"></ul>
-  <h3 class="wf-h3">Heaviest files, and where they're used</h3>
-  <div class="wf-sum" id="wfSum"></div>
-  <p class="wf-note" id="wfNote"></p>
-  <div class="wf-bar"><fieldset class="seg"><legend>Show</legend><label><input type="radio" name="wfk" value="all" checked><span>All</span></label><label><input type="radio" name="wfk" value="image"><span>Images</span></label><label><input type="radio" name="wfk" value="video"><span>Videos</span></label><label><input type="radio" name="wfk" value="lottie"><span>Lottie</span></label><label><input type="radio" name="wfk" value="font"><span>Fonts</span></label><label><input type="radio" name="wfk" value="code"><span>Code</span></label></fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div>
-  <ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button>
+  <div class="wf-nav" id="wfNav"><div class="wf-tabs" role="tablist" aria-label="Report sections" id="wfTabs"></div><div class="wf-acts"><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div>
+  <div class="wf-pan" id="wfpan-overview" role="tabpanel" aria-labelledby="wft-overview"></div><div class="wf-pan" id="wfpan-speed" role="tabpanel" aria-labelledby="wft-speed" hidden></div><div class="wf-pan" id="wfpan-seo" role="tabpanel" aria-labelledby="wft-seo" hidden></div><div class="wf-pan" id="wfpan-a11y" role="tabpanel" aria-labelledby="wft-a11y" hidden></div>
+  <div class="wf-pan" id="wfpan-pages" role="tabpanel" aria-labelledby="wft-pages" hidden><div class="wf-bar"><select id="wfSec" aria-label="Part of the site"></select><select id="wfSort" aria-label="Sort pages"><option value="w">Heaviest first</option><option value="i">Most issues first</option><option value="a">A to Z</option></select><input id="wfPQ" type="search" placeholder="Find a page" aria-label="Find a page"></div><ol class="wf-l" id="wfPl"></ol><button class="btn sm" type="button" id="wfPMore" hidden>Show all</button></div>
+  <div class="wf-pan" id="wfpan-files" role="tabpanel" aria-labelledby="wft-files" hidden><div class="wf-sum" id="wfSum"></div><div class="wf-bar"><fieldset class="seg"><legend>Show</legend><label><input type="radio" name="wfk" value="all" checked><span>All</span></label><label><input type="radio" name="wfk" value="image"><span>Images</span></label><label><input type="radio" name="wfk" value="video"><span>Videos</span></label><label><input type="radio" name="wfk" value="lottie"><span>Lottie</span></label><label><input type="radio" name="wfk" value="font"><span>Fonts</span></label><label><input type="radio" name="wfk" value="code"><span>Code</span></label></fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div><ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button></div>
  </section>
  <label class="drop wf-drop" id="wfDrop" for="wfFile"><span class="drop-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><b>Got your bandwidth report? Drop the CSV here</b><span>In Webflow: Site settings → Site usage → pick a date range → download CSV. It's read on your device, never uploaded.</span><input type="file" id="wfFile" accept=".csv,text/csv"></label>
  <section class="wf-r" id="wfC" hidden aria-label="Bandwidth from your CSV"><h2 class="h3">What's using your bandwidth</h2><p class="wf-note" id="wfCh"></p><ol class="wf-l wf-cl" id="wfCl"></ol></section>
 </div>
+<section class="tips"><h2 class="h3">How it works</h2><div class="tip-grid">
+ <div><h3>How the score works</h3><p>Each check scores from 0 to 100 by how much it affects the site, and each category averages its checks. The speed score is the average of Images, Video &amp; animation, Loading, and Fonts &amp; code. SEO and accessibility are scored on their own.</p></div>
+ <div><h3>Why it differs from Lighthouse</h3><p>Lighthouse loads one page on a simulated slow phone and times it, so its score moves between runs. This reads every page's code and files directly. Use both: this says what to fix, Lighthouse how it feels.</p></div>
+ <div><h3>Authority, for free</h3><p>Moz DA and Ahrefs DR are paid. The overview shows the free Tranco rank instead: where the site sits among the top million by popularity, with its 30-day trend.</p></div>
+ <div><h3>Real visitors</h3><p>When available, the overview also shows Core Web Vitals from real Chrome visitors over the last 28 days, the numbers Google uses for ranking.</p></div>
+ <div><h3>What it can't see</h3><p>It doesn't run the site's scripts, so files loaded later by interactions or Lottie may be missed. Page weight counts every file a page references, at full size.</p></div>
+ <div><h3>Private and free</h3><p>No sign-up. Up to 500 pages a scan. Your bandwidth CSV is read in your browser and never uploaded.</p></div>
+</div></section>
 <section class="tips"><h2 class="h3">Make a Webflow site faster</h2><div class="tip-grid">
  <div><h3>Convert images to WebP</h3><p>Select images in the Assets panel and convert them to WebP or AVIF. Same look, often half the size. Upload at the largest size they're shown, usually 1920 px wide or less.</p></div>
  <div><h3>Go easy on background videos</h3><p>Keep them under 2–3 MB and a few seconds long. A desktop and a mobile copy of the same section can mean the video downloads twice.</p></div>
@@ -74,8 +81,8 @@
  <div class="fbar"><span>© 2026 Aakarsh B · Bengaluru</span><nav aria-label="Footer"><a href="projects">Work</a><a href="experience">Experience</a><a href="work-with-me">Work with me</a><a href="writing">Writing</a><a href="freebies">Freebies</a><a href="about">About</a><a href="resume.html" target="_blank" rel="noopener">Resume ↗</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance ↗</a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble ↗</a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium ↗</a><a href="https://x.com/Aakarsh_B" target="_blank" rel="noopener">X ↗</a></nav></div>
 </footer>
 <dialog id="lightbox" aria-label="Photo"></dialog>
-<script src="js/data.js?v=3a405fac"></script>
-<script src="js/views.js?v=3a405fac"></script>
-<script src="js/app.js?v=3a405fac"></script>
+<script src="js/data.js?v=8d639db4"></script>
+<script src="js/views.js?v=8d639db4"></script>
+<script src="js/app.js?v=8d639db4"></script>
 </body>
 </html>
