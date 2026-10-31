@@ -568,7 +568,7 @@ function initMatchCut(){
    the class names people see in the Designer. Pages are read through a small relay, because browsers can't read
    another site's HTML (workers/webflow-relay.js); files and CSS come straight from Webflow's CDN, which allows it.
    The bandwidth CSV from Site settings → Site usage is read in the browser and never leaves the device. */
-const WF_RELAY='';
+const WF_RELAY='https://wf-relay.aakarshbiju.workers.dev/?url=';
 const WF={
  asset:u=>/website-files\.com|uploads-ssl\.webflow\.com/.test(u),
  ext:u=>((u.split('?')[0].match(/\.(\w+)$/)||[])[1]||'').toLowerCase(),
