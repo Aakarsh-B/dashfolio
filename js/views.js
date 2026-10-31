@@ -171,6 +171,31 @@ const V={
  <div><h3>Where to post it</h3><p>9:16 for Reels, Shorts and TikTok, 1:1 or 16:9 for X and LinkedIn. Add sound in the app, or pick a cut sound here.</p></div>
  <div><h3>Every page is made up</h3><p>The papers, headlines and websites are invented on the spot, so there's nothing to license. The video is recorded in your browser; nothing is uploaded.</p></div>
 </div></section>`},
+'/tools/webflow-speed':()=>`${head('Webflow speed check','Find the heaviest files on any Webflow site, and exactly where each one is used: the page, the section and the element, in the class names you see in the Designer.')}
+<div class="tk">
+ <form class="wf-f" id="wfF" novalidate>
+  <label for="wfU">Your Webflow site</label>
+  <div class="wf-in"><input id="wfU" type="url" inputmode="url" placeholder="yoursite.com" autocomplete="url" spellcheck="false" required><button class="btn p" type="submit">Scan site</button></div>
+  <div class="wf-o"><span class="ol" aria-hidden="true">Pages to scan</span><fieldset class="seg"><legend>Pages to scan</legend>${[['30','30'],['100','100'],['300','300']].map(([v,l],i)=>`<label><input type="radio" name="wfp" value="${v}"${i?'':' checked'}><span>${l}</span></label>`).join('')}</fieldset><span class="wf-h">Blog-heavy site? Pick 300 to include the posts.</span></div>
+  <div class="wf-pb"><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
+ </form>
+ <section class="wf-r" id="wfR" hidden aria-label="Results">
+  <div class="wf-sum" id="wfSum"></div>
+  <p class="wf-note" id="wfNote"></p>
+  <div class="wf-bar"><fieldset class="seg"><legend>Show</legend>${[['all','All'],['image','Images'],['video','Videos'],['lottie','Lottie'],['font','Fonts'],['code','Code']].map(([v,l],i)=>`<label><input type="radio" name="wfk" value="${v}"${i?'':' checked'}><span>${l}</span></label>`).join('')}</fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div>
+  <ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button>
+ </section>
+ <label class="drop wf-drop" id="wfDrop" for="wfFile"><span class="drop-ic" aria-hidden="true">${SVG('<path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',26)}</span><b>Got your bandwidth report? Drop the CSV here</b><span>In Webflow: Site settings → Site usage → pick a date range → download CSV. It's read on your device, never uploaded.</span><input type="file" id="wfFile" accept=".csv,text/csv"></label>
+ <section class="wf-r" id="wfC" hidden aria-label="Bandwidth from your CSV"><h2 class="h3">What's using your bandwidth</h2><p class="wf-note" id="wfCh"></p><ol class="wf-l wf-cl" id="wfCl"></ol></section>
+</div>
+<section class="tips"><h2 class="h3">Make a Webflow site faster</h2><div class="tip-grid">
+ <div><h3>Convert images to WebP</h3><p>Select images in the Assets panel and convert them to WebP or AVIF. Same look, often half the size. Upload at the largest size they're shown, usually 1920 px wide or less.</p></div>
+ <div><h3>Go easy on background videos</h3><p>Keep them under 2–3 MB and a few seconds long. A desktop and a mobile copy of the same section can mean the video downloads twice.</p></div>
+ <div><h3>Lazy load below the fold</h3><p>Leave images set to lazy load, except the first one people see, which should load eagerly. CSS background images can't lazy load, so use Image elements where you can.</p></div>
+ <div><h3>Trim Lottie files</h3><p>Lotties with embedded images can weigh more than a video. Remove the images, simplify the paths, and only autoplay what's on screen.</p></div>
+ <div><h3>Fewer fonts and weights</h3><p>Every weight is another file. Upload WOFF2, keep to two or three weights, and don't load a Google Font you've also uploaded.</p></div>
+ <div><h3>Check your custom code</h3><p>Chat widgets, tag managers and embeds in site settings often cost more than images. Load them after the page, or on interaction.</p></div>
+</div></section>`,
 '/tools/contrast-checker':()=>`${head('Contrast checker','Check whether text is readable on its background, against the WCAG 2.2 standards. If it fails, get the nearest colour that passes.')}
 <div class="tk">
  <div class="opts cc-in">${cfield('fg','Text','#5b6170')}<button class="btn sm swap" type="button" id="swap" aria-label="Swap text and background">⇄ Swap</button>${cfield('bg','Background','#ffffff')}</div>
@@ -208,7 +233,7 @@ function caseStudy(p){
 
 // Unknown routes (old links, typos) get an honest page instead of quietly showing the home page.
 const notFound=()=>`${head('This page wandered off','The link might be old, or I moved things around. Here\'s some work to look at instead.','<div class="btns"><a class="btn p" href="./">Back home</a><a class="btn" href="contact">Say hi</a></div>')}<div class="tiles">${PROJECTS.slice(0,4).map(tile).join('')}</div>`;
-const TITLES={'/tools':'Free design tools','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
+const TITLES={'/tools':'Free design tools','/tools/webflow-speed':'Webflow speed check','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
 // Resolve a route (e.g. /projects/bitespeed) to its key, project, page content and header links.
 function page(h){
  let html,key=h;

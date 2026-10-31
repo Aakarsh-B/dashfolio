@@ -43,6 +43,7 @@ function renderNow(){
  if(key==='/tools/contrast-checker')initContrast();
  if(key==='/tools/image-palette')initImagePalette();
  if(key==='/tools/text-match-cut')initMatchCut();
+ if(key==='/tools/webflow-speed')initWebflow();
 }
 
 /* ---------- Header ---------- */
@@ -560,6 +561,194 @@ function initMatchCut(){
   rec={o,mr};busy(true);t0=performance.now();last=0;draw(0,o);if(ac&&o.snd!=='none')blip(o.snd);mr.start(250);
  };
  size();requestAnimationFrame(tick);
+}
+
+/* ---------- Webflow speed check ----------
+   Finds the heaviest Webflow-hosted files on a site and where each one is used (page, section, element, tab), in
+   the class names people see in the Designer. Pages are read through a small relay, because browsers can't read
+   another site's HTML (workers/webflow-relay.js); files and CSS come straight from Webflow's CDN, which allows it.
+   The bandwidth CSV from Site settings → Site usage is read in the browser and never leaves the device. */
+const WF_RELAY='';
+const WF={
+ asset:u=>/website-files\.com|uploads-ssl\.webflow\.com/.test(u),
+ ext:u=>((u.split('?')[0].match(/\.(\w+)$/)||[])[1]||'').toLowerCase(),
+ kind:u=>({png:'image',jpg:'image',jpeg:'image',webp:'image',avif:'image',gif:'image',svg:'image',mp4:'video',webm:'video',mov:'video',json:'lottie',lottie:'lottie',woff2:'font',woff:'font',ttf:'font',otf:'font',eot:'font',js:'code',css:'code',pdf:'other'})[WF.ext(u)]||'other',
+ file:u=>{const f=u.split('?')[0].split('#')[0];try{return decodeURIComponent(f).split('/').pop()}catch(e){return f.split('/').pop()}},
+ orig:f=>f.replace(/-p-\d+(\.\w+)$/,'$1'),            // Webflow's responsive copies are <name>-p-800.ext
+ clean:f=>f.replace(/^[0-9a-f]{24}_/,''),             // and every upload starts with a 24-character id
+ key:f=>WF.clean(WF.orig(f)).toLowerCase(),
+ size:n=>n>=1073741824?(n/1073741824).toFixed(2)+' GB':n>=1048576?(n/1048576).toFixed(1)+' MB':n>=1024?Math.round(n/1024)+' KB':(n||0)+' B'
+};
+const wfRelay=()=>WF_RELAY||(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&query().get('relay'))||'';
+async function wfFetch(url,signal){
+ const r=await fetch(wfRelay()+encodeURIComponent(url),{signal});
+ if(!r.ok)throw new Error('HTTP '+r.status);
+ return {text:await r.text(),url:r.headers.get('x-final-url')||url};
+}
+// Reads one page without running its scripts: every Webflow file it references, where, and its internal links.
+function wfRead(html,pageUrl){
+ const doc=new DOMParser().parseFromString(html,'text/html'),abs=u=>{try{return new URL(u,pageUrl).href}catch(e){return ''}};
+ const isWf=!!doc.querySelector('[data-wf-site],[data-wf-page]')||/name="generator" content="Webflow|content="Webflow" name="generator"/i.test(html);
+ const util=c=>/^(padding|margin|container|max-width|text-|background-color|spacer|hide|is-|u-|w-)/.test(c);
+ const name=e=>((e.getAttribute('class')||'').split(/\s+/).find(c=>c&&!util(c)))||e.tagName.toLowerCase();
+ const where=el=>{
+  let s=null;for(let p=el;p&&p!==doc.body;p=p.parentElement){const c=p.getAttribute('class')||'';
+   if(p.matches('section,header,footer,nav')||/(^|\s)section[_-]|[_-]section(\s|$)|(^|\s)section(\s|$)/.test(c)){s=p;if(/section[_-]|[_-]section/.test(c)&&!/padding-section/.test(c))break}}
+  s=s||el.parentElement||doc.body;const h=s.querySelector('h1,h2,h3'),tab=el.closest('[data-w-tab]'),path=[];
+  for(let p=el.parentElement;p&&p!==s&&path.length<3;p=p.parentElement){const n=name(p);if(n!=='div')path.unshift(n)}
+  return {section:name(s),heading:(h?h.textContent:'').trim().replace(/\s+/g,' ').slice(0,80),element:[...path,name(el)].join(' › '),tab:tab?tab.getAttribute('data-w-tab'):''};
+ };
+ const HOW={img:'Image',source:'Video',video:'Video'},uses=[];
+ for(const el of doc.querySelectorAll('[src],[srcset],[poster],[data-src],[data-poster-url],[data-video-urls],[style*="url("],link[href],[data-animation-url]')){
+  const tag=el.tagName.toLowerCase(),head=!!el.closest('head');
+  for(const at of ['src','srcset','poster','data-src','data-poster-url','data-video-urls','style','href','data-animation-url']){
+   const v=el.getAttribute(at);if(!v||(at==='href'&&tag!=='link'))continue;
+   const urls=at==='srcset'?v.split(',').map(s=>s.trim().split(/\s+/)[0]):at==='style'?[...v.matchAll(/url\(["']?([^"')]+)/g)].map(m=>m[1]):at==='data-video-urls'?v.split(','):[v];
+   for(const raw of urls){const u=abs(raw.trim());if(!WF.asset(u))continue;
+    const how=head||tag==='script'||tag==='link'?'Loaded in the page head':at==='srcset'?'Responsive image':at==='style'?'Inline background':at==='data-video-urls'?'Background video':at.includes('poster')?'Video poster':at==='data-src'||at==='data-animation-url'?'Lottie or lazy file':HOW[tag]||'File';
+    uses.push({u,how,...(head?{section:'Every page using this',heading:'',element:tag==='script'?'script':'stylesheet',tab:''}:where(el))})}}}
+ const links=[...doc.querySelectorAll('a[href]')].map(a=>abs(a.getAttribute('href'))),css=[...doc.querySelectorAll('link[rel="stylesheet"][href]')].map(l=>abs(l.getAttribute('href')));
+ const byClass=c=>{let e=null;try{e=doc.querySelector('.'+CSS.escape(c))}catch(x){}return e&&where(e)};
+ return {isWf,uses,links,css,byClass,title:(doc.title||'').trim()};
+}
+async function wfScan(start,max,step,signal){
+ const home=await wfFetch(start,signal),first=wfRead(home.text,home.url);
+ if(!first.isWf){const e=new Error('notwf');e.code='notwf';throw e}
+ const origin=new URL(home.url).origin,host=new URL(home.url).host,norm=u=>{try{const x=new URL(u);if(x.host!==host||/\.(pdf|zip|png|jpe?g|webp|gif|svg|mp4|xml|txt)$/i.test(x.pathname))return '';return x.origin+(x.pathname.replace(/\/$/,'')||'/')}catch(e){return ''}};
+ // Page list: the sitemap when there is one (blogs and CMS pages included), otherwise the links we find
+ let list=[];try{const sm=await wfFetch(origin+'/sitemap.xml',signal);list=[...sm.text.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map(m=>norm(m[1].replace(/&amp;/g,'&'))).filter(Boolean)}catch(e){}
+ const fromMap=list.length>0,queue=[norm(home.url)],seen=new Set(queue);
+ // Top-level pages first, then everything else in sitemap order
+ list.sort((a,b)=>(new URL(a).pathname.split('/').length-new URL(b).pathname.split('/').length));
+ for(const u of list)if(!seen.has(u)){seen.add(u);queue.push(u)}
+ const files=new Map(),pages=[],sheets=new Map();
+ const add=(u,use)=>{u=u.replace(/&amp;/g,'&');let f=files.get(u);if(!f)files.set(u,f={url:u,name:WF.file(u),kind:WF.kind(u),uses:[]});f.uses.push(use)};
+ let i=0;
+ for(;i<queue.length&&pages.length<max;i++){
+  if(signal.aborted)break;
+  let page=i?null:{...first,url:home.url};
+  if(!page){try{const r=await wfFetch(queue[i],signal);page={...wfRead(r.text,r.url),url:r.url}}catch(e){if(signal.aborted)break;continue}}
+  const path=new URL(page.url).pathname;pages.push({path,url:page.url,title:page.title});step(pages.length,Math.min(max,queue.length),path);
+  for(const x of page.uses)add(x.u,{page:path,url:page.url,how:x.how,section:x.section,heading:x.heading,element:x.element,tab:x.tab});
+  // Background images and fonts set in the Designer live in the site's CSS: find which classes use them on this page
+  for(const href of page.css)if(WF.asset(href)&&!sheets.has(href)){
+   let rules=[];try{const t=await (await fetch(href,{signal})).text();
+    for(const m of t.matchAll(/([^{}]+)\{([^{}]*url\([^)]+\)[^{}]*)\}/g))for(const u of m[2].matchAll(/url\(["']?([^"')]+)/g)){const a=new URL(u[1],href).href;if(WF.asset(a))rules.push({sel:m[1].trim(),u:a})}}catch(e){}
+   sheets.set(href,rules)}
+  for(const href of page.css)for(const r of sheets.get(href)||[]){
+   if(r.sel.startsWith('@font-face')){if(!files.has(r.u)||!files.get(r.u).uses.some(x=>x.how==='Font'))files.has(r.u)||files.set(r.u,{url:r.u,name:WF.file(r.u),kind:'font',uses:[]});add(r.u,{page:path,url:page.url,how:'Font',section:'Every page using this stylesheet',heading:'',element:'@font-face',tab:''});continue}
+   for(const c of new Set((r.sel.match(/\.[\w-]+/g)||[]).map(s=>s.slice(1)))){const w=page.byClass(c);if(w){add(r.u,{page:path,url:page.url,how:'Background image (CSS)',...w,element:w.element.includes(c)?w.element:w.element+' (.'+c+')'});break}}}
+  if(!fromMap)for(const l of page.links){const u=norm(l);if(u&&!seen.has(u)){seen.add(u);queue.push(u)}}
+ }
+ // Sizes come straight from Webflow's CDN
+ const all=[...files.values()];let k=0;step(pages.length,pages.length,'',all.length);
+ await Promise.all(Array.from({length:8},async()=>{while(k<all.length&&!signal.aborted){const f=all[k++];
+  try{let r=await fetch(f.url,{method:'HEAD',signal});f.bytes=+r.headers.get('content-length')||0;
+   // Compressed scripts and styles often come without a length: download those to measure them
+   if(!f.bytes&&f.kind!=='video')f.bytes=(await (await fetch(f.url,{signal})).blob()).size}catch(e){f.bytes=f.bytes||0}}}));
+ // One row per uploaded file: responsive copies fold into their original, as in Webflow's bandwidth panel
+ const rows=new Map();
+ for(const f of all){const key=WF.key(f.name);let r=rows.get(key);
+  if(!r)rows.set(key,r={key,name:WF.clean(WF.orig(f.name)),kind:f.kind,url:f.url,bytes:0,copies:0,uses:[]});
+  r.copies++;if(f.bytes>r.bytes){r.bytes=f.bytes;r.url=f.url}
+  for(const u of f.uses)if(!r.uses.some(x=>x.page===u.page&&x.element===u.element&&x.how===u.how&&x.tab===u.tab))r.uses.push(u)}
+ const out=[...rows.values()].map(r=>({...r,pages:new Set(r.uses.map(u=>u.page)).size}));
+ for(const r of out)r.tips=wfTips(r,pages.length);
+ return {origin,pages,rows:out.sort((a,b)=>b.bytes-a.bytes),fromMap,more:i<queue.length};
+}
+// Plain-language flags, in Webflow's terms
+function wfTips(r,n){
+ const t=[],e=WF.ext(r.name),kb=r.bytes/1024;
+ if(r.kind==='image'&&/png|jpe?g/.test(e)&&kb>150)t.push(['Convert to WebP','In the Assets panel, select it and choose Convert to WebP (or AVIF). Often 30–70% smaller.']);
+ if(e==='gif'&&kb>500)t.push(['Swap the GIF for a video','A short MP4 or WebM loop is usually a tenth of the size.']);
+ if(r.kind==='image'&&kb>500)t.push(['Very large image','Resize it to the largest width it is shown at (usually 1920 px or less) before uploading.']);
+ if(r.uses.some(u=>u.how==='Background image (CSS)')&&kb>200)t.push(['Background image','CSS backgrounds load straight away and can\'t be lazy loaded. Use an Image element where you can.']);
+ if(r.kind==='video'&&kb>3072)t.push(['Heavy video','Compress it to under 2–3 MB, shorten it, or show a poster image and play on click.']);
+ const per={};for(const u of r.uses)if(r.kind==='video'||r.kind==='lottie'||kb>300)per[u.page]=(per[u.page]||new Set()).add(u.element.split(' (tab')[0].split(' › ').pop());
+ if(Object.values(per).some(s=>s.size>1))t.push(['Placed twice on one page','Often a desktop and a mobile version of the same block. Hiding one on a breakpoint doesn\'t always stop it downloading.']);
+ if(r.kind==='lottie'&&kb>300)t.push(['Heavy Lottie','Remove embedded images from the animation and simplify it, or export it as dotLottie.']);
+ if(r.kind==='font'&&e!=='woff2')t.push(['Use WOFF2','WOFF2 fonts are about 30% smaller than WOFF or TTF.']);
+ if(n>3&&r.pages>=n&&kb>100&&r.kind!=='code'&&r.kind!=='font')t.push(['On every page','It loads wherever the shared block (nav, footer, popup) appears, so it costs bandwidth on every visit.']);
+ return t;
+}
+// Webflow's bandwidth export, read in the browser. The columns aren't documented, so find them by name and content.
+function wfCsv(text){
+ const rows=[];let row=[],cell='',q=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(q){if(c==='"'){if(text[i+1]==='"'){cell+='"';i++}else q=false}else cell+=c}
+  else if(c==='"')q=true;else if(c===','||c===';'||c==='\t'){row.push(cell);cell=''}
+  else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(x=>x.trim()))rows.push(row);row=[];cell=''}else cell+=c}
+ row.push(cell);if(row.some(x=>x.trim()))rows.push(row);
+ const hi=Math.max(0,rows.findIndex(r=>r.some(c=>/bandwidth|file|asset|name|url|path|size|usage/i.test(c))));
+ const head=rows[hi]||[],body=rows.slice(hi+1).filter(r=>r.length>1);
+ const unitOf=s=>((s||'').match(/\b(tb|gb|mb|kb|bytes|b)\b/i)||[])[1];
+ const bytes=(v,hu)=>{const m=String(v).replace(/,/g,'').match(/([\d.]+)\s*(tb|gb|mb|kb|b|bytes)?/i);if(!m)return NaN;const u=(m[2]||hu||'b').toLowerCase();return +m[1]*({tb:1099511627776,gb:1073741824,mb:1048576,kb:1024,b:1,bytes:1})[u]};
+ let nameCol=-1,bwCol=-1,reqCol=-1,typeCol=-1;
+ head.forEach((h,i)=>{if(/request|hits|views|count/i.test(h))reqCol=i;else if(/type/i.test(h))typeCol=i;else if(/bandwidth|usage|transfer|data|size|bytes/i.test(h)&&bwCol<0)bwCol=i;else if(/name|file|asset|url|path|page|resource/i.test(h)&&nameCol<0)nameCol=i});
+ if(nameCol<0)nameCol=head.findIndex((_,i)=>body.slice(0,20).some(r=>/\.\w{2,5}(\?|$)|^\/|website-files/.test(r[i]||'')));
+ if(bwCol<0)bwCol=head.findIndex((_,i)=>i!==nameCol&&i!==reqCol&&body.slice(0,20).every(r=>!isNaN(bytes(r[i]))));
+ if(nameCol<0||bwCol<0)return null;
+ const hu=unitOf(head[bwCol]);
+ const items=body.map(r=>{const raw=(r[nameCol]||'').trim();return {raw,name:WF.clean(WF.orig(WF.file(raw)))||raw,key:WF.key(WF.file(raw)),bytes:bytes(r[bwCol],hu)||0,requests:reqCol>=0?+String(r[reqCol]).replace(/,/g,'')||0:null,type:typeCol>=0?r[typeCol]:'',page:/^\/|^https?:\/\/(?!.*website-files)/.test(raw)&&!/\.\w{2,5}(\?|$)/.test(raw)}}).filter(x=>x.raw);
+ const merged=new Map();for(const x of items){const m=merged.get(x.key+x.page);if(m){m.bytes+=x.bytes;if(x.requests!==null)m.requests+=x.requests}else merged.set(x.key+x.page,{...x})}
+ return {cols:{name:head[nameCol],bandwidth:head[bwCol],requests:head[reqCol]},items:[...merged.values()].sort((a,b)=>b.bytes-a.bytes)};
+}
+function initWebflow(){
+ const f=$('wfF'),inp=$('wfU'),st=$('wfS'),out=$('wfR'),csvOut=$('wfC');
+ let scan=null,csv=null,ctl=null,filter='all',term='',shown=40;
+ const ICON={image:'🖼',video:'▶',lottie:'✦',font:'Aa',code:'</>',other:'•'};
+ const chip=r=>r.tips.map(([t,d])=>`<span class="wf-tip" title="${esc(d)}">${t}</span>`).join('');
+ const where=r=>{const by={};for(const u of r.uses)(by[u.page]=by[u.page]||[]).push(u);
+  return Object.entries(by).slice(0,25).map(([p,us])=>`<li><a href="${esc(us[0].url)}" target="_blank" rel="noopener">${esc(p)}</a><ul>${us.slice(0,6).map(u=>`<li><b>${esc(u.section)}</b>${u.heading?` <q>${esc(u.heading)}</q>`:''}<span>${esc(u.element)}${u.tab?` · tab “${esc(u.tab)}”`:''} · ${u.how}</span></li>`).join('')}</ul></li>`).join('')+(Object.keys(by).length>25?`<li class="wf-more">and ${Object.keys(by).length-25} more pages</li>`:'')};
+ const detail=r=>`<div class="wf-d">${r.tips.length?`<div class="wf-tips">${r.tips.map(([t,d])=>`<p><b>${t}.</b> ${esc(d)}</p>`).join('')}</div>`:''}<p class="wf-k">Where it's used</p><ul class="wf-where">${where(r)}</ul><p class="wf-act"><a class="btn sm" href="${esc(r.url)}" target="_blank" rel="noopener">Open file ↗</a><button class="btn sm" type="button" data-copy="${esc(r.name)}">Copy file name</button></p></div>`;
+ const thumb=r=>r.kind==='image'?`<img src="${esc(r.url)}" alt="" loading="lazy">`:`<span>${ICON[r.kind]}</span>`;
+ const row=(r,extra='')=>`<li><details><summary><span class="wf-th">${thumb(r)}</span><span class="wf-n"><b>${esc(r.name)}</b><small>${r.kind}${r.copies>1?` · ${r.copies} sizes`:''} · on ${r.pages} page${r.pages===1?'':'s'}</small>${r.tips.length?`<span class="wf-chips">${chip(r)}</span>`:''}</span>${extra}<span class="wf-sz">${WF.size(r.bytes)}</span></summary>${detail(r)}</details></li>`;
+ function draw(){
+  if(!scan){out.hidden=true;return}out.hidden=false;
+  const rows=scan.rows.filter(r=>(filter==='all'||r.kind===filter)&&(!term||r.name.toLowerCase().includes(term)));
+  const big=scan.rows.filter(r=>r.bytes>512000).length,top=scan.rows[0];
+  $('wfSum').innerHTML=[[scan.pages.length,'pages scanned'],[scan.rows.length,'Webflow files found'],[top?WF.size(top.bytes):'–','heaviest file'],[big,'files over 500 KB']].map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join('');
+  $('wfNote').innerHTML=scan.more?`Scanned the first ${scan.pages.length} pages${scan.fromMap?' from your sitemap':''}. Choose more pages above and scan again to cover the rest.`:`Scanned every page we could find${scan.fromMap?' in your sitemap':''}.`;
+  $('wfL').innerHTML=rows.slice(0,shown).map(r=>row(r)).join('')||'<li class="wf-empty">No files match.</li>';
+  $('wfMore').hidden=rows.length<=shown;$('wfMore').textContent=`Show all ${rows.length}`;
+  drawCsv();
+ }
+ function drawCsv(){
+  if(!csv){csvOut.hidden=true;return}csvOut.hidden=false;
+  const total=csv.items.reduce((a,x)=>a+x.bytes,0),idx=new Map((scan?scan.rows:[]).map(r=>[r.key,r]));
+  const files=csv.items.filter(x=>!x.page),pagesBw=csv.items.filter(x=>x.page);
+  $('wfCh').innerHTML=`<b>${WF.size(total)}</b> of bandwidth across ${csv.items.length} rows in your CSV${scan?'':'. <strong>Scan the site above</strong> to see where each file is used.'}`;
+  $('wfCl').innerHTML=files.slice(0,shown).map(x=>{const r=idx.get(x.key),pc=total?x.bytes/total*100:0;
+   const bar=`<span class="wf-bw"><b>${WF.size(x.bytes)}</b><i style="--w:${Math.max(2,pc).toFixed(1)}%"></i><small>${pc.toFixed(1)}%${x.requests?` · ${x.requests.toLocaleString()} requests`:''}</small></span>`;
+   if(r)return row({...r},bar).replace(/<span class="wf-sz">([^<]*)<\/span>/,'<span class="wf-sz">$1<small>file size</small></span>');
+   return `<li><div class="wf-nf"><span class="wf-th"><span>${ICON[WF.kind(x.raw)]}</span></span><span class="wf-n"><b>${esc(x.name)}</b><small>${scan?'Not on the pages scanned. It may be on a CMS page further down, in an old page, or no longer used.':'Scan the site to find where it\'s used.'}</small></span>${bar}</div></li>`}).join('')+(pagesBw.length?`<li class="wf-k">Pages</li>`+pagesBw.slice(0,15).map(x=>`<li><div class="wf-nf"><span class="wf-th"><span>📄</span></span><span class="wf-n"><b>${esc(x.raw)}</b><small>Page (HTML)</small></span><span class="wf-bw"><b>${WF.size(x.bytes)}</b></span></div></li>`).join(''):'');
+ }
+ out.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(b)copy(b.dataset.copy,'the file name')});
+ csvOut.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(b)copy(b.dataset.copy,'the file name')});
+ document.querySelectorAll('input[name="wfk"]').forEach(r=>r.onchange=()=>{filter=r.value;shown=40;draw()});
+ $('wfQ').oninput=()=>{term=$('wfQ').value.trim().toLowerCase();draw()};
+ $('wfMore').onclick=()=>{shown=1e4;draw()};
+ const q=query().get('site');if(q)inp.value=q;
+ f.onsubmit=async e=>{
+  e.preventDefault();
+  if(ctl){ctl.abort();return}
+  let u=inp.value.trim();if(!u)return inp.focus();if(!/^https?:\/\//.test(u))u='https://'+u;
+  try{u=new URL(u).href}catch(x){st.textContent='That doesn\'t look like a web address.';return}
+  if(!wfRelay()){st.innerHTML='Scanning isn\'t switched on yet on this site. You can still drop in your bandwidth CSV below.';return}
+  setQuery({site:new URL(u).host});ctl=new AbortController();const btn=f.querySelector('button');btn.textContent='Stop';st.className='wf-st on';
+  const max=+document.querySelector('input[name="wfp"]:checked').value;
+  try{scan=await wfScan(u,max,(i,n,p,files)=>{st.innerHTML=files?`Checking the size of ${files} files…`:`Reading page ${i} of ${n}<span>${esc(p)}</span>`;$('wfP').style.width=(files?100:i/n*100)+'%'},ctl.signal);
+   st.textContent='';st.className='wf-st';filter='all';shown=40;draw();out.scrollIntoView({behavior:'smooth',block:'start'});count('webflow scan',1)}
+  catch(x){st.className='wf-st';st.innerHTML=x.code==='notwf'?'<b>This doesn\'t look like a Webflow site.</b> This tool only reads sites published on Webflow.':ctl.signal.aborted?'Stopped.':'Couldn\'t read that site. Check the address and that the site is published.'}
+  ctl=null;btn.textContent='Scan site';$('wfP').style.width='0';
+ };
+ const fin=$('wfFile'),drop=$('wfDrop');
+ const load=file=>{if(!file)return;const r=new FileReader();r.onload=()=>{const c=wfCsv(String(r.result));if(!c){toast('Couldn\'t find file and bandwidth columns in that CSV');return}csv=c;shown=40;drawCsv();csvOut.scrollIntoView({behavior:'smooth',block:'start'})};r.readAsText(file)};
+ fin.onchange=()=>load(fin.files[0]);
+ ['dragover','dragenter'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('on')}));
+ ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('on')}));
+ drop.addEventListener('drop',e=>load(e.dataTransfer.files[0]));
+ draw();
 }
 
 /* ---------- Visitor counts ----------

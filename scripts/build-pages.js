@@ -43,6 +43,7 @@ const pages=[
  ['tools/palette-generator','Free colour palette generator · '+base,'Lock the colours you love and generate the rest, up to five, then export full 50–950 scales as CSS, Tailwind, JSON or PNG. Free, in your browser.'],
  ['tools/image-palette','Free palette from image · '+base,'Pull the main colours out of any photo or screenshot, or click to pick an exact colour. Copy hex codes or open them in the palette generator. Free, in your browser.'],
  ['tools/contrast-checker','Free colour contrast checker · '+base,'Check text and background colours against WCAG 2.2 AA and AAA, and get the nearest colour that passes. Free, in your browser.'],
+ ['tools/webflow-speed','Webflow speed check · '+base,'Find the heaviest files on a Webflow site and exactly where each one is used.'],
  ['writing','Writing · '+base,'Articles by Aakarsh B on design, process and lessons learned the hard way.'],
  ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],
  ['about','About · '+base,'Aakarsh B, brand and visual designer in Bengaluru: how I work, and certificates from Google and CalArts.'],
@@ -57,6 +58,8 @@ const ld=o=>`<script type="application/ld+json">${JSON.stringify(o).replace(/</g
 // Cards use a 600px cover; warn if one is missing so a new project doesn't show a broken image.
 for(const p of data.PROJECTS)if(!fs.existsSync(path.join(root,`images/projects/${p.id}/cover-sm.jpg`)))console.warn(`Missing images/projects/${p.id}/cover-sm.jpg: run python3 scripts/thumbs.py`);
 const urls=[''];
+// Unlisted: the page works at its link but stays out of the sitemap and search results until it's announced.
+const UNLISTED=new Set(['tools/webflow-speed']);
 let home=fill(tpl,'/').replace(/<title>[^<]*<\/title>/,`<title>${esc(HOME[0])}</title>`)
  .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(HOME[1]))
  .replace(/(<meta property="og:title" content=")[^"]*/,'$1'+esc(HOME[0]))
@@ -83,7 +86,8 @@ for(const [dir,title,desc,img] of pages){
   {'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Projects',item:SITE+'/projects/'},{'@type':'ListItem',position:2,name:p.t,item:url}]}]}));
  html=rel(html,'../'.repeat(dir.split('/').length));
  fs.mkdirSync(path.join(root,dir),{recursive:true});
- fs.writeFileSync(path.join(root,dir,'index.html'),html);urls.push(dir+'/');
+ if(UNLISTED.has(dir))html=html.replace('</title>','</title>\n<meta name="robots" content="noindex">');
+ fs.writeFileSync(path.join(root,dir,'index.html'),html);if(!UNLISTED.has(dir))urls.push(dir+'/');
 }
 fs.writeFileSync(path.join(root,'404.html'),rel(tpl,process.env.BASE_PATH||'/'));
 if(SITE)fs.writeFileSync(path.join(root,'robots.txt'),`User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
