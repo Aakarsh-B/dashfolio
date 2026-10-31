@@ -609,7 +609,17 @@ function wfRead(html,pageUrl){
     uses.push({u,how,...(head?{section:'Every page using this',heading:'',element:tag==='script'?'script':'stylesheet',tab:''}:where(el))})}}}
  const links=[...doc.querySelectorAll('a[href]')].map(a=>abs(a.getAttribute('href'))),css=[...doc.querySelectorAll('link[rel="stylesheet"][href]')].map(l=>abs(l.getAttribute('href')));
  const byClass=c=>{let e=null;try{e=doc.querySelector('.'+CSS.escape(c))}catch(x){}return e&&where(e)};
- return {isWf,uses,links,css,byClass,title:(doc.title||'').trim()};
+ // Page-level signals for the checks: hidden hero, lazy first image, render-blocking and third-party scripts, SEO basics
+ const first=doc.querySelector('section,[class*="section"],header')||doc.body,host=new URL(pageUrl).host;
+ const webflowHost=h=>h===host||/website-files\.com|webflow\.com|d3e54v103j8qbb\.cloudfront\.net|googleapis\.com$/.test(h);
+ const hidden=[...first.querySelectorAll('[data-w-id][style*="opacity"]')].filter(e=>/opacity:\s*0(?![.\d])/.test(e.getAttribute('style'))&&(e.textContent.trim()||e.querySelector('img')||e.tagName==='IMG')).length;
+ const fimg=first.querySelector('img'),scripts=[...doc.querySelectorAll('script[src]')].map(s=>({h:(()=>{try{return new URL(s.getAttribute('src'),pageUrl).host}catch(e){return ''}})(),head:!!s.closest('head'),late:s.async||s.defer||s.type==='module'}));
+ const imgs=[...doc.querySelectorAll('img')];
+ const sig={hidden,lazyHero:fimg&&fimg.getAttribute('loading')==='lazy'?WF.clean(WF.file(fimg.getAttribute('src')||'')):'',
+  webfont:/webfont\.js|WebFont\.load/.test(html),blocking:[...new Set(scripts.filter(s=>s.head&&!s.late&&s.h&&!webflowHost(s.h)).map(s=>s.h))],
+  third:[...new Set(scripts.filter(s=>s.h&&!webflowHost(s.h)).map(s=>s.h))],desc:!!(doc.querySelector('meta[name="description"]')?.getAttribute('content')||'').trim(),
+  h1:doc.querySelectorAll('h1').length,imgs:imgs.length,noAlt:imgs.filter(i=>!i.hasAttribute('alt')).length,emptyAlt:imgs.filter(i=>i.hasAttribute('alt')&&!i.getAttribute('alt').trim()&&!i.closest('a,button')).map(i=>WF.key(WF.file(i.getAttribute('src')||''))),og:!!doc.querySelector('meta[property="og:image"]')};
+ return {isWf,uses,links,css,byClass,sig,title:(doc.title||'').trim()};
 }
 async function wfScan(start,max,step,signal){
  const home=await wfFetch(start,signal),first=wfRead(home.text,home.url);
@@ -628,7 +638,7 @@ async function wfScan(start,max,step,signal){
   if(signal.aborted)break;
   let page=i?null:{...first,url:home.url};
   if(!page){try{const r=await wfFetch(queue[i],signal);page={...wfRead(r.text,r.url),url:r.url}}catch(e){if(signal.aborted)break;continue}}
-  const path=new URL(page.url).pathname;pages.push({path,url:page.url,title:page.title});step(pages.length,Math.min(max,queue.length),path);
+  const path=new URL(page.url).pathname;pages.push({path,url:page.url,title:page.title,sig:page.sig});step(pages.length,Math.min(max,queue.length),path);
   for(const x of page.uses)add(x.u,{page:path,url:page.url,how:x.how,section:x.section,heading:x.heading,element:x.element,tab:x.tab});
   // Background images and fonts set in the Designer live in the site's CSS: find which classes use them on this page
   for(const href of page.css)if(WF.asset(href)&&!sheets.has(href)){
@@ -654,7 +664,73 @@ async function wfScan(start,max,step,signal){
   for(const u of f.uses)if(!r.uses.some(x=>x.page===u.page&&x.element===u.element&&x.how===u.how&&x.tab===u.tab))r.uses.push(u)}
  const out=[...rows.values()].map(r=>({...r,pages:new Set(r.uses.map(u=>u.page)).size}));
  for(const r of out)r.tips=wfTips(r,pages.length);
- return {origin,pages,rows:out.sort((a,b)=>b.bytes-a.bytes),fromMap,more:i<queue.length};
+ // Rough page weight: every Webflow file a page references, counting one size per uploaded image
+ for(const p of pages){const seen=new Set();p.bytes=out.filter(r=>r.kind!=='code'&&r.kind!=='font'&&r.uses.some(u=>u.page===p.path)).reduce((a,r)=>{const s=r.kind==='video'?r.name.replace(/[_-]?(mp4|webm)?\.\w+$/i,''):r.key;if(seen.has(s))return a;seen.add(s);return a+r.bytes},0)}
+ const report=wfAudit(out,pages);
+ return {origin,pages,rows:out.sort((a,b)=>b.bytes-a.bytes),fromMap,more:i<queue.length,report};
+}
+// Lighthouse-style checks, built on what Webflow sites actually trip over. Each returns the files or pages at fault,
+// an estimate of what fixing it would save, and a 0–1 score; categories average their checks.
+const WF_CATS=[['images','Images'],['media','Video & animation'],['loading','Loading'],['code','Fonts & code'],['seo','SEO basics']];
+function wfAudit(rows,pages){
+ const MB=1048576,n=pages.length||1,loc=r=>{const u=r.uses[0];return u?`${u.page} › ${u.section}${u.tab?` (tab “${u.tab}”)`:''}`:''};
+ const file=(r,save)=>({label:r.name,sub:loc(r),bytes:r.bytes,url:r.url,save});
+ const sum=a=>a.reduce((x,y)=>x+(y.save||0),0),byBytes=(a,b)=>b.bytes-a.bytes;
+ const bySave=(save,cap)=>Math.max(0,Math.min(1,1-save/cap));
+ const byShare=(k)=>Math.max(0,1-k/n);
+ const pg=(f)=>pages.filter(f).map(p=>({label:p.path,sub:p.title,url:p.url}));
+ const A=[];
+ const add=(cat,id,title,items,o)=>A.push({cat,id,title,items,save:sum(items),...o});
+ let it=rows.filter(r=>r.kind==='image'&&/png|jpe?g/.test(WF.ext(r.name))&&r.bytes>100*1024).sort(byBytes).map(r=>file(r,r.bytes*.5));
+ add('images','format','Serve images as WebP or AVIF',it,{score:bySave(sum(it),3*MB),why:'PNG and JPEG files are often twice the size of the same image in WebP.',fix:'In the Assets panel, select the images and choose Convert to WebP or AVIF. Webflow swaps them everywhere they are used.'});
+ it=rows.filter(r=>r.kind==='image'&&r.bytes>500*1024).sort(byBytes).map(r=>file(r,r.bytes-350*1024));
+ add('images','oversized','Shrink very large images',it,{score:bySave(sum(it),2*MB),why:'An image over 500 KB is usually far bigger than the space it fills on screen.',fix:'Resize to the widest it is shown (1920 px for full-width, less for cards), export again, and replace the asset.'});
+ it=rows.filter(r=>WF.ext(r.name)==='gif'&&r.bytes>300*1024).sort(byBytes).map(r=>file(r,r.bytes*.8));
+ add('images','gif','Replace animated GIFs with video',it,{score:bySave(sum(it),2*MB),why:'GIFs are the least efficient way to animate. The same loop as MP4 or WebM is a fraction of the size.',fix:'Export the animation as a short MP4/WebM and use a Background Video element, or a Lottie for vector motion.'});
+ it=rows.filter(r=>r.kind==='image'&&r.bytes>200*1024&&r.uses.some(u=>u.how==='Background image (CSS)')).sort(byBytes).map(r=>file(r,0));
+ add('images','bg','Large CSS background images',it,{score:byShare(new Set(it.flatMap(i=>[i.sub])).size/2),why:'Images set as a background in the Style panel load straight away and can\'t be lazy loaded or served at smaller sizes.',fix:'Where the image is content, use an Image element (Webflow makes responsive sizes and lazy loads it). Keep backgrounds small.'});
+ it=rows.filter(r=>r.kind==='video'&&r.bytes>2.5*MB).sort(byBytes).map(r=>file(r,r.bytes-2*MB));
+ add('media','video','Compress background videos',it,{score:bySave(sum(it),6*MB),why:'Background videos autoplay, so every visitor downloads them, even if they never scroll to them.',fix:'Keep loops under 2–3 MB and a few seconds long (1280 px wide, no audio). For longer clips, show a poster and play on click.'});
+ // A browser plays one of the MP4/WebM pair, so count each clip once
+ const stem=r=>r.name.replace(/[_-]?(mp4|webm)?\.\w+$/i,''),clips=new Map();
+ for(const r of rows.filter(r=>(r.kind==='video'||r.kind==='lottie')&&r.tips.some(t=>t[0]==='Placed twice on one page')))if(!clips.has(stem(r))||clips.get(stem(r)).bytes<r.bytes)clips.set(stem(r),r);
+ it=[...clips.values()].sort(byBytes).map(r=>file(r,r.bytes));
+ add('media','twice','Same video or animation placed twice',it,{score:bySave(sum(it),4*MB),why:'A common Webflow pattern: one copy for desktop, one for mobile. Hiding one on a breakpoint doesn\'t always stop it downloading.',fix:'Use one element that adapts at each breakpoint, or load the second copy only when it is shown.'});
+ it=rows.filter(r=>r.kind==='lottie'&&r.bytes>300*1024).sort(byBytes).map(r=>file(r,r.bytes*.5));
+ add('media','lottie','Slim down Lottie animations',it,{score:bySave(sum(it),2*MB),why:'Lottie files with embedded images or complex paths can outweigh a video.',fix:'Remove embedded images, simplify shapes, and use dotLottie (.lottie) where you can.'});
+ it=pg(p=>p.sig.hidden>0).map(x=>({...x,sub:`${pages.find(p=>p.url===x.url).sig.hidden} element(s) start hidden in the first section`}));
+ add('loading','ix','Hero hidden by a page-load interaction',it,{score:byShare(it.length),why:'Webflow interactions that fade content in start it at opacity 0. Nothing shows until Webflow\'s script runs, which delays Largest Contentful Paint.',fix:'Don\'t animate the headline or hero image on page load. Keep their initial state visible, or animate only small decorative parts.'});
+ it=pg(p=>p.sig.lazyHero).map(x=>({...x,sub:'First image: '+pages.find(p=>p.url===x.url).sig.lazyHero}));
+ add('loading','lazy','First image is lazy loaded',it,{score:byShare(it.length),why:'Webflow lazy loads images by default, including the one at the top of the page, so the browser waits before fetching it.',fix:'Select the hero image, and in its settings set Load to Eager. Leave everything further down as Lazy.'});
+ it=pages.map(p=>({label:p.path,sub:p.title,url:p.url,bytes:p.bytes})).filter(p=>p.bytes>3*MB).sort(byBytes);
+ add('loading','weight','Keep pages under 3 MB',it,{score:byShare(it.length),why:'Heavy pages are slow on mobile data and use up Webflow bandwidth on every visit. Counts every image and video the page references from Webflow, at full size.',fix:'Start with the biggest files on each page below. Images and videos are almost always most of it.'});
+ const fonts=rows.filter(r=>r.kind==='font');
+ it=fonts.filter(r=>!/woff2/.test(WF.ext(r.name))).map(r=>file(r,r.bytes*.3));
+ add('code','woff2','Use WOFF2 fonts',it,{score:it.length?.5:1,why:'WOFF2 is about 30% smaller than WOFF, TTF or OTF.',fix:'Convert the font files to WOFF2 and upload them again in Site settings → Fonts.'});
+ it=fonts.length>12?fonts.sort(byBytes).map(r=>file(r,0)):[];
+ add('code','fontcount','Tidy up uploaded fonts',it,{score:fonts.length>24?.6:fonts.length>12?.8:1,why:`The site's CSS declares ${fonts.length} uploaded font files. Browsers only download the ones a page uses, but every extra weight that is used is another file.`,fix:'Keep to two or three weights per family and delete fonts you no longer use in Site settings → Fonts.'});
+ it=pg(p=>p.sig.webfont).map(x=>({...x,sub:'Google Fonts loaded with webfont.js'}));
+ add('code','webfont','Google Fonts loaded through webfont.js',it,{score:it.length?.4:1,why:'Fonts picked from Google in the Designer load through an extra script before any text can use them.',fix:'Download the fonts and upload them as custom WOFF2 fonts, or keep to the weights you really use.'});
+ const hosts=new Map();for(const p of pages)for(const s of p.sig.blocking)hosts.set(s,(hosts.get(s)||0)+1);
+ it=[...hosts].sort((a,b)=>b[1]-a[1]).map(([h,c])=>({label:h,sub:`blocks rendering on ${c} page${c>1?'s':''}`}));
+ add('code','blocking','Custom code that blocks the page',it,{score:Math.max(0,1-it.length*.2),why:'Scripts added in the head without async or defer stop the page from showing until they download and run.',fix:'In Site settings → Custom code, add defer to these script tags, or move them to the Footer code.'});
+ const tp=new Map();for(const p of pages)for(const s of p.sig.third)tp.set(s,(tp.get(s)||0)+1);
+ it=[...tp].sort((a,b)=>b[1]-a[1]).map(([h,c])=>({label:h,sub:`on ${c} page${c>1?'s':''}`}));
+ add('code','third','Third-party scripts',it,{score:it.length>8?.4:it.length>5?.7:1,why:`${it.length} outside services load scripts on the site (analytics, chat, tag managers…). Each one costs time on every visit.`,fix:'Remove what nobody uses, and load chat widgets and heatmaps after the page or on interaction.'});
+ const seo=(id,title,f,why,fix)=>{const it=pg(f);add('seo',id,title,it,{score:byShare(it.length),why,fix})};
+ seo('title','Every page has a title',p=>!p.title,'Pages without a title show the URL in search results and tabs.','Set a title in Page settings, or a title field in the CMS template settings.');
+ seo('desc','Every page has a meta description',p=>!p.sig.desc,'Search engines write their own snippet when there is none, usually a worse one.','Add a meta description in Page settings, or bind one in the CMS template settings.');
+ it=pg(p=>p.sig.h1!==1).map(x=>({...x,sub:`${pages.find(p=>p.url===x.url).sig.h1} H1 headings`}));
+ add('seo','h1','One H1 per page',it,{score:byShare(it.length),why:'Each page should have exactly one main heading.',fix:'Set the main heading to H1 and the rest to H2–H6 in the Heading settings.'});
+ if(0)seo('h1','One H1 per page',p=>p.sig.h1!==1,'Each page should have exactly one main heading.','Set the main heading to H1 and the rest to H2–H6 in the Heading settings.');
+ const bigImg=new Set(rows.filter(r=>r.kind==='image'&&r.bytes>50*1024).map(r=>r.key));for(const p of pages)p.sig.noAltN=p.sig.noAlt+p.sig.emptyAlt.filter(k=>bigImg.has(k)).length;
+ const alt=pages.reduce((a,p)=>a+p.sig.noAltN,0);it=pg(p=>p.sig.noAltN>0).map(x=>({...x,sub:`${pages.find(p=>p.url===x.url).sig.noAltN} image(s) need alt text`}));
+ add('seo','alt','Images have alt text',it,{score:Math.max(0,1-alt/Math.max(1,pages.reduce((a,p)=>a+p.sig.imgs,0))*2),why:'Alt text describes images for screen readers and image search.',fix:'Add alt text in each image\'s settings, or in the Assets panel so it is reused everywhere.'});
+ seo('og','Share image set',p=>!p.sig.og,'Without an Open Graph image, links shared on LinkedIn, X and WhatsApp show no picture.','Add an Open Graph image in Page settings (1200×630).');
+ for(const a of A)a.state=a.items.length===0?'pass':a.score<.5?'fail':'warn';
+ const cats=WF_CATS.map(([id,name])=>{const a=A.filter(x=>x.cat===id);return {id,name,score:Math.round(a.reduce((s,x)=>s+x.score,0)/a.length*100)}});
+ const perf=cats.filter(c=>c.id!=='seo');
+ return {audits:A,cats,score:Math.round(perf.reduce((s,c)=>s+c.score,0)/perf.length),save:A.reduce((s,a)=>s+(a.save||0),0)};
 }
 // Plain-language flags, in Webflow's terms
 function wfTips(r,n){
@@ -707,6 +783,13 @@ function initWebflow(){
   if(!scan){out.hidden=true;return}out.hidden=false;
   const rows=scan.rows.filter(r=>(filter==='all'||r.kind===filter)&&(!term||r.name.toLowerCase().includes(term)));
   const big=scan.rows.filter(r=>r.bytes>512000).length,top=scan.rows[0];
+  const R=scan.report,tone=s=>s>=90?'g':s>=50?'o':'r',ring=(s,big)=>`<span class="wf-ring ${tone(s)}${big?' big':''}" style="--p:${s}"><b>${s}</b></span>`;
+  $('wfScore').innerHTML=`<div class="wf-main">${ring(R.score,1)}<div><h2>Webflow speed score</h2><p>${esc(new URL(scan.origin).host)} · ${scan.pages.length} page${scan.pages.length>1?'s':''} checked${R.save>524288?` · about <b>${WF.size(R.save)}</b> could be saved`:''}</p><p class="wf-leg"><i class="r"></i>0–49 <i class="o"></i>50–89 <i class="g"></i>90–100</p></div></div><div class="wf-cats">${R.cats.map(c=>`<a href="#wfa-${c.id}">${ring(c.score)}<span>${c.name}</span></a>`).join('')}</div>`;
+  const ICONS={pass:'✓',warn:'!',fail:'✕'},item=x=>`<li><span class="wf-ai"><b>${esc(x.label)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</span>${x.bytes?`<span class="wf-sz">${WF.size(x.bytes)}</span>`:''}${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Open">↗</a>`:''}</li>`;
+  const aud=a=>`<li class="wf-a ${a.state}"><details><summary><i aria-hidden="true">${ICONS[a.state]}</i><span>${a.title}</span><em>${a.items.length?(a.save>51200?'Save ~'+WF.size(a.save):a.items.length+' found'):'Passed'}</em></summary><div class="wf-ad"><p>${esc(a.why)}</p><p><b>How to fix it in Webflow:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,12).map(item).join('')}${a.items.length>12?`<li class="wf-more">and ${a.items.length-12} more</li>`:''}</ul>`:''}</div></details></li>`;
+  $('wfAud').innerHTML=R.cats.map(c=>{const list=R.audits.filter(a=>a.cat===c.id),bad=list.filter(a=>a.state!=='pass').sort((a,b)=>a.score-b.score),ok=list.filter(a=>a.state==='pass');
+   return `<section class="wf-cat" id="wfa-${c.id}"><h3>${ring(c.score)}${c.name}</h3><ol class="wf-al">${bad.map(aud).join('')}${ok.length?`<li class="wf-ok"><details><summary>${ok.length} passed check${ok.length>1?'s':''}</summary><ol class="wf-al">${ok.map(aud).join('')}</ol></details></li>`:''}</ol></section>`}).join('');
+  $('wfPages').innerHTML=scan.pages.slice().sort((a,b)=>b.bytes-a.bytes).slice(0,10).map(p=>item({label:p.path,sub:p.title,bytes:p.bytes,url:p.url})).join('');
   $('wfSum').innerHTML=[[scan.pages.length,'pages scanned'],[scan.rows.length,'Webflow files found'],[top?WF.size(top.bytes):'–','heaviest file'],[big,'files over 500 KB']].map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join('');
   $('wfNote').innerHTML=scan.more?`Scanned the first ${scan.pages.length} pages${scan.fromMap?' from your sitemap':''}. Choose more pages above and scan again to cover the rest.`:`Scanned every page we could find${scan.fromMap?' in your sitemap':''}.`;
   $('wfL').innerHTML=rows.slice(0,shown).map(r=>row(r)).join('')||'<li class="wf-empty">No files match.</li>';

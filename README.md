@@ -79,7 +79,7 @@ Submissions are emailed to aakarshbiju@gmail.com through [FormSubmit](https://fo
 
 ## Free tools
 
-`/tools` lists them; each lives at `/tools/<id>` and runs entirely in the browser (nothing uploaded, nothing to host): text match cut (made-up newspaper and web pages drawn on a canvas from a seed, recorded to MP4 or WebM with MediaRecorder; copy lives in `MC` in `js/app.js`), image compressor, palette generator (lock and generate up to five colours, then full scales), palette from image, contrast checker. The list is `FREE` in `js/views.js`, and each card's picture is drawn in HTML in `ART` next to it.
+`/tools` lists them; each lives at `/tools/<id>` and runs entirely in the browser (nothing uploaded, nothing to host): Webflow speed check (a Lighthouse-style report for Webflow sites; pages are read through the Cloudflare Worker in `workers/webflow-relay.js`, set in `WF_RELAY` in `js/app.js`; checks live in `wfAudit`), text match cut (made-up newspaper and web pages drawn on a canvas from a seed, recorded to MP4 or WebM with MediaRecorder; copy lives in `MC` in `js/app.js`), image compressor, palette generator (lock and generate up to five colours, then full scales), palette from image, contrast checker. The list is `FREE` in `js/views.js`, and each card's picture is drawn in HTML in `ART` next to it.
 
 ## Home page sections
 

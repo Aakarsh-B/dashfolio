@@ -37,13 +37,13 @@ const pages=[
  ['projects','Projects · '+base,'Brand identity, website and marketing design by Aakarsh B, including BiteSpeed, Bose Professional, Mavion and Creativate.'],
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
  ['work-with-me','Work with me · '+base,'Hire Aakarsh B for freelance brand identity, websites, landing pages, decks and campaign creative for startups and SaaS teams.'],
- ['tools','Free design tools · '+base,'Free tools for designers and marketers by Aakarsh B: text match cut videos, image compressor and WebP converter, palette generator and contrast checker. No sign-up, no uploads.'],
+ ['tools','Free design tools · '+base,'Free tools for designers and marketers by Aakarsh B: Webflow speed check, text match cut videos, image compressor and WebP converter, palette generator and contrast checker. No sign-up, no uploads.'],
  ['tools/text-match-cut','Free text match cut video maker · '+base,'Make a text match cut video for free: your phrase stays highlighted while newspapers and web pages flash past. MP4, no watermark, no sign-up.'],
  ['tools/image-compressor','Free image compressor and WebP converter · '+base,'Compress JPG, PNG and WebP images and convert them to WebP for free, right in your browser. No uploads, no sign-up.'],
  ['tools/palette-generator','Free colour palette generator · '+base,'Lock the colours you love and generate the rest, up to five, then export full 50–950 scales as CSS, Tailwind, JSON or PNG. Free, in your browser.'],
  ['tools/image-palette','Free palette from image · '+base,'Pull the main colours out of any photo or screenshot, or click to pick an exact colour. Copy hex codes or open them in the palette generator. Free, in your browser.'],
  ['tools/contrast-checker','Free colour contrast checker · '+base,'Check text and background colours against WCAG 2.2 AA and AAA, and get the nearest colour that passes. Free, in your browser.'],
- ['tools/webflow-speed','Webflow speed check · '+base,'Find the heaviest files on a Webflow site and exactly where each one is used.'],
+ ['tools/webflow-speed','Webflow speed check · '+base,'A free Lighthouse-style speed report for Webflow sites: a score, the fixes worth making, and exactly where each heavy file is used. No login.'],
  ['writing','Writing · '+base,'Articles by Aakarsh B on design, process and lessons learned the hard way.'],
  ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],
  ['about','About · '+base,'Aakarsh B, brand and visual designer in Bengaluru: how I work, and certificates from Google and CalArts.'],
@@ -59,7 +59,7 @@ const ld=o=>`<script type="application/ld+json">${JSON.stringify(o).replace(/</g
 for(const p of data.PROJECTS)if(!fs.existsSync(path.join(root,`images/projects/${p.id}/cover-sm.jpg`)))console.warn(`Missing images/projects/${p.id}/cover-sm.jpg: run python3 scripts/thumbs.py`);
 const urls=[''];
 // Unlisted: the page works at its link but stays out of the sitemap and search results until it's announced.
-const UNLISTED=new Set(['tools/webflow-speed']);
+const UNLISTED=new Set([]);
 let home=fill(tpl,'/').replace(/<title>[^<]*<\/title>/,`<title>${esc(HOME[0])}</title>`)
  .replace(/(<meta name="description" content=")[^"]*/,'$1'+esc(HOME[1]))
  .replace(/(<meta property="og:title" content=")[^"]*/,'$1'+esc(HOME[0]))

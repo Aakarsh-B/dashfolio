@@ -32,9 +32,10 @@ const fade=dir=>`<div class="fade ${dir}" aria-hidden="true"></div>`;
 const tile=(p,i=9)=>`<a class="tile rv" href="projects/${p.id}"><div class="th"><b>${p.t.split(' · ')[0]}</b></div><div class="tb full"><img src="${coverSm(p)}" srcset="${coverSm(p)} 600w, ${cover(p)} 1200w" sizes="(max-width:760px) 92vw, 440px" width="1200" height="900" alt="${p.t} cover" ${i<2?'':'loading="lazy"'}></div><div class="tf">${p.ty}</div></a>`;
 const nextTile=()=>`<a class="tile rv next-up" href="work-with-me"><div class="th"><b>What's next?</b></div><div class="tb"><span class="sticker" aria-hidden="true">open<br>for work</span></div><div class="tf">Freelance brand, web and campaign design</div></a>`;
 // Free tools: each runs in the browser, so they cost nothing to host however many people use them.
-const FREE=[['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
+const FREE=[['webflow-speed','Webflow speed check','A Lighthouse-style score for Webflow, with the files to fix'],['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
 // Each tool card shows what the tool makes, drawn in HTML so it stays sharp and readable at any size.
 const ART={
+ 'webflow-speed':`<div class="art-w"><span class="wf-ring o big" style="--p:64"><b>64</b></span><ul><li><i class="r">✕</i>Video placed twice<em>−5.8 MB</em></li><li><i class="r">✕</i>Hero image lazy loaded</li><li><i class="o">!</i>Convert to WebP<em>−663 KB</em></li><li><i class="g">✓</i>No GIFs</li></ul></div>`,
  'text-match-cut':`<div class="art-m"><span style="--r:-9deg;--x:-70px"></span><span style="--r:7deg;--x:70px"></span><div><em>The Morning Shrug</em><i></i><b>Local man says <mark>match cut</mark> was his idea</b><i></i><i></i><i style="width:70%"></i><i></i></div></div>`,
  'image-compressor':`<div class="art-c"><img src="images/board/bike.jpg" alt="" width="400" height="400" loading="lazy"><span class="art-badge">WebP</span><span class="art-size"><s>2.4 MB</s> 412 KB</span><span class="art-pc">−83%</span></div>`,
  'palette-generator':`<div class="art-p">${['#1b2a6b','#2f56f5','#7fd8ee','#f2efe6','#f2a33a'].map((c,i)=>`<span style="--c:${c};--t:${i>1&&i<5?'#0b0b0c':'#fff'}"><i>${i===1?'🔒':''}</i><b>${c.slice(1).toUpperCase()}</b></span>`).join('')}</div>`,
@@ -171,7 +172,7 @@ const V={
  <div><h3>Where to post it</h3><p>9:16 for Reels, Shorts and TikTok, 1:1 or 16:9 for X and LinkedIn. Add sound in the app, or pick a cut sound here.</p></div>
  <div><h3>Every page is made up</h3><p>The papers, headlines and websites are invented on the spot, so there's nothing to license. The video is recorded in your browser; nothing is uploaded.</p></div>
 </div></section>`},
-'/tools/webflow-speed':()=>`${head('Webflow speed check','Find the heaviest files on any Webflow site, and exactly where each one is used: the page, the section and the element, in the class names you see in the Designer.')}
+'/tools/webflow-speed':()=>`${head('Webflow speed check','A Lighthouse-style report made for Webflow. Get a speed score, the fixes worth making, and exactly where each heavy file lives: the page, section and element, in the class names you see in the Designer.')}
 <div class="tk">
  <form class="wf-f" id="wfF" novalidate>
   <label for="wfU">Your Webflow site</label>
@@ -180,6 +181,10 @@ const V={
   <div class="wf-pb"><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
  </form>
  <section class="wf-r" id="wfR" hidden aria-label="Results">
+  <div class="wf-score" id="wfScore"></div>
+  <div id="wfAud"></div>
+  <h3 class="wf-h3">Heaviest pages</h3><p class="wf-note">Everything each page pulls from Webflow's CDN, at full size. Start with these.</p><ul class="wf-items wf-box" id="wfPages"></ul>
+  <h3 class="wf-h3">Heaviest files, and where they're used</h3>
   <div class="wf-sum" id="wfSum"></div>
   <p class="wf-note" id="wfNote"></p>
   <div class="wf-bar"><fieldset class="seg"><legend>Show</legend>${[['all','All'],['image','Images'],['video','Videos'],['lottie','Lottie'],['font','Fonts'],['code','Code']].map(([v,l],i)=>`<label><input type="radio" name="wfk" value="${v}"${i?'':' checked'}><span>${l}</span></label>`).join('')}</fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div>
@@ -233,7 +238,7 @@ function caseStudy(p){
 
 // Unknown routes (old links, typos) get an honest page instead of quietly showing the home page.
 const notFound=()=>`${head('This page wandered off','The link might be old, or I moved things around. Here\'s some work to look at instead.','<div class="btns"><a class="btn p" href="./">Back home</a><a class="btn" href="contact">Say hi</a></div>')}<div class="tiles">${PROJECTS.slice(0,4).map(tile).join('')}</div>`;
-const TITLES={'/tools':'Free design tools','/tools/webflow-speed':'Webflow speed check','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
+const TITLES={'/tools':'Free design tools','/tools/webflow-speed':'Free Webflow speed check','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
 // Resolve a route (e.g. /projects/bitespeed) to its key, project, page content and header links.
 function page(h){
  let html,key=h;

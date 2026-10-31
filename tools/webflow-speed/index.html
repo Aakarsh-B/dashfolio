@@ -5,18 +5,20 @@
 <base href="../../">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Webflow speed check · Aakarsh B · Brand Designer</title>
-<meta name="robots" content="noindex">
 <link rel="canonical" href="https://aakarsh.design/tools/webflow-speed/">
 <meta property="og:url" content="https://aakarsh.design/tools/webflow-speed/">
 <meta property="og:image:alt" content="Aakarsh B, smiling">
 <meta property="og:site_name" content="Aakarsh B">
 <meta property="og:locale" content="en_IN">
-<meta property="og:image" content="https://aakarsh.design/images/board/me.jpg">
-<meta name="description" content="Find the heaviest files on a Webflow site and exactly where each one is used.">
+<meta property="og:image" content="https://aakarsh.design/images/og/webflow-speed.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://aakarsh.design/images/og/webflow-speed.jpg">
+<meta name="description" content="A free Lighthouse-style speed report for Webflow sites: a score, the fixes worth making, and exactly where each heavy file is used. No login.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:title" content="Webflow speed check · Aakarsh B · Brand Designer">
-<meta property="og:description" content="Find the heaviest files on a Webflow site and exactly where each one is used.">
+<meta property="og:description" content="A free Lighthouse-style speed report for Webflow sites: a score, the fixes worth making, and exactly where each heavy file is used. No login.">
 <meta name="theme-color" content="#000000">
 <script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro')</script>
 <link rel="icon" href="favicon-dot.svg" type="image/svg+xml">
@@ -24,7 +26,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/instrument-sans-wd.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/style.css?v=352f826b">
+<link rel="stylesheet" href="css/style.css?v=3a405fac">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -36,7 +38,7 @@
  <a class="hire" href="work-with-me">Work with me</a>
  <button class="mb" id="mb" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
 </div></header>
-<main id="main" tabindex="-1" data-pre="/tools/webflow-speed"><header class="ph-head"><h1>Webflow speed check</h1><p class="lead">Find the heaviest files on any Webflow site, and exactly where each one is used: the page, the section and the element, in the class names you see in the Designer.</p></header>
+<main id="main" tabindex="-1" data-pre="/tools/webflow-speed"><header class="ph-head"><h1>Webflow speed check</h1><p class="lead">A Lighthouse-style report made for Webflow. Get a speed score, the fixes worth making, and exactly where each heavy file lives: the page, section and element, in the class names you see in the Designer.</p></header>
 <div class="tk">
  <form class="wf-f" id="wfF" novalidate>
   <label for="wfU">Your Webflow site</label>
@@ -45,6 +47,10 @@
   <div class="wf-pb"><i id="wfP"></i></div><p class="wf-st" id="wfS" role="status" aria-live="polite"></p>
  </form>
  <section class="wf-r" id="wfR" hidden aria-label="Results">
+  <div class="wf-score" id="wfScore"></div>
+  <div id="wfAud"></div>
+  <h3 class="wf-h3">Heaviest pages</h3><p class="wf-note">Everything each page pulls from Webflow's CDN, at full size. Start with these.</p><ul class="wf-items wf-box" id="wfPages"></ul>
+  <h3 class="wf-h3">Heaviest files, and where they're used</h3>
   <div class="wf-sum" id="wfSum"></div>
   <p class="wf-note" id="wfNote"></p>
   <div class="wf-bar"><fieldset class="seg"><legend>Show</legend><label><input type="radio" name="wfk" value="all" checked><span>All</span></label><label><input type="radio" name="wfk" value="image"><span>Images</span></label><label><input type="radio" name="wfk" value="video"><span>Videos</span></label><label><input type="radio" name="wfk" value="lottie"><span>Lottie</span></label><label><input type="radio" name="wfk" value="font"><span>Fonts</span></label><label><input type="radio" name="wfk" value="code"><span>Code</span></label></fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div>
@@ -68,8 +74,8 @@
  <div class="fbar"><span>© 2026 Aakarsh B · Bengaluru</span><nav aria-label="Footer"><a href="projects">Work</a><a href="experience">Experience</a><a href="work-with-me">Work with me</a><a href="writing">Writing</a><a href="freebies">Freebies</a><a href="about">About</a><a href="resume.html" target="_blank" rel="noopener">Resume ↗</a><a href="https://www.linkedin.com/in/aakarshb/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://www.behance.net/aakarshb" target="_blank" rel="noopener">Behance ↗</a><a href="https://dribbble.com/aakarshb" target="_blank" rel="noopener">Dribbble ↗</a><a href="https://aakarshbiju.medium.com/" target="_blank" rel="noopener">Medium ↗</a><a href="https://x.com/Aakarsh_B" target="_blank" rel="noopener">X ↗</a></nav></div>
 </footer>
 <dialog id="lightbox" aria-label="Photo"></dialog>
-<script src="js/data.js?v=352f826b"></script>
-<script src="js/views.js?v=352f826b"></script>
-<script src="js/app.js?v=352f826b"></script>
+<script src="js/data.js?v=3a405fac"></script>
+<script src="js/views.js?v=3a405fac"></script>
+<script src="js/app.js?v=3a405fac"></script>
 </body>
 </html>
