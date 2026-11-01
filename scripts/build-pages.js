@@ -9,7 +9,7 @@ const fs=require('fs'),path=require('path');
 const root=path.join(__dirname,'..');
 // Stamp CSS/JS with a content hash so a new deploy never mixes a cached old file with new ones.
 const crypto=require('crypto');
-const ver=crypto.createHash('sha1').update(['css/style.css','js/data.js','js/views.js','js/app.js','js/webflow-speed.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex').slice(0,8);
+const ver=crypto.createHash('sha1').update(['css/style.css','js/data.js','js/views.js','js/app.js','js/webflow-speed.js','js/link-preview.js'].map(f=>fs.readFileSync(path.join(root,f))).join('')).digest('hex').slice(0,8);
 const stamp=html=>html.replace(/((?:href|src)="(?:css\/style\.css|js\/(?:data|views|app)\.js))(\?v=\w+)?"/g,`$1?v=${ver}"`);
 // Drop tags and content a previous build added, so re-running never duplicates them.
 const tpl=stamp(fs.readFileSync(path.join(root,'index.html'),'utf8'))
@@ -37,12 +37,13 @@ const pages=[
  ['projects','Projects · '+base,'Brand identity, website and marketing design by Aakarsh B, including BiteSpeed, Bose Professional, Mavion and Creativate.'],
  ['experience','Experience · '+base,'5+ years of brand, web and growth design across SaaS and marketing teams: BiteSpeed, CloudEagle.ai, Hexnode.'],
  ['work-with-me','Work with me · '+base,'Hire Aakarsh B for freelance brand identity, websites, landing pages, decks and campaign creative for startups and SaaS teams.'],
- ['tools','Free design tools · '+base,'Free tools for designers and marketers by Aakarsh B: Webflow speed check, text match cut videos, image compressor and WebP converter, palette generator and contrast checker. No sign-up, no uploads.'],
+ ['tools','Free design tools · '+base,'Free tools for designers and marketers by Aakarsh B: link preview checker, Webflow speed check, text match cut videos, image compressor and WebP converter, palette generator and contrast checker. No sign-up, no uploads.'],
  ['tools/text-match-cut','Free text match cut video maker · '+base,'Make a text match cut video for free: your phrase stays highlighted while newspapers and web pages flash past. MP4, no watermark, no sign-up.'],
  ['tools/image-compressor','Free image compressor and WebP converter · '+base,'Compress JPG, PNG and WebP images and convert them to WebP for free, right in your browser. No uploads, no sign-up.'],
  ['tools/palette-generator','Free colour palette generator · '+base,'Lock the colours you love and generate the rest, up to five, then export full 50–950 scales as CSS, Tailwind, JSON or PNG. Free, in your browser.'],
  ['tools/image-palette','Free palette from image · '+base,'Pull the main colours out of any photo or screenshot, or click to pick an exact colour. Copy hex codes or open them in the palette generator. Free, in your browser.'],
  ['tools/contrast-checker','Free colour contrast checker · '+base,'Check text and background colours against WCAG 2.2 AA and AAA, and get the nearest colour that passes. Free, in your browser.'],
+ ['tools/link-preview','Free link preview checker · '+base,'See how any link looks when shared on LinkedIn, X, Facebook, Slack, WhatsApp, iMessage and in Google. Check the title, description and share image, with fixes for Webflow. Free.'],
  ['tools/webflow-speed','Webflow speed check · '+base,'Free Lighthouse-style audit for Webflow sites: a stable speed score, SEO and accessibility checks, broken links, staging indexing and fixes in Webflow\'s own words. Up to 500 pages, no login.'],
  ['writing','Writing · '+base,'Articles by Aakarsh B on design, process and lessons learned the hard way.'],
  ['freebies','Freebies · '+base,'Free Figma Community files by Aakarsh B: hotel booking app UI, Dynamic Island prototype, auto layout cards and more.'],

@@ -46,6 +46,7 @@ function renderNow(){
  if(key==='/tools/contrast-checker')initContrast();
  if(key==='/tools/image-palette')initImagePalette();
  if(key==='/tools/text-match-cut')initMatchCut();
+ if(key==='/tools/link-preview')need('link-preview').then(()=>initLinkPreview()).catch(()=>{});
  if(key==='/tools/webflow-speed')need('webflow-speed').then(()=>initWebflow()).catch(()=>{});
 }
 

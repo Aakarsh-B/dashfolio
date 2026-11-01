@@ -1,4 +1,4 @@
-/* Relay for the Webflow speed check (aakarsh.design/tools/webflow-speed).
+/* Relay for the Webflow speed check (aakarsh.design/tools/webflow-speed) and the link preview checker (/tools/link-preview).
    Browsers can't read another site's pages, so the tool asks this Cloudflare Worker to fetch them. It only fetches
    public pages, sitemaps and robots.txt, only answers the site itself, and caches results for 10 minutes.
    Optional free keys (Worker → Settings → Variables and Secrets, type Secret). The tool works without them:
@@ -37,6 +37,14 @@ export default {
    const d=(q.get('opr')||'').replace(/[^a-z0-9.-]/gi,'');
    const r=await fetch('https://openpagerank.com/api/v1.0/getPageRank?domains%5B0%5D='+d,{headers:{'API-OPR':env.OPR_KEY},cf:{cacheTtl:86400,cacheEverything:true}});
    return out(await r.text(),r.status);
+  }
+  // Size and type of one file (the link preview checker uses it for share images). Never returns the file itself.
+  if(q.has('head')){
+   const u=web(q.get('head'));if(!u)return out({error:'bad url'},400);
+   let r=await fetch(u,{method:'HEAD',headers:{'user-agent':UA},redirect:'follow',cf:{cacheTtl:600}});
+   let len=+(r.headers.get('content-length')||0);
+   if(!r.ok||!len){r=await fetch(u,{headers:{'user-agent':UA,range:'bytes=0-0'},redirect:'follow'});const cr=r.headers.get('content-range')||'';len=cr.includes('/')?+cr.split('/')[1]||0:r.status===200?+(r.headers.get('content-length')||0):0;if(r.body)r.body.cancel()}
+   return out({status:r.status,type:r.headers.get('content-type')||'',bytes:len,url:r.url});
   }
   // A public page, sitemap or robots.txt
   const target=web(q.get('url'));if(!target)return out('Give a page address as ?url=',400,'text/plain');
