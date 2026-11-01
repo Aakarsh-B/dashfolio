@@ -185,6 +185,7 @@ const V={
  <div class="wf-intro" id="wfIntro">${[['The whole site, not one page','Up to 500 pages in one go, blog posts included. Lighthouse checks one address at a time.'],['Same site, same score','It reads what your site actually sends instead of simulating a slow phone, so the score doesn\'t jump between runs.'],['Fixes in Webflow\'s words','Each check names the panel or setting to change, and points to the page, section and class.'],['Speed, SEO and accessibility','Heavy files, broken links, duplicate titles, an indexable staging site, missing alt text and form labels.']].map(([t,p])=>`<div><b>${t}</b><p>${p}</p></div>`).join('')}</div>
  <section class="wf-r" id="wfR" hidden aria-label="Report">
   <div class="wf-score" id="wfScore"></div>
+  <section class="wf-risks" id="wfRisk" aria-label="Issues to fix first"></section>
   <section class="wf-next" id="wfNext" aria-label="Next steps"></section>
   <div class="wf-dh"><h2 class="h3">Full analysis</h2><div class="wf-acts"><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div>
   <div class="wf-nav" id="wfNav"><div class="wf-tabs" role="tablist" aria-label="Report sections" id="wfTabs"></div></div>

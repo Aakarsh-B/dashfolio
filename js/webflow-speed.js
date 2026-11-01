@@ -406,12 +406,13 @@ function initWebflow(){
  const HK='wfs-history',hist=()=>{try{return JSON.parse(localStorage.getItem(HK))||{}}catch(e){return {}}};
  const remember=()=>{const h=hist(),l=h[S.host]||[],prev=l[l.length-1];try{l.push({t:Date.now(),s:rep.score,seo:rep.seo,a11y:rep.a11y,n:S.pages.length});h[S.host]=l.slice(-10);localStorage.setItem(HK,JSON.stringify(h))}catch(e){}return prev};
  const verdict=v=>v>=90?'Fast':v>=50?'Needs work':'Slow';
- function scoreCard(prev,risks){
+ const RICON={sitemap:'<rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M5.5 16v-2a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2"/>',staging:'<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',broken:'<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',robots:'<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>',noindexmap:'<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.5 6.6A16 16 0 0 0 2.5 12S6 19 12 19a9.5 9.5 0 0 0 4.4-1.1"/>',canonhost:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',mixed:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',viewport:'<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/>'};
+ function scoreCard(prev){
   const d=prev?rep.score-prev.s:0,past=prev?`<p class="wf-hist">Last scan, ${fmtDate(prev.t)}: ${prev.s} → <b class="${d>0?'up':d<0?'down':''}">${rep.score}${d?` (${d>0?'▲':'▼'}${Math.abs(d)})`:''}</b></p>`:'';
-  return `<div class="wf-hero"><div class="wf-big-s"><p class="wf-lbl">Webflow speed score</p><p class="wf-num-b">${rep.score}<small>/100</small><span class="wf-vd ${tone(rep.score)}">${verdict(rep.score)}</span></p><div class="wf-track" aria-hidden="true"><i class="${tone(rep.score)}" style="width:${rep.score}%"></i></div><p class="wf-meta">${esc(S.host)} · ${S.pages.length} page${S.pages.length===1?'':'s'}${rep.save>524288?` · about <b>${WF.size(rep.save)}</b> could be saved`:''}</p>${past}</div>
-  <div class="wf-subs">${[['seo','SEO',rep.seo],['a11y','Accessibility',rep.a11y]].map(([id,nm,v])=>`<button type="button" data-go="${id}"><span>${nm}</span>${sc(v)}</button>`).join('')}</div></div>
-  ${risks.length?`<p class="wf-risk"><b>${risks.length} risk${risks.length>1?'s':''} to fix first</b>${risks.map(a=>`<button type="button" data-step="${a.id}">${esc(prob(a))}</button>`).join('')}</p>`:`<p class="wf-risk ok"><b>No major risks found</b><span>Search engines can reach and read the site.</span></p>`}`;
+  return `<div class="wf-big-s"><p class="wf-lbl">Webflow speed score <span>· ${esc(S.host)}</span></p><p class="wf-num-b">${rep.score}<small>/100</small><span class="wf-vd ${tone(rep.score)}">${verdict(rep.score)}</span></p><div class="wf-track" aria-hidden="true"><i style="width:${rep.score}%"></i></div><p class="wf-meta">${S.pages.length} page${S.pages.length===1?'':'s'}${rep.save>524288?`<i>·</i>~${WF.size(rep.save)} could be saved`:''}</p>${past}</div>
+  <div class="wf-subs">${[['seo','SEO',rep.seo],['a11y','Accessibility',rep.a11y]].map(([id,nm,v])=>`<button type="button" data-go="${id}" class="${tone(v)}" style="--p:${v}%"><span>${nm}</span><b>${v}</b><i></i></button>`).join('')}</div>`;
  }
+ const riskCard=risks=>risks.length?`<h2>${risks.length} issue${risks.length>1?'s':''} to fix first</h2><div class="wf-rl">${risks.map(a=>`<button type="button" data-step="${a.id}">${SVG(RICON[a.id]||'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',20)}<span>${esc(prob(a).replace(/^Your s/,'S'))}</span></button>`).join('')}</div>`:`<h2>No major issues</h2><p class="wf-note">Search engines can reach and read the site. The steps below are improvements, not emergencies.</p>`;
  // The next ten things to do: risks first, then by how much each fix helps
  function steps(risks){
   const rest=rep.audits.filter(a=>(a.state==='fail'||a.state==='warn')&&!risks.includes(a)).sort((a,b)=>impact(b)-impact(a));
@@ -528,7 +529,7 @@ function initWebflow(){
  function render(){
   $('wfIntro').hidden=true;R.hidden=false;
   const risks=rep.audits.filter(a=>RISK[a.id]&&(a.state==='fail'||a.state==='warn')).sort((a,b)=>impact(b)-impact(a));
-  $('wfScore').innerHTML=scoreCard(remember(),risks);$('wfNext').innerHTML=steps(risks);tabs();
+  $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps(risks);tabs();
   $('wfpan-site').innerHTML=overview();
   $('wfpan-speed').innerHTML=`<div class="wf-cats">${rep.cats.filter(c=>c.group==='speed').map(c=>`<a href="#wfa-${c.id}" data-go="speed" data-cat="${c.id}"><span>${c.name}</span>${sc(c.score)}</a>`).join('')}</div>`+catPanel(['images','media','loading','code']);
   $('wfpan-seo').innerHTML=catPanel(['seo']);$('wfpan-a11y').innerHTML=catPanel(['a11y']);
