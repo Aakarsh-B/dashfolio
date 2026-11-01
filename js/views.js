@@ -201,6 +201,7 @@ const V={
    <div class="wfo-tiles" id="wfTiles"></div>
    <section class="wf-risks" id="wfRisk" aria-label="Issues to fix first"></section>
    <section class="wf-next" id="wfNext" aria-label="Next steps"></section>
+   <section class="wf-call" id="wfCall" aria-label="Next 10 steps"></section>
    <div class="wfc wfo-pages" id="wfPt"></div>
   </div>
   <div class="wf-dh"><h2 class="h3" id="wfDhT">Full analysis</h2></div>

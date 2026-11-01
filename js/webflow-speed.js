@@ -425,6 +425,13 @@ function initWebflow(){
   <ol class="wf-steps">${list.map((a,i)=>`<li class="wf-stp${RISK[a.id]?' risk':''}${isDone(a.id)?' done':''}" id="wfs-${a.id}"><details><summary><span class="wf-n1">${i+1}</span><span class="wf-sx"><b>${esc(prob(a))}</b><small>${esc(RISK[a.id]?RISK[a.id]+'. '+a.fix:a.fix)}</small></span><span class="wf-sm"><em>${metric(a)}</em><span class="wf-tag">${RISK[a.id]?'Risk':catName(a)}</span></span></summary><div class="wf-sd"><p>${esc(a.why)}</p><p><b>How to fix it in Webflow:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,5).map(item).join('')}</ul>`:''}<p class="wf-act"><button type="button" class="btn sm" data-go="${catTab(a.cat)}" data-check="${a.id}">${a.items.length>5?`See all ${a.items.length}`:'See it'} in the ${catName(a)} report →</button></p></div></details></li>`).join('')}</ol>
   <p class="wf-act wf-left"><button type="button" class="btn sm p" data-go="steps">Open as a checklist</button>${left?`<span class="wf-note">${left} more check${left>1?'s':''} to improve after these.</span>`:''}</p>`;
  }
+ function callout(){
+  const n=Math.min(10,order.length);if(!n)return `<p class="wf-ck-k">Next steps</p><h3>Nothing urgent</h3><p class="wf-cs">Every check passed or only needs a small tidy-up.</p>`;
+  const top=order.slice(0,n),r=top.filter(a=>RISK[a.id]).length,d=top.filter(a=>isDone(a.id)).length,save=top.reduce((x,a)=>x+a.save,0);
+  return `<p class="wf-ck-k">Next ${n} steps</p><h3>${r?`${r} risk${r>1?'s':''} to fix first, then ${n-r} improvement${n-r===1?'':'s'}`:`${n} improvements, ranked by impact`}</h3><p class="wf-cs">${save>524288?`Together they save about ${WF.size(save)}${rep.save-save>102400?` of the ${WF.size(rep.save)} possible`:''}. `:''}Each step says where to click in Webflow.</p>
+  <ol class="wf-cl3">${top.slice(0,3).map(a=>`<li class="${RISK[a.id]?'risk':''}${isDone(a.id)?' done':''}"><i aria-hidden="true"></i>${esc(prob(a))}</li>`).join('')}${n>3?`<li class="wf-cm">and ${n-3} more</li>`:''}</ol>
+  <div class="wf-cf"><div class="wf-prog"><span class="wf-track"><i id="wfCallT" style="width:${d/n*100}%"></i></span><b id="wfCallP">${d} of ${n} done</b></div><button type="button" class="btn sm" data-go="steps">Open checklist →</button></div>`;
+ }
  // The checklist: tick steps off (kept in this browser), copy or download them to take into Notion, Linear, Jira or Asana
  const where=a=>a.items.slice(0,3).map(x=>x.label).join(', ')+(a.items.length>3?` and ${a.items.length-3} more`:'');
  function checklist(){
@@ -568,7 +575,7 @@ function initWebflow(){
   $('wfIntro').hidden=true;R.hidden=false;
   const risks=rep.audits.filter(a=>RISK[a.id]&&(a.state==='fail'||a.state==='warn')).sort((a,b)=>impact(b)-impact(a));
   order=[...risks,...rep.audits.filter(a=>(a.state==='fail'||a.state==='warn')&&!risks.includes(a)).sort((a,b)=>impact(b)-impact(a))];
-  $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps();$('wfpan-steps').innerHTML=checklist();tabs();
+  $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps();$('wfCall').innerHTML=callout();$('wfpan-steps').innerHTML=checklist();tabs();
   $('wfSiteB').innerHTML=overview();
   $('wfBd').innerHTML=breakdown();$('wfTiles').innerHTML=tiles();$('wfPt').innerHTML=pagesTable();$('wfBw').innerHTML=bwCard();$('wfAuth').innerHTML='<h3>Site authority</h3><p class="wf-note">Looking up the rank…</p>';$('wfG').hidden=true;
   $('wfApp').classList.add('has-r');$('wfActs').hidden=false;$('wfCrumb').textContent=S.host;recent();
@@ -616,7 +623,7 @@ function initWebflow(){
  $('wfRecent').addEventListener('click',e=>{const b=e.target.closest('[data-host]');if(!b||run)return;inp.value=b.dataset.host;start()});
  recent();
  R.addEventListener('change',e=>{const c=e.target.closest('[data-done]');if(!c)return;const id=c.dataset.done;setDone(id,c.checked);c.closest('li').classList.toggle('done',c.checked);const o=$('wfs-'+id);if(o)o.classList.toggle('done',c.checked);
-  const n=Math.min(10,order.length),d=order.slice(0,n).filter(a=>isDone(a.id)).length;$('wfProg').textContent=`${d} of ${n} done`;$('wfProg').previousElementSibling.firstElementChild.style.width=(n?d/n*100:0)+'%';document.querySelector('#wfSide .wfd-cta small').textContent=progTxt()});
+  const n=Math.min(10,order.length),d=order.slice(0,n).filter(a=>isDone(a.id)).length;$('wfProg').textContent=`${d} of ${n} done`;if($('wfCallP')){$('wfCallP').textContent=`${d} of ${n} done`;$('wfCallT').style.width=(n?d/n*100:0)+'%'}$('wfProg').previousElementSibling.firstElementChild.style.width=(n?d/n*100:0)+'%';document.querySelector('#wfSide .wfd-cta small').textContent=progTxt()});
  R.addEventListener('click',e=>{const id=e.target.id;if(id==='wfCkCopy')copy(ckText(),'the checklist');else if(id==='wfCkMd')save(new Blob([ckText()],{type:'text/markdown'}),`webflow-fixes-${S.host}.md`);else if(id==='wfCkCsv')save(new Blob([ckCsv()],{type:'text/csv'}),`webflow-fixes-${S.host}.csv`)});
  const TK='wf-theme',app=$('wfApp'),th=$('wfTheme'),setTheme=d=>{app.classList.toggle('dark',d);th.setAttribute('aria-pressed',d);th.title=th.ariaLabel=d?'Light mode':'Dark mode'};
  setTheme((()=>{try{const v=localStorage.getItem(TK);return v?v==='dark':matchMedia('(prefers-color-scheme: dark)').matches}catch(e){return false}})());
