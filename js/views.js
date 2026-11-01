@@ -201,7 +201,6 @@ const V={
    <div class="wfo-tiles" id="wfTiles"></div>
    <section class="wf-risks" id="wfRisk" aria-label="Issues to fix first"></section>
    <section class="wf-next" id="wfNext" aria-label="Next steps"></section>
-   <div class="wfo-side"><div class="wf-card" id="wfG" hidden></div><div class="wf-card" id="wfAuth"></div><div class="wf-card" id="wfBw"></div></div>
    <div class="wfc wfo-pages" id="wfPt"></div>
   </div>
   <div class="wf-dh"><h2 class="h3" id="wfDhT">Full analysis</h2></div>
@@ -209,7 +208,7 @@ const V={
   ${['speed','seo','a11y'].map((id,i)=>`<div class="wf-pan" id="wfpan-${id}" role="tabpanel" aria-labelledby="wft-${id}"${i?' hidden':''}></div>`).join('')}
   <div class="wf-pan" id="wfpan-pages" role="tabpanel" aria-labelledby="wft-pages" hidden><div class="wf-bar"><select id="wfSec" aria-label="Part of the site"></select><select id="wfSort" aria-label="Sort pages"><option value="w">Heaviest first</option><option value="i">Most issues first</option><option value="a">A to Z</option></select><input id="wfPQ" type="search" placeholder="Find a page" aria-label="Find a page"></div><ol class="wf-l" id="wfPl"></ol><button class="btn sm" type="button" id="wfPMore" hidden>Show all</button></div>
   <div class="wf-pan" id="wfpan-files" role="tabpanel" aria-labelledby="wft-files" hidden><div class="wf-sum" id="wfSum"></div><div class="wf-bar"><fieldset class="seg"><legend>Show</legend>${seg('wfk',[['all','All'],['image','Images'],['video','Videos'],['lottie','Lottie'],['font','Fonts'],['code','Code']])}</fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div><ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button></div>
-  <div class="wf-pan" id="wfpan-site" role="tabpanel" aria-labelledby="wft-site" hidden></div>
+  <div class="wf-pan" id="wfpan-site" role="tabpanel" aria-labelledby="wft-site" hidden><div class="wfo-side"><div class="wf-card" id="wfG" hidden></div><div class="wf-card" id="wfAuth"></div><div class="wf-card" id="wfBw"></div></div><div class="wf-ov" id="wfSiteB"></div></div>
   <div class="wf-pan" id="wfpan-steps" role="tabpanel" aria-labelledby="wft-steps" hidden></div>
  </section>
  <section class="wf-r" id="wfC" hidden aria-label="Bandwidth from your CSV"><h2 class="h3">What's using your bandwidth</h2><p class="wf-note" id="wfCh"></p><ol class="wf-l wf-cl" id="wfCl"></ol></section>

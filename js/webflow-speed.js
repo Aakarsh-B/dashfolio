@@ -461,9 +461,11 @@ function initWebflow(){
   return `<div class="wfc-h"><h3>Score breakdown</h3><p class="wf-leg2"><i class="r"></i>0–49<i class="o"></i>50–89<i class="g"></i>90–100</p></div><div class="wf-bars">${rowsB.map(([id,nm,v,go])=>`<button type="button" class="wf-brow" data-go="${go}"${go==='speed'?` data-cat="${id}"`:''}><span>${nm}</span><span class="wf-btrack"><i class="${tone(v)}" style="width:${v}%"></i></span><b>${v}</b></button>`).join('')}<div class="wf-bax" aria-hidden="true"><span></span><span>0</span><span>50</span><span>90</span></div></div>`;
  }
  function tiles(){
-  const P=S.pages,avg=P.length?P.reduce((a,p)=>a+p.bytes,0)/P.length:0,heavy=P.slice().sort((a,b)=>b.bytes-a.bytes)[0],br=(rep.audits.find(a=>a.id==='broken')||{items:[]}).items.length,th=(rep.audits.find(a=>a.id==='third')||{items:[]}).items.length;
-  const T=[['Pages scanned',P.length,S.hasMap&&S.map.length>P.length?['o',`of ${S.map.length}`]:['g','All'],S.hasMap?'in the sitemap':'pages found'],['Average page weight',WF.size(avg),[MBt(avg,1.5*MB,3*MB)],'on a phone'],['Heaviest page',heavy?WF.size(heavy.bytes):'–',[heavy?MBt(heavy.bytes,2*MB,5*MB):'g'],heavy?heavy.path:''],['Could be saved',WF.size(rep.save),[MBt(rep.save,MB,5*MB)],'across all fixes'],['Broken links',br,[br?'r':'g'],br?'internal links':'none found'],['Outside services',th,[th>10?'r':th>6?'o':'g'],'scripts from other sites']];
-  return T.map(([l,v,[t,txt],c])=>`<div class="wf-tile"><p>${l}</p><div><b>${v}</b><span>${pill(t,txt||word[t])}<small>${esc(c)}</small></span></div></div>`).join('');
+  const P=S.pages,avg=P.length?P.reduce((a,p)=>a+p.bytes,0)/P.length:0,br=(rep.audits.find(a=>a.id==='broken')||{items:[]}).items.length,prev=(hist()[S.host]||[]).slice(-2,-1)[0],d=prev?rep.score-prev.s:0;
+  const sc2=(v,extra='')=>`<b>${v}<small>/100</small></b><span>${pill(tone(v),{g:'Good',o:'Needs work',r:'Poor'}[tone(v)])}${extra}</span>`;
+  const T=[['Speed score',sc2(rep.score,`<small>${d?`${d>0?'▲':'▼'}${Math.abs(d)} since ${fmtDate(prev.t)}`:`${P.length} pages`}</small>`),'k-score'],['SEO',sc2(rep.seo),'k-score'],['Accessibility',sc2(rep.a11y),'k-score'],
+   ['Average page weight',`<b>${WF.size(avg)}</b><span>${pill(MBt(avg,1.5*MB,3*MB),word[MBt(avg,1.5*MB,3*MB)])}<small>on a phone</small></span>`],['Could be saved',`<b>${WF.size(rep.save)}</b><span>${pill(MBt(rep.save,MB,5*MB),word[MBt(rep.save,MB,5*MB)])}<small>across all fixes</small></span>`],['Broken links',`<b>${br}</b><span>${pill(br?'r':'g',br?'Fix':'Good')}<small>internal</small></span>`]];
+  return T.map(([l,h,c])=>`<div class="wf-kpi${c?' '+c:''}"><p>${l}</p>${h}</div>`).join('');
  }
  function pagesTable(){
   const L=S.pages.slice().sort((a,b)=>b.bytes-a.bytes).slice(0,8);
@@ -567,7 +569,7 @@ function initWebflow(){
   const risks=rep.audits.filter(a=>RISK[a.id]&&(a.state==='fail'||a.state==='warn')).sort((a,b)=>impact(b)-impact(a));
   order=[...risks,...rep.audits.filter(a=>(a.state==='fail'||a.state==='warn')&&!risks.includes(a)).sort((a,b)=>impact(b)-impact(a))];
   $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps();$('wfpan-steps').innerHTML=checklist();tabs();
-  $('wfpan-site').innerHTML=overview();
+  $('wfSiteB').innerHTML=overview();
   $('wfBd').innerHTML=breakdown();$('wfTiles').innerHTML=tiles();$('wfPt').innerHTML=pagesTable();$('wfBw').innerHTML=bwCard();$('wfAuth').innerHTML='<h3>Site authority</h3><p class="wf-note">Looking up the rank…</p>';$('wfG').hidden=true;
   $('wfApp').classList.add('has-r');$('wfActs').hidden=false;$('wfCrumb').textContent=S.host;recent();
   const bad=ids=>rep.audits.filter(a=>ids.includes(a.cat)&&(a.state==='fail'||a.state==='warn')).length,cnt={steps:progTxt(),speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length};
@@ -579,7 +581,7 @@ function initWebflow(){
   psec='';pterm='';psort='w';pshown=40;$('wfPQ').value='';$('wfSort').value='w';drawPages();
   filter='all';term='';shown=40;$('wfQ').value='';document.querySelector('input[name="wfk"][value="all"]').checked=true;drawFiles();
   drawCsv();show('speed');view('overview');authority();google();
-  R.scrollIntoView({behavior:'smooth',block:'start'});
+  if(innerWidth<1100)R.scrollIntoView({behavior:'smooth',block:'start'});else window.scrollTo({top:0,behavior:'smooth'});
  }
  const prog=x=>{const P={map:['Reading the sitemap…',3],pages:[`Reading page ${x.done} of ${x.total}`,3+67*(x.done/x.total||0)],links:[`Checking links to ${x.total} other pages (${x.done})`,70+8*(x.done/x.total||0)],sizes:[`Measuring ${x.total} files (${x.done})`,78+22*(x.done/x.total||0)]}[x.phase];
   if(!P)return;st.innerHTML=esc(P[0])+(x.path?`<span>${esc(x.path)}</span>`:'');$('wfP').style.width=P[1]+'%'};
