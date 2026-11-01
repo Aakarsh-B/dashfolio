@@ -248,10 +248,10 @@ const V={
    <div class="lp-pv" id="lpPv"></div>
    <aside class="lp-side">
     <div class="wf-card"><h3>Checks</h3><ol class="lp-cl" id="lpC"></ol></div>
-    <div class="wf-card" id="lpE"><h3>Try a change</h3><p class="wf-note">Edits only change the previews here. Nothing is saved to your site.</p>
+    <div class="lp-col"><div class="wf-card" id="lpE"><h3>Try a change</h3><p class="wf-note">Edits only change the previews here. Nothing is saved to your site.</p>
      <label class="lp-f">Title<input id="lpEt" type="text"></label><label class="lp-f">Description<textarea id="lpEd" rows="3"></textarea></label><label class="lp-f">Image address<input id="lpEi" type="url" spellcheck="false"></label>
      <p class="wf-fine" id="lpEc"></p><p class="wf-act"><button type="button" class="btn sm" id="lpReset">Reset</button><button type="button" class="btn sm" id="lpCopy">Copy meta tags</button></p><pre class="lp-tags" id="lpTags"></pre></div>
-    <div class="wf-card"><h3>Still seeing the old preview?</h3><p class="wf-note">Apps keep a copy of each link's preview. After you publish a change, ask them to read the page again:</p><ul class="lp-links"><li><a href="https://www.linkedin.com/post-inspector/" target="_blank" rel="noopener">LinkedIn Post Inspector ↗</a></li><li><a href="https://developers.facebook.com/tools/debug/" target="_blank" rel="noopener">Facebook Sharing Debugger ↗</a></li></ul><p class="wf-fine">X, Slack and WhatsApp refresh on their own, usually within a day.</p></div>
+    <div class="wf-card"><h3>Still seeing the old preview?</h3><p class="wf-note">Apps keep a copy of each link's preview. After you publish a change, ask them to read the page again:</p><ul class="lp-links"><li><a href="https://www.linkedin.com/post-inspector/" target="_blank" rel="noopener">LinkedIn Post Inspector ↗</a></li><li><a href="https://developers.facebook.com/tools/debug/" target="_blank" rel="noopener">Facebook Sharing Debugger ↗</a></li></ul><p class="wf-fine">X, Slack and WhatsApp refresh on their own, usually within a day.</p></div></div>
    </aside>
   </div>
  </section>
