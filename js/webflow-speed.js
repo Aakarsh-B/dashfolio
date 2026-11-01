@@ -379,16 +379,21 @@ function wfCsv(text){
 }
 
 // Printing (Save as PDF) shows every check opened up; only the report is printed.
-addEventListener('beforeprint',()=>{const R=document.getElementById('wfR');if(!R||R.hidden)return;R.querySelectorAll('.wf-pan:not(#wfpan-pages):not(#wfpan-files) details').forEach(d=>{d.dataset.was=d.open?1:0;d.open=true})});
+addEventListener('beforeprint',()=>{const R=document.getElementById('wfR');if(!R||R.hidden)return;R.querySelectorAll('.wf-pan:not(#wfpan-pages):not(#wfpan-files) details,.wf-steps details').forEach(d=>{d.dataset.was=d.open?1:0;d.open=true})});
 addEventListener('afterprint',()=>{const R=document.getElementById('wfR');if(R)R.querySelectorAll('details[data-was="0"]').forEach(d=>{d.open=false})});
 
 function initWebflow(){
  if(!$('wfF'))return;
  const f=$('wfF'),inp=$('wfU'),st=$('wfS'),R=$('wfR'),csvOut=$('wfC');
  let S=null,rep=null,csv=null,run=null,filter='all',term='',shown=40,pshown=40,psec='',psort='w',pterm='';
- const MB=1048576,tone=s=>s>=90?'g':s>=50?'o':'r',ring=(s,c='')=>`<span class="wf-ring ${tone(s)} ${c}" style="--p:${s}"><b>${s}</b></span>`;
+ const MB=1048576,tone=s=>s>=90?'g':s>=50?'o':'r',sc=s=>`<span class="wf-sc ${tone(s)}" style="--p:${s}%"><b>${s}</b><i></i></span>`;
  const ICON={pass:'✓',warn:'!',fail:'✕',info:'i'},KIND={image:'🖼',video:'▶',lottie:'✦',font:'Aa',code:'</>',other:'•'};
- const TABS=[['overview','Overview'],['speed','Speed'],['seo','SEO'],['a11y','Accessibility'],['pages','Pages'],['files','Files']];
+ const TABS=[['speed','Speed'],['seo','SEO'],['a11y','Accessibility'],['pages','Pages'],['files','Files'],['site','Site data']];
+ // Failing checks, said as the problem rather than the passing state
+ const PROB={format:'Images aren\'t WebP or AVIF',oversized:'Some images are far too large',gif:'Animated GIFs slow pages down',srcset:'Phones download full-size images',bg:'Heavy CSS background images',video:'Background videos are heavy',twice:'The same video or animation loads twice',lottie:'Heavy Lottie animations',bgvideos:'Too many background videos on one page',embeds:'Video players load before anyone presses play',ix:'The hero stays hidden until an interaction runs',lazy:'The first image on the page is lazy loaded',weight:'Pages over 3 MB',dom:'Pages with too many elements',woff2:'Fonts aren\'t WOFF2',fontcount:'Too many uploaded font files',webfont:'Google Fonts load through an extra script',blocking:'Custom code holds up the page',third:'A lot of outside services',minify:'CSS isn\'t minified',title:'Pages without a title',titlelen:'Titles too long or too short',duptitle:'Pages share the same title',desc:'Pages without a meta description',desclen:'Descriptions too long or too short',dupdesc:'Pages share the same description',h1:'Pages without exactly one H1',canon:'No canonical tags',canonhost:'Canonicals point to another domain',noindexmap:'The sitemap lists pages marked noindex',broken:'Broken internal links',redirects:'Links that go through a redirect',sitemap:'No sitemap',notinmap:'Pages missing from the sitemap',orphans:'Pages nothing links to',robots:'robots.txt blocks search engines',robotsmap:'robots.txt doesn\'t point to the sitemap',staging:'Your staging site can show up on Google',schema:'No structured data',og:'No share image',viewport:'Pages aren\'t set up for phones',mixed:'Some files load over http',lang:'Page language isn\'t set',alt:'Images without alt text',links:'Links with no name',buttons:'Buttons with no name',labels:'Form fields without labels',headings:'Headings skip levels',frames:'Embeds without titles',zoom:'Zoom is turned off'};
+ // Problems that cost visibility or trust no matter how fast the site is
+ const RISK={staging:'Google can index a full copy of your site',robots:'Search engines are told to stay out',noindexmap:'Google gets mixed signals about what to index',canonhost:'Pages tell Google they live on another domain',broken:'Visitors and Google hit dead ends',sitemap:'New pages and posts get found slowly',mixed:'Browsers can block files or warn "not secure"',viewport:'Pages show the desktop layout on phones'};
+ const prob=a=>PROB[a.id]||a.title,catName=a=>({seo:'SEO',a11y:'Accessibility'})[a.cat]||'Speed';
  const catTab=c=>c==='seo'||c==='a11y'?c:'speed',secOf=p=>{const s=p.path.split('/').filter(Boolean);return s.length>1?'/'+s[0]:'Main pages'};
  const fmtDate=d=>new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
  const item=x=>`<li><span class="wf-ai"><b>${esc(x.label)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</span>${x.bytes?`<span class="wf-sz">${WF.size(x.bytes)}</span>`:'<span></span>'}${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(x.label)}">↗</a>`:'<span></span>'}</li>`;
@@ -396,19 +401,30 @@ function initWebflow(){
  const audit=a=>`<li class="wf-a ${a.state}" id="wfc-${a.id}"><details><summary><i aria-hidden="true">${ICON[a.state]}</i><span>${esc(a.title)}</span><em>${meter(a)}</em></summary><div class="wf-ad"><p>${esc(a.why)}</p><p><b>${a.info?'Good to know':'How to fix it in Webflow'}:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,15).map(item).join('')}${a.items.length>15?`<li class="wf-more">and ${a.items.length-15} more, all in the CSV download</li>`:''}</ul>`:''}</div></details></li>`;
  const catPanel=ids=>ids.map(id=>{const c=rep.cats.find(x=>x.id===id),list=rep.audits.filter(a=>a.cat===id);
   const bad=list.filter(a=>a.state==='fail'||a.state==='warn').sort((a,b)=>(a.state==='fail'?0:1)-(b.state==='fail'?0:1)||a.score-b.score),info=list.filter(a=>a.state==='info'),ok=list.filter(a=>a.state==='pass');
-  return `<section class="wf-cat" id="wfa-${id}"><h3>${ring(c.score)}${c.name}</h3><ol class="wf-al">${bad.map(audit).join('')}${info.map(audit).join('')}${ok.length?`<li class="wf-ok"><details><summary>${ok.length} passed check${ok.length>1?'s':''}</summary><ol class="wf-al">${ok.map(audit).join('')}</ol></details></li>`:''}</ol></section>`}).join('');
+  return `<section class="wf-cat" id="wfa-${id}"><h3>${c.name}${sc(c.score)}</h3><ol class="wf-al">${bad.map(audit).join('')}${info.map(audit).join('')}${ok.length?`<li class="wf-ok"><details><summary>${ok.length} passed check${ok.length>1?'s':''}</summary><ol class="wf-al">${ok.map(audit).join('')}</ol></details></li>`:''}</ol></section>`}).join('');
  // Past scores for this site, kept in this browser only
  const HK='wfs-history',hist=()=>{try{return JSON.parse(localStorage.getItem(HK))||{}}catch(e){return {}}};
  const remember=()=>{const h=hist(),l=h[S.host]||[],prev=l[l.length-1];try{l.push({t:Date.now(),s:rep.score,seo:rep.seo,a11y:rep.a11y,n:S.pages.length});h[S.host]=l.slice(-10);localStorage.setItem(HK,JSON.stringify(h))}catch(e){}return prev};
- function scoreCard(prev){
-  const d=prev?rep.score-prev.s:0,past=prev?`<p class="wf-hist">Last scan, ${fmtDate(prev.t)}: ${prev.s}${prev.n!==S.pages.length?` (${prev.n} pages)`:''} → now <b class="${d>0?'up':d<0?'down':''}">${rep.score}${d?` (${d>0?'▲':'▼'}${Math.abs(d)})`:''}</b></p>`:'';
-  return `<div class="wf-top"><div class="wf-main">${ring(rep.score,'big')}<div><h2>Webflow speed score</h2><p>${esc(S.host)} · ${S.pages.length} page${S.pages.length===1?'':'s'} checked${rep.save>524288?` · about <b>${WF.size(rep.save)}</b> could be saved`:''}</p>${past}<p class="wf-leg"><i class="r"></i>0–49 <i class="o"></i>50–89 <i class="g"></i>90–100</p></div></div>
-  <div class="wf-side">${[['seo','SEO'],['a11y','Accessibility']].map(([id,nm])=>`<button type="button" data-go="${id}">${ring(rep.cats.find(c=>c.id===id).score,'mid')}<span>${nm}</span></button>`).join('')}</div></div>
-  <div class="wf-cats">${rep.cats.filter(c=>c.group==='speed').map(c=>`<button type="button" data-go="speed" data-cat="${c.id}">${ring(c.score)}<span>${c.name}</span></button>`).join('')}</div>`;
+ const verdict=v=>v>=90?'Fast':v>=50?'Needs work':'Slow';
+ function scoreCard(prev,risks){
+  const d=prev?rep.score-prev.s:0,past=prev?`<p class="wf-hist">Last scan, ${fmtDate(prev.t)}: ${prev.s} → <b class="${d>0?'up':d<0?'down':''}">${rep.score}${d?` (${d>0?'▲':'▼'}${Math.abs(d)})`:''}</b></p>`:'';
+  return `<div class="wf-hero"><div class="wf-big-s"><p class="wf-lbl">Webflow speed score</p><p class="wf-num-b">${rep.score}<small>/100</small><span class="wf-vd ${tone(rep.score)}">${verdict(rep.score)}</span></p><div class="wf-track" aria-hidden="true"><i class="${tone(rep.score)}" style="width:${rep.score}%"></i></div><p class="wf-meta">${esc(S.host)} · ${S.pages.length} page${S.pages.length===1?'':'s'}${rep.save>524288?` · about <b>${WF.size(rep.save)}</b> could be saved`:''}</p>${past}</div>
+  <div class="wf-subs">${[['seo','SEO',rep.seo],['a11y','Accessibility',rep.a11y]].map(([id,nm,v])=>`<button type="button" data-go="${id}"><span>${nm}</span>${sc(v)}</button>`).join('')}</div></div>
+  ${risks.length?`<p class="wf-risk"><b>${risks.length} risk${risks.length>1?'s':''} to fix first</b>${risks.map(a=>`<button type="button" data-step="${a.id}">${esc(prob(a))}</button>`).join('')}</p>`:`<p class="wf-risk ok"><b>No major risks found</b><span>Search engines can reach and read the site.</span></p>`}`;
+ }
+ // The next ten things to do: risks first, then by how much each fix helps
+ function steps(risks){
+  const rest=rep.audits.filter(a=>(a.state==='fail'||a.state==='warn')&&!risks.includes(a)).sort((a,b)=>impact(b)-impact(a));
+  const list=[...risks,...rest].slice(0,10),left=risks.length+rest.length-list.length;
+  const metric=a=>a.save>51200?'Saves ~'+WF.size(a.save):a.items.length>1||(a.items.length&&a.items[0].page)?a.items.length+(a.items[0]&&a.items[0].page?' page'+(a.items.length>1?'s':''):' found'):'';
+  if(!list.length)return `<div class="wf-nh"><h2>Nothing urgent</h2><p>Every check passed or only needs a small tidy-up. The full analysis below has the details.</p></div>`;
+  return `<div class="wf-nh"><h2>Your next ${list.length} step${list.length>1?'s':''}</h2><p>Ranked by how much each one helps. Open a step to see where it happens.</p></div>
+  <ol class="wf-steps">${list.map((a,i)=>`<li class="wf-stp${RISK[a.id]?' risk':''}" id="wfs-${a.id}"><details><summary><span class="wf-n1">${i+1}</span><span class="wf-sx"><b>${esc(prob(a))}</b><small>${esc(RISK[a.id]?RISK[a.id]+'. '+a.fix:a.fix)}</small></span><span class="wf-sm"><em>${metric(a)}</em><span class="wf-tag">${RISK[a.id]?'Risk':catName(a)}</span></span></summary><div class="wf-sd"><p>${esc(a.why)}</p><p><b>How to fix it in Webflow:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,5).map(item).join('')}</ul>`:''}<p class="wf-act"><button type="button" class="btn sm" data-go="${catTab(a.cat)}" data-check="${a.id}">${a.items.length>5?`See all ${a.items.length}`:'See it'} in the ${catName(a)} report →</button></p></div></details></li>`).join('')}</ol>
+  ${left?`<p class="wf-note wf-left">${left} more check${left>1?'s':''} to improve after these, in the full analysis below.</p>`:''}`;
  }
  function tabs(){
   const bad=ids=>rep.audits.filter(a=>ids.includes(a.cat)&&(a.state==='fail'||a.state==='warn')).length;
-  const cnt={speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length};
+  const cnt={speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length,site:0};
   $('wfTabs').innerHTML=TABS.map(([id,nm])=>`<button type="button" role="tab" id="wft-${id}" aria-controls="wfpan-${id}" aria-selected="false" tabindex="-1">${nm}${cnt[id]?`<small>${cnt[id]}</small>`:''}</button>`).join('');
  }
  function show(id,target){
@@ -421,7 +437,7 @@ function initWebflow(){
  const impact=a=>(a.state==='fail'?2:1)+Math.min(3,a.save/MB)+(1-a.score)+(a.w>1?.5:0);
  function overview(){
   const P=S.pages,avg=P.length?P.reduce((a,p)=>a+p.bytes,0)/P.length:0,heavy=P.slice().sort((a,b)=>b.bytes-a.bytes)[0];
-  const n=id=>(rep.audits.find(a=>a.id===id)||{items:[]}).items.length,firsts=rep.audits.filter(a=>a.state==='fail'||a.state==='warn').sort((a,b)=>impact(b)-impact(a)).slice(0,5);
+  const n=id=>(rep.audits.find(a=>a.id===id)||{items:[]}).items.length;
   const stats=[[P.length+(S.hasMap&&S.map.length>P.length?`<small> of ${S.map.length}</small>`:''),'pages scanned'],[WF.size(avg),'average page weight, on a phone'],[heavy?WF.size(heavy.bytes):'–','heaviest page'],[n('broken'),'broken links'],[n('third'),'outside services'],[rep.audits.filter(a=>a.state==='fail').length,'failed checks']];
   const gb=b=>(b*1e4/1073741824).toFixed(1)+' GB';
   const groups=new Map();for(const p of P){const k=secOf(p);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(p)}
@@ -433,7 +449,6 @@ function initWebflow(){
    const common=[...cnt].filter(([,c])=>a.length>=3&&c>=a.length*.5).sort((x,y)=>y[0].bytes-x[0].bytes)[0];
    return `<tr><td><b>${esc(k)}</b></td><td>${a.length}</td><td>${WF.size(av)}</td><td><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.path)}</a> <small>${WF.size(h.bytes)}</small></td><td>${common?`${esc(common[0].name)} <small>${WF.size(common[0].dl)}, on ${common[1]} of ${a.length}</small>`:'–'}</td></tr>`};
   return `<div class="wf-ov">
-  <div class="wf-card wide"><h3>Fix these first</h3>${firsts.length?`<ol class="wf-ff">${firsts.map(a=>`<li><i class="${a.state}" aria-hidden="true">${ICON[a.state]}</i><span><b>${esc(a.title)}</b><small>${esc(a.why)}</small></span><button type="button" class="btn sm" data-go="${catTab(a.cat)}" data-check="${a.id}">${a.save>51200?'Save ~'+WF.size(a.save):a.items.length+' found'} →</button></li>`).join('')}</ol>`:'<p class="wf-note">Nothing urgent. Nice work.</p>'}</div>
   <div class="wf-card wide"><div class="wf-sum six">${stats.map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join('')}</div><p class="wf-note">${S.more?`Read the first ${P.length} pages. Pick more pages above and scan again to cover the rest.`:`Read every page we could find${S.hasMap?' in the sitemap':''}.`}${(()=>{const o=[...S.tried.values()].filter(t=>t.other).length;return o?` ${o} linked page${o>1?'s belong':' belongs'} to another Webflow project on this domain and ${o>1?'were':'was'} left out.`:''})()}</p></div>
   <div class="wf-card wide" id="wfG" hidden></div>
   <div class="wf-card" id="wfAuth"><h3>Site authority</h3><p class="wf-note">Looking up the rank…</p></div>
@@ -458,7 +473,7 @@ function initWebflow(){
   const tiles=CWV.map(([k,ab,label,g,p])=>{const x=get(k);if(!x||!x.percentiles)return '';const v=+x.percentiles.p75,c=v<=g?'g':v<=p?'o':'r';return `<div class="wf-cv ${c}"><span>${ab}</span><b>${k==='cumulative_layout_shift'?v.toFixed(2):v>=1000?(v/1000).toFixed(1)+' s':Math.round(v)+' ms'}</b><small>${label}</small></div>`}).join('');
   const pass=CWV.slice(0,3).every(([k,,,g])=>{const x=get(k);return !x||!x.percentiles||+x.percentiles.p75<=g});
   return `<p class="wf-k">Real visitors on phones · last 28 days · Chrome UX Report</p><p class="wf-cwvp ${pass?'g':'r'}">Core Web Vitals: <b>${pass?'Passed':'Not passed'}</b></p><div class="wf-cwv">${tiles}</div>`};
- const psiHtml=d=>`<p class="wf-k">Google Lighthouse · homepage on a simulated phone · one run</p><div class="wf-psi">${ring(d.score,'mid')}<ul class="wf-kv">${[['lcp','Largest content'],['tbt','Blocking time'],['cls','Layout shift'],['fcp','First content']].map(([k,l])=>d[k]&&d[k].text?`<li><span>${l}</span><b>${esc(d[k].text)}</b></li>`:'').join('')}</ul></div><p class="wf-fine">Lighthouse simulates a slow phone, so this number can move by 10 or more between runs. The checks in this report don't move.</p>`;
+ const psiHtml=d=>`<p class="wf-k">Google Lighthouse · homepage on a simulated phone · one run</p><div class="wf-psi"><span class="wf-psn">${sc(d.score)}<small>Lighthouse</small></span><ul class="wf-kv">${[['lcp','Largest content'],['tbt','Blocking time'],['cls','Layout shift'],['fcp','First content']].map(([k,l])=>d[k]&&d[k].text?`<li><span>${l}</span><b>${esc(d[k].text)}</b></li>`:'').join('')}</ul></div><p class="wf-fine">Lighthouse simulates a slow phone, so this number can move by 10 or more between runs. The checks in this report don't move.</p>`;
  function google(){
   const parts={},draw=()=>{const box=$('wfG');if(!box)return;const h=[parts.crux,parts.psi].filter(Boolean);if(!h.length)return;box.hidden=false;box.innerHTML=`<h3>Google's view</h3>${h.join('<hr>')}`};
   S.google.crux.then(c=>{if(c.status===200&&c.data&&c.data.record)parts.crux=cruxHtml(c.data.record);else if(c.status===404)parts.crux='<p class="wf-note">Real-visitor data: not enough Chrome visitors on this site for Google to report it yet.</p>';draw()});
@@ -512,15 +527,16 @@ function initWebflow(){
  }
  function render(){
   $('wfIntro').hidden=true;R.hidden=false;
-  $('wfScore').innerHTML=scoreCard(remember());tabs();
-  $('wfpan-overview').innerHTML=overview();
-  $('wfpan-speed').innerHTML=catPanel(['images','media','loading','code']);
+  const risks=rep.audits.filter(a=>RISK[a.id]&&(a.state==='fail'||a.state==='warn')).sort((a,b)=>impact(b)-impact(a));
+  $('wfScore').innerHTML=scoreCard(remember(),risks);$('wfNext').innerHTML=steps(risks);tabs();
+  $('wfpan-site').innerHTML=overview();
+  $('wfpan-speed').innerHTML=`<div class="wf-cats">${rep.cats.filter(c=>c.group==='speed').map(c=>`<a href="#wfa-${c.id}" data-go="speed" data-cat="${c.id}"><span>${c.name}</span>${sc(c.score)}</a>`).join('')}</div>`+catPanel(['images','media','loading','code']);
   $('wfpan-seo').innerHTML=catPanel(['seo']);$('wfpan-a11y').innerHTML=catPanel(['a11y']);
   const secs=new Map();for(const p of S.pages)secs.set(secOf(p),(secs.get(secOf(p))||0)+1);
   $('wfSec').innerHTML=`<option value="">All pages (${S.pages.length})</option>`+[...secs].sort((a,b)=>b[1]-a[1]).map(([k,c])=>`<option value="${esc(k)}">${esc(k)} (${c})</option>`).join('');
   psec='';pterm='';psort='w';pshown=40;$('wfPQ').value='';$('wfSort').value='w';drawPages();
   filter='all';term='';shown=40;$('wfQ').value='';document.querySelector('input[name="wfk"][value="all"]').checked=true;drawFiles();
-  drawCsv();show('overview');authority();google();
+  drawCsv();show('speed');authority();google();
   R.scrollIntoView({behavior:'smooth',block:'start'});
  }
  const prog=x=>{const P={map:['Reading the sitemap…',3],pages:[`Reading page ${x.done} of ${x.total}`,3+67*(x.done/x.total||0)],links:[`Checking links to ${x.total} other pages (${x.done})`,70+8*(x.done/x.total||0)],sizes:[`Measuring ${x.total} files (${x.done})`,78+22*(x.done/x.total||0)]}[x.phase];
@@ -554,7 +570,8 @@ function initWebflow(){
  // Wiring
  f.onsubmit=e=>{e.preventDefault();start()};
  f.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{if(run)return;inp.value=b.dataset.try;start()});
- R.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){show(g.dataset.go,g.dataset.check?'wfc-'+g.dataset.check:g.dataset.cat?'wfa-'+g.dataset.cat:null);return}
+ R.addEventListener('click',e=>{const st=e.target.closest('[data-step]');if(st){const li=$('wfs-'+st.dataset.step);li.querySelector('details').open=true;li.scrollIntoView({behavior:'smooth',block:'center'});return}
+  const g=e.target.closest('[data-go]');if(g){e.preventDefault();show(g.dataset.go,g.dataset.check?'wfc-'+g.dataset.check:g.dataset.cat?'wfa-'+g.dataset.cat:null);return}
   const c=e.target.closest('[data-copy]');if(c)copy(c.dataset.copy,'the file name')});
  R.addEventListener('toggle',fill,true);csvOut.addEventListener('toggle',fill,true);
  R.addEventListener('submit',e=>{if(e.target.id==='wfCF'){e.preventDefault();compare()}});
