@@ -397,8 +397,8 @@ function initWebflow(){
  const catTab=c=>c==='seo'||c==='a11y'?c:'speed',secOf=p=>{const s=p.path.split('/').filter(Boolean);return s.length>1?'/'+s[0]:'Main pages'};
  const fmtDate=d=>new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
  const item=x=>`<li><span class="wf-ai"><b>${esc(x.label)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}</span>${x.bytes?`<span class="wf-sz">${WF.size(x.bytes)}</span>`:'<span></span>'}${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(x.label)}">↗</a>`:'<span></span>'}</li>`;
- const meter=a=>a.info?(a.items.length?a.items.length+' found':''):a.state==='pass'?'Passed':a.save>51200?'Save ~'+WF.size(a.save):a.items.length+' found';
- const audit=a=>`<li class="wf-a ${a.state}" id="wfc-${a.id}"><details><summary><i aria-hidden="true">${ICON[a.state]}</i><span>${esc(a.title)}</span><em>${meter(a)}</em></summary><div class="wf-ad"><p>${esc(a.why)}</p><p><b>${a.info?'Good to know':'How to fix it in Webflow'}:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,15).map(item).join('')}${a.items.length>15?`<li class="wf-more">and ${a.items.length-15} more, all in the CSV download</li>`:''}</ul>`:''}</div></details></li>`;
+ const meter=a=>a.info?(a.items.length?a.items.length+' found':''):a.state==='pass'?'Passed':a.save>51200?'Save ~'+WF.size(a.save):a.items.length===1&&!a.items[0].page&&!a.items[0].pages?'':a.items.length+' found';
+ const audit=a=>`<li class="wf-a ${a.state}" id="wfc-${a.id}"><details><summary><i aria-hidden="true">${ICON[a.state]}</i><span>${esc(a.state==='fail'||a.state==='warn'?prob(a):a.title)}</span><em>${meter(a)}</em></summary><div class="wf-ad"><p>${esc(a.why)}</p><p><b>${a.info?'Good to know':'How to fix it in Webflow'}:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,15).map(item).join('')}${a.items.length>15?`<li class="wf-more">and ${a.items.length-15} more, all in the CSV download</li>`:''}</ul>`:''}</div></details></li>`;
  const catPanel=ids=>ids.map(id=>{const c=rep.cats.find(x=>x.id===id),list=rep.audits.filter(a=>a.cat===id);
   const bad=list.filter(a=>a.state==='fail'||a.state==='warn').sort((a,b)=>(a.state==='fail'?0:1)-(b.state==='fail'?0:1)||a.score-b.score),info=list.filter(a=>a.state==='info'),ok=list.filter(a=>a.state==='pass');
   return `<section class="wf-cat" id="wfa-${id}"><h3>${c.name}${sc(c.score)}</h3><ol class="wf-al">${bad.map(audit).join('')}${info.map(audit).join('')}${ok.length?`<li class="wf-ok"><details><summary>${ok.length} passed check${ok.length>1?'s':''}</summary><ol class="wf-al">${ok.map(audit).join('')}</ol></details></li>`:''}</ol></section>`}).join('');
@@ -428,7 +428,9 @@ function initWebflow(){
   const cnt={speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length,site:0};
   $('wfTabs').innerHTML=TABS.map(([id,nm])=>`<button type="button" role="tab" id="wft-${id}" aria-controls="wfpan-${id}" aria-selected="false" tabindex="-1">${nm}${cnt[id]?`<small>${cnt[id]}</small>`:''}</button>`).join('');
  }
+ function view(id){R.dataset.view=id;document.querySelectorAll('#wfSide button').forEach(b=>b.toggleAttribute('aria-current',b.dataset.view===id));const t=TABS.find(x=>x[0]===id);if(t)$('wfDhT').textContent=t[1]}
  function show(id,target){
+  view(id);
   for(const [t] of TABS){$('wfpan-'+t).hidden=t!==id;const b=$('wft-'+t);if(b){b.setAttribute('aria-selected',t===id);b.tabIndex=t===id?0:-1}}
   const el=target&&$(target);
   if(el){const d=el.matches('li')?el.querySelector('details'):null;if(d)d.open=true;el.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -436,6 +438,27 @@ function initWebflow(){
  }
  // Overview: what to fix first, the numbers, Google's data, authority, bandwidth, parts of the site, and a competitor
  const impact=a=>(a.state==='fail'?2:1)+Math.min(3,a.save/MB)+(1-a.score)+(a.w>1?.5:0);
+ const pill=(t,txt)=>`<span class="wf-pl ${t}">${txt}</span>`,MBt=(b,g,m)=>b<=g?'g':b<=m?'o':'r',word={g:'Good',o:'Meh',r:'Poor'};
+ function bwCard(){const P=S.pages,avg=P.length?P.reduce((a,p)=>a+p.bytes,0)/P.length:0,heavy=P.slice().sort((a,b)=>b.bytes-a.bytes)[0],gb=b=>(b*1e4/1073741824).toFixed(1)+' GB';
+  return `<h3>Bandwidth</h3><p class="wf-note">Every Webflow plan includes a set amount of bandwidth. First visits download every file; repeat visits use less, because browsers keep files.</p><ul class="wf-kv"><li><span>Every 10,000 visits to an average page</span><b>${gb(avg)}</b></li>${heavy?`<li><span>Every 10,000 visits to ${esc(heavy.path)}</span><b>${gb(heavy.bytes)}</b></li>`:''}</ul><label class="wf-calc">Visits a month <input id="wfVis" type="number" min="0" step="1000" inputmode="numeric" placeholder="20000"></label><p class="wf-note" id="wfVisO"></p>`}
+ function breakdown(){
+  const rowsB=[...rep.cats.filter(c=>c.group==='speed').map(c=>[c.id,c.name,c.score,'speed']),['seo','SEO',rep.seo,'seo'],['a11y','Accessibility',rep.a11y,'a11y']];
+  return `<div class="wfc-h"><h3>Score breakdown</h3><p class="wf-leg2"><i class="r"></i>0–49<i class="o"></i>50–89<i class="g"></i>90–100</p></div><div class="wf-bars">${rowsB.map(([id,nm,v,go])=>`<button type="button" class="wf-brow" data-go="${go}"${go==='speed'?` data-cat="${id}"`:''}><span>${nm}</span><span class="wf-btrack"><i class="${tone(v)}" style="width:${v}%"></i></span><b>${v}</b></button>`).join('')}<div class="wf-bax" aria-hidden="true"><span></span><span>0</span><span>50</span><span>90</span></div></div>`;
+ }
+ function tiles(){
+  const P=S.pages,avg=P.length?P.reduce((a,p)=>a+p.bytes,0)/P.length:0,heavy=P.slice().sort((a,b)=>b.bytes-a.bytes)[0],br=(rep.audits.find(a=>a.id==='broken')||{items:[]}).items.length,th=(rep.audits.find(a=>a.id==='third')||{items:[]}).items.length;
+  const T=[['Pages scanned',P.length,S.hasMap&&S.map.length>P.length?['o',`of ${S.map.length}`]:['g','All'],S.hasMap?'in the sitemap':'pages found'],['Average page weight',WF.size(avg),[MBt(avg,1.5*MB,3*MB)],'on a phone'],['Heaviest page',heavy?WF.size(heavy.bytes):'–',[heavy?MBt(heavy.bytes,2*MB,5*MB):'g'],heavy?heavy.path:''],['Could be saved',WF.size(rep.save),[MBt(rep.save,MB,5*MB)],'across all fixes'],['Broken links',br,[br?'r':'g'],br?'internal links':'none found'],['Outside services',th,[th>10?'r':th>6?'o':'g'],'scripts from other sites']];
+  return T.map(([l,v,[t,txt],c])=>`<div class="wf-tile"><p>${l}</p><div><b>${v}</b><span>${pill(t,txt||word[t])}<small>${esc(c)}</small></span></div></div>`).join('');
+ }
+ function pagesTable(){
+  const L=S.pages.slice().sort((a,b)=>b.bytes-a.bytes).slice(0,8);
+  const st=p=>{const f=flags(p);return f.some(x=>x.state==='fail')?'r':f.length?'o':'g'};
+  return `<div class="wfc-h"><h3>Heaviest pages</h3><button type="button" class="btn sm" data-go="pages">See all ${S.pages.length} pages →</button></div><div class="wf-tw"><table class="wf-tbl wf-pt"><thead><tr><th>Page</th><th>Title</th><th>Weight</th><th>Files</th><th>Words</th><th>Issues</th><th>Status</th></tr></thead><tbody>${L.map(p=>{const f=flags(p),t=st(p);return `<tr><td><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.path)}</a></td><td class="wf-tt">${esc(p.title||'No title')}</td><td>${WF.size(p.bytes)}</td><td>${p.files.filter(r=>r.kind!=='code').length}</td><td>${p.sig.words.toLocaleString()}</td><td>${f.length}</td><td>${pill(t,word[t])}</td></tr>`}).join('')}</tbody></table></div>`;
+ }
+ function recent(){
+  const h=hist(),L=Object.entries(h).map(([k,l])=>[k,l[l.length-1]]).filter(x=>x[1]).sort((a,b)=>b[1].t-a[1].t).slice(0,6),box=$('wfRecent');if(!box||!L.length)return;
+  box.innerHTML=L.map(([k,x])=>`<li><button type="button" data-host="${esc(k)}"><span>${esc(k.replace(/^www\./,''))}</span><b class="${tone(x.s)}">${x.s}</b></button></li>`).join('');
+ }
  function overview(){
   const P=S.pages,avg=P.length?P.reduce((a,p)=>a+p.bytes,0)/P.length:0,heavy=P.slice().sort((a,b)=>b.bytes-a.bytes)[0];
   const n=id=>(rep.audits.find(a=>a.id===id)||{items:[]}).items.length;
@@ -451,9 +474,6 @@ function initWebflow(){
    return `<tr><td><b>${esc(k)}</b></td><td>${a.length}</td><td>${WF.size(av)}</td><td><a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.path)}</a> <small>${WF.size(h.bytes)}</small></td><td>${common?`${esc(common[0].name)} <small>${WF.size(common[0].dl)}, on ${common[1]} of ${a.length}</small>`:'–'}</td></tr>`};
   return `<div class="wf-ov">
   <div class="wf-card wide"><div class="wf-sum six">${stats.map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join('')}</div><p class="wf-note">${S.more?`Read the first ${P.length} pages. Pick more pages above and scan again to cover the rest.`:`Read every page we could find${S.hasMap?' in the sitemap':''}.`}${(()=>{const o=[...S.tried.values()].filter(t=>t.other).length;return o?` ${o} linked page${o>1?'s belong':' belongs'} to another Webflow project on this domain and ${o>1?'were':'was'} left out.`:''})()}</p></div>
-  <div class="wf-card wide" id="wfG" hidden></div>
-  <div class="wf-card" id="wfAuth"><h3>Site authority</h3><p class="wf-note">Looking up the rank…</p></div>
-  <div class="wf-card"><h3>Bandwidth</h3><p class="wf-note">Every Webflow plan includes a set amount of bandwidth. First visits download every file; repeat visits use less, because browsers keep files.</p><ul class="wf-kv"><li><span>Every 10,000 visits to an average page</span><b>${gb(avg)}</b></li>${heavy?`<li><span>Every 10,000 visits to ${esc(heavy.path)}</span><b>${gb(heavy.bytes)}</b></li>`:''}</ul><label class="wf-calc">Visits a month <input id="wfVis" type="number" min="0" step="1000" inputmode="numeric" placeholder="20000"></label><p class="wf-note" id="wfVisO"></p></div>
   ${parts.length>1?`<div class="wf-card wide"><h3>By part of the site</h3><div class="wf-tw"><table class="wf-tbl"><thead><tr><th>Part</th><th>Pages</th><th>Average weight</th><th>Heaviest page</th><th>Heavy file on most of them</th></tr></thead><tbody>${parts.map(partRow).join('')}</tbody></table></div>${everywhere.length?`<p class="wf-note"><b>On almost every page:</b> ${everywhere.slice(0,4).map(r=>`${esc(r.name)} (${WF.size(r.dl)})`).join(', ')}. Files in the nav, footer or a popup cost bandwidth on every visit, so they're worth slimming first.</p>`:''}</div>`:''}
   <div class="wf-card wide"><h3>Compare with a competitor</h3><p class="wf-note">Reads their first 30 pages the same way and puts the numbers side by side.</p><form class="wf-in" id="wfCF" novalidate><input id="wfCU" type="url" inputmode="url" placeholder="competitor.com" aria-label="Competitor's site" spellcheck="false"><button class="btn sm" type="submit">Compare</button></form><p class="wf-st" id="wfCS" role="status" aria-live="polite"></p><div id="wfCT"></div></div>
   </div>`;
@@ -531,13 +551,17 @@ function initWebflow(){
   const risks=rep.audits.filter(a=>RISK[a.id]&&(a.state==='fail'||a.state==='warn')).sort((a,b)=>impact(b)-impact(a));
   $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps(risks);tabs();
   $('wfpan-site').innerHTML=overview();
+  $('wfBd').innerHTML=breakdown();$('wfTiles').innerHTML=tiles();$('wfPt').innerHTML=pagesTable();$('wfBw').innerHTML=bwCard();$('wfAuth').innerHTML='<h3>Site authority</h3><p class="wf-note">Looking up the rank…</p>';$('wfG').hidden=true;
+  $('wfApp').classList.add('has-r');$('wfActs').hidden=false;$('wfCrumb').textContent=S.host;recent();
+  const bad=ids=>rep.audits.filter(a=>ids.includes(a.cat)&&(a.state==='fail'||a.state==='warn')).length,cnt={speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length};
+  document.querySelectorAll('#wfSide button').forEach(b=>{b.disabled=false;b.querySelector('small').textContent=cnt[b.dataset.view]||''});
   $('wfpan-speed').innerHTML=`<div class="wf-cats">${rep.cats.filter(c=>c.group==='speed').map(c=>`<a href="#wfa-${c.id}" data-go="speed" data-cat="${c.id}"><span>${c.name}</span>${sc(c.score)}</a>`).join('')}</div>`+catPanel(['images','media','loading','code']);
   $('wfpan-seo').innerHTML=catPanel(['seo']);$('wfpan-a11y').innerHTML=catPanel(['a11y']);
   const secs=new Map();for(const p of S.pages)secs.set(secOf(p),(secs.get(secOf(p))||0)+1);
   $('wfSec').innerHTML=`<option value="">All pages (${S.pages.length})</option>`+[...secs].sort((a,b)=>b[1]-a[1]).map(([k,c])=>`<option value="${esc(k)}">${esc(k)} (${c})</option>`).join('');
   psec='';pterm='';psort='w';pshown=40;$('wfPQ').value='';$('wfSort').value='w';drawPages();
   filter='all';term='';shown=40;$('wfQ').value='';document.querySelector('input[name="wfk"][value="all"]').checked=true;drawFiles();
-  drawCsv();show('speed');authority();google();
+  drawCsv();show('speed');view('overview');authority();google();
   R.scrollIntoView({behavior:'smooth',block:'start'});
  }
  const prog=x=>{const P={map:['Reading the sitemap…',3],pages:[`Reading page ${x.done} of ${x.total}`,3+67*(x.done/x.total||0)],links:[`Checking links to ${x.total} other pages (${x.done})`,70+8*(x.done/x.total||0)],sizes:[`Measuring ${x.total} files (${x.done})`,78+22*(x.done/x.total||0)]}[x.phase];
@@ -569,6 +593,9 @@ function initWebflow(){
   btn.disabled=false;
  }
  // Wiring
+ $('wfSide').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b||b.disabled)return;const v=b.dataset.view;if(v==='overview'){view('overview')}else show(v);$('wfApp').scrollIntoView({block:'start'});window.scrollTo({top:0})});
+ $('wfRecent').addEventListener('click',e=>{const b=e.target.closest('[data-host]');if(!b||run)return;inp.value=b.dataset.host;start()});
+ recent();
  f.onsubmit=e=>{e.preventDefault();start()};
  f.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{if(run)return;inp.value=b.dataset.try;start()});
  R.addEventListener('click',e=>{const st=e.target.closest('[data-step]');if(st){const li=$('wfs-'+st.dataset.step);li.querySelector('details').open=true;li.scrollIntoView({behavior:'smooth',block:'center'});return}

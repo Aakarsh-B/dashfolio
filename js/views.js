@@ -173,7 +173,18 @@ const V={
  <div><h3>Every page is made up</h3><p>The papers, headlines and websites are invented on the spot, so there's nothing to license. The video is recorded in your browser; nothing is uploaded.</p></div>
 </div></section>`},
 '/tools/webflow-speed':()=>{const seg=(n,a,c=0)=>a.map(([v,l],i)=>`<label><input type="radio" name="${n}" value="${v}"${i===c?' checked':''}><span>${l}</span></label>`).join('');
- return `${head('Webflow speed check','A free Lighthouse-style audit made for Webflow. Scan the whole site, not one page, and get a speed score, SEO and accessibility checks, and fixes in Webflow\'s own words, down to the section and class name.')}
+ const I=d=>SVG(d,17),NAV=[['overview','Overview','<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'],['speed','Speed','<path d="M12 14l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/>'],['seo','SEO','<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'],['a11y','Accessibility','<circle cx="12" cy="4.5" r="1.8"/><path d="M5 8.5l7 1.5 7-1.5M12 10v5l-3 6M12 15l3 6"/>'],['pages','Pages','<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>'],['files','Files','<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>'],['site','Site data','<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>']];
+ return `<div class="wfd" id="wfApp">
+<aside class="wfd-side" aria-label="Webflow speed check">
+ <a class="wfd-brand" href="./"><span class="dot" aria-hidden="true"></span><span>aakarsh.design</span></a>
+ <p class="wfd-ttl">Webflow speed check</p>
+ <nav class="wfd-nav" id="wfSide" aria-label="Report sections">${NAV.map(([id,nm,ic])=>`<button type="button" data-view="${id}" disabled>${I(ic)}<span>${nm}</span><small></small></button>`).join('')}</nav>
+ <div class="wfd-rec"><p class="wfd-k">Recent scans</p><ul id="wfRecent"><li class="wfd-none">Your scans show up here, saved in this browser only.</li></ul></div>
+ <div class="wfd-bot"><a href="tools">${I('<path d="m15 18-6-6 6-6"/>')}<span>All free tools</span></a><a href="work-with-me">${I('<path d="M7 17 17 7M8 7h9v9"/>')}<span>Work with me</span></a></div>
+</aside>
+<div class="wfd-main">
+ <div class="wfd-top"><p class="wfd-crumb"><a href="tools">Tools</a><i>›</i><span>Webflow speed check</span><b id="wfCrumb"></b></p><div class="wf-acts" id="wfActs" hidden><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div>
+ ${head('Webflow speed check','A free Lighthouse-style audit made for Webflow. Scan the whole site, not one page, and get a speed score, SEO and accessibility checks, and fixes in Webflow\'s own words, down to the section and class name.')}
 <div class="tk">
  <form class="wf-f" id="wfF" novalidate>
   <label for="wfU">Your Webflow site</label>
@@ -184,10 +195,16 @@ const V={
  </form>
  <div class="wf-intro" id="wfIntro">${[['The whole site, not one page','Up to 500 pages in one go, blog posts included. Lighthouse checks one address at a time.'],['Same site, same score','It reads what your site actually sends instead of simulating a slow phone, so the score doesn\'t jump between runs.'],['Fixes in Webflow\'s words','Each check names the panel or setting to change, and points to the page, section and class.'],['Speed, SEO and accessibility','Heavy files, broken links, duplicate titles, an indexable staging site, missing alt text and form labels.']].map(([t,p])=>`<div><b>${t}</b><p>${p}</p></div>`).join('')}</div>
  <section class="wf-r" id="wfR" hidden aria-label="Report">
-  <div class="wf-score" id="wfScore"></div>
-  <section class="wf-risks" id="wfRisk" aria-label="Issues to fix first"></section>
-  <section class="wf-next" id="wfNext" aria-label="Next steps"></section>
-  <div class="wf-dh"><h2 class="h3">Full analysis</h2><div class="wf-acts"><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div>
+  <div class="wfo" id="wfOv">
+   <div class="wf-score" id="wfScore"></div>
+   <div class="wfc wfo-bd" id="wfBd"></div>
+   <div class="wfo-tiles" id="wfTiles"></div>
+   <section class="wf-risks" id="wfRisk" aria-label="Issues to fix first"></section>
+   <section class="wf-next" id="wfNext" aria-label="Next steps"></section>
+   <div class="wfo-side"><div class="wf-card" id="wfG" hidden></div><div class="wf-card" id="wfAuth"></div><div class="wf-card" id="wfBw"></div></div>
+   <div class="wfc wfo-pages" id="wfPt"></div>
+  </div>
+  <div class="wf-dh"><h2 class="h3" id="wfDhT">Full analysis</h2></div>
   <div class="wf-nav" id="wfNav"><div class="wf-tabs" role="tablist" aria-label="Report sections" id="wfTabs"></div></div>
   ${['speed','seo','a11y'].map((id,i)=>`<div class="wf-pan" id="wfpan-${id}" role="tabpanel" aria-labelledby="wft-${id}"${i?' hidden':''}></div>`).join('')}
   <div class="wf-pan" id="wfpan-pages" role="tabpanel" aria-labelledby="wft-pages" hidden><div class="wf-bar"><select id="wfSec" aria-label="Part of the site"></select><select id="wfSort" aria-label="Sort pages"><option value="w">Heaviest first</option><option value="i">Most issues first</option><option value="a">A to Z</option></select><input id="wfPQ" type="search" placeholder="Find a page" aria-label="Find a page"></div><ol class="wf-l" id="wfPl"></ol><button class="btn sm" type="button" id="wfPMore" hidden>Show all</button></div>
@@ -211,7 +228,9 @@ const V={
  <div><h3>Trim Lottie files</h3><p>Lotties with embedded images can weigh more than a video. Remove the images, simplify the paths, and only autoplay what's on screen.</p></div>
  <div><h3>Fewer fonts and weights</h3><p>Every weight is another file. Upload WOFF2, keep to two or three weights, and don't load a Google Font you've also uploaded.</p></div>
  <div><h3>Check your custom code</h3><p>Chat widgets, tag managers and embeds in site settings often cost more than images. Load them after the page, or on interaction.</p></div>
-</div></section>`},
+</div></section>
+</div>
+</div>`},
 '/tools/contrast-checker':()=>`${head('Contrast checker','Check whether text is readable on its background, against the WCAG 2.2 standards. If it fails, get the nearest colour that passes.')}
 <div class="tk">
  <div class="opts cc-in">${cfield('fg','Text','#5b6170')}<button class="btn sm swap" type="button" id="swap" aria-label="Swap text and background">⇄ Swap</button>${cfield('bg','Background','#ffffff')}</div>
