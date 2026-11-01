@@ -178,12 +178,12 @@ const V={
 <aside class="wfd-side" aria-label="Webflow speed check">
  <a class="wfd-brand" href="./"><span class="dot" aria-hidden="true"></span><span>aakarsh.design</span></a>
  <p class="wfd-ttl">Webflow speed check</p>
- <nav class="wfd-nav" id="wfSide" aria-label="Report sections">${NAV.map(([id,nm,ic])=>`<button type="button" data-view="${id}" disabled>${I(ic)}<span>${nm}</span><small></small></button>`).join('')}</nav>
+ <nav class="wfd-nav" id="wfSide" aria-label="Report sections">${NAV.map(([id,nm,ic])=>`<button type="button" data-view="${id}" disabled>${I(ic)}<span>${nm}</span><small></small></button>`).join('')}<button type="button" class="wfd-cta" data-view="steps" disabled>${I('<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5"/>')}<span>Next 10 steps</span><small></small></button></nav>
  <div class="wfd-rec"><p class="wfd-k">Recent scans</p><ul id="wfRecent"><li class="wfd-none">Your scans show up here, saved in this browser only.</li></ul></div>
  <div class="wfd-bot"><a href="tools">${I('<path d="m15 18-6-6 6-6"/>')}<span>All free tools</span></a><a href="work-with-me">${I('<path d="M7 17 17 7M8 7h9v9"/>')}<span>Work with me</span></a></div>
 </aside>
 <div class="wfd-main">
- <div class="wfd-top"><p class="wfd-crumb"><a href="tools">Tools</a><i>›</i><span>Webflow speed check</span><b id="wfCrumb"></b></p><div class="wf-acts" id="wfActs" hidden><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div>
+ <div class="wfd-top"><p class="wfd-crumb"><a href="tools">Tools</a><i>›</i><span>Webflow speed check</span><b id="wfCrumb"></b></p><div class="wfd-tr"><button type="button" class="wfd-theme" id="wfTheme" aria-pressed="false" aria-label="Dark mode" title="Dark mode">${I('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>')}${I('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>')}</button><div class="wf-acts" id="wfActs" hidden><button class="btn sm" type="button" id="wfLink">Copy link</button><button class="btn sm" type="button" id="wfCsvOut">Download CSV</button><button class="btn sm" type="button" id="wfPdf">Save PDF</button></div></div></div>
  ${head('Webflow speed check','A free Lighthouse-style audit made for Webflow. Scan the whole site, not one page, and get a speed score, SEO and accessibility checks, and fixes in Webflow\'s own words, down to the section and class name.')}
 <div class="tk">
  <form class="wf-f" id="wfF" novalidate>
@@ -210,6 +210,7 @@ const V={
   <div class="wf-pan" id="wfpan-pages" role="tabpanel" aria-labelledby="wft-pages" hidden><div class="wf-bar"><select id="wfSec" aria-label="Part of the site"></select><select id="wfSort" aria-label="Sort pages"><option value="w">Heaviest first</option><option value="i">Most issues first</option><option value="a">A to Z</option></select><input id="wfPQ" type="search" placeholder="Find a page" aria-label="Find a page"></div><ol class="wf-l" id="wfPl"></ol><button class="btn sm" type="button" id="wfPMore" hidden>Show all</button></div>
   <div class="wf-pan" id="wfpan-files" role="tabpanel" aria-labelledby="wft-files" hidden><div class="wf-sum" id="wfSum"></div><div class="wf-bar"><fieldset class="seg"><legend>Show</legend>${seg('wfk',[['all','All'],['image','Images'],['video','Videos'],['lottie','Lottie'],['font','Fonts'],['code','Code']])}</fieldset><input id="wfQ" type="search" placeholder="Find a file name" aria-label="Find a file name"></div><ol class="wf-l" id="wfL"></ol><button class="btn sm" type="button" id="wfMore" hidden>Show all</button></div>
   <div class="wf-pan" id="wfpan-site" role="tabpanel" aria-labelledby="wft-site" hidden></div>
+  <div class="wf-pan" id="wfpan-steps" role="tabpanel" aria-labelledby="wft-steps" hidden></div>
  </section>
  <section class="wf-r" id="wfC" hidden aria-label="Bandwidth from your CSV"><h2 class="h3">What's using your bandwidth</h2><p class="wf-note" id="wfCh"></p><ol class="wf-l wf-cl" id="wfCl"></ol></section>
 </div>

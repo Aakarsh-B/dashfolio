@@ -388,7 +388,7 @@ function initWebflow(){
  let S=null,rep=null,csv=null,run=null,filter='all',term='',shown=40,pshown=40,psec='',psort='w',pterm='';
  const MB=1048576,tone=s=>s>=90?'g':s>=50?'o':'r',sc=s=>`<span class="wf-sc ${tone(s)}" style="--p:${s}%"><b>${s}</b><i></i></span>`;
  const ICON={pass:'✓',warn:'!',fail:'✕',info:'i'},KIND={image:'🖼',video:'▶',lottie:'✦',font:'Aa',code:'</>',other:'•'};
- const TABS=[['speed','Speed'],['seo','SEO'],['a11y','Accessibility'],['pages','Pages'],['files','Files'],['site','Site data']];
+ const TABS=[['steps','Next steps'],['speed','Speed'],['seo','SEO'],['a11y','Accessibility'],['pages','Pages'],['files','Files'],['site','Site data']];
  // Failing checks, said as the problem rather than the passing state
  const PROB={format:'Images aren\'t WebP or AVIF',oversized:'Some images are far too large',gif:'Animated GIFs slow pages down',srcset:'Phones download full-size images',bg:'Heavy CSS background images',video:'Background videos are heavy',twice:'The same video or animation loads twice',lottie:'Heavy Lottie animations',bgvideos:'Too many background videos on one page',embeds:'Video players load before anyone presses play',ix:'The hero stays hidden until an interaction runs',lazy:'The first image on the page is lazy loaded',weight:'Pages over 3 MB',dom:'Pages with too many elements',woff2:'Fonts aren\'t WOFF2',fontcount:'Too many uploaded font files',webfont:'Google Fonts load through an extra script',blocking:'Custom code holds up the page',third:'A lot of outside services',minify:'CSS isn\'t minified',title:'Pages without a title',titlelen:'Titles too long or too short',duptitle:'Pages share the same title',desc:'Pages without a meta description',desclen:'Descriptions too long or too short',dupdesc:'Pages share the same description',h1:'Pages without exactly one H1',canon:'No canonical tags',canonhost:'Canonicals point to another domain',noindexmap:'The sitemap lists pages marked noindex',broken:'Broken internal links',redirects:'Links that go through a redirect',sitemap:'No sitemap',notinmap:'Pages missing from the sitemap',orphans:'Pages nothing links to',robots:'robots.txt blocks search engines',robotsmap:'robots.txt doesn\'t point to the sitemap',staging:'Your staging site can show up on Google',schema:'No structured data',og:'No share image',viewport:'Pages aren\'t set up for phones',mixed:'Some files load over http',lang:'Page language isn\'t set',alt:'Images without alt text',links:'Links with no name',buttons:'Buttons with no name',labels:'Form fields without labels',headings:'Headings skip levels',frames:'Embeds without titles',zoom:'Zoom is turned off'};
  // Problems that cost visibility or trust no matter how fast the site is
@@ -414,18 +414,33 @@ function initWebflow(){
  }
  const riskCard=risks=>risks.length?`<h2>${risks.length} issue${risks.length>1?'s':''} to fix first</h2><div class="wf-rl">${risks.map(a=>`<button type="button" data-step="${a.id}">${SVG(RICON[a.id]||'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',20)}<span>${esc(prob(a).replace(/^Your s/,'S'))}</span></button>`).join('')}</div>`:`<h2>No major issues</h2><p class="wf-note">Search engines can reach and read the site. The steps below are improvements, not emergencies.</p>`;
  // The next ten things to do: risks first, then by how much each fix helps
- function steps(risks){
-  const rest=rep.audits.filter(a=>(a.state==='fail'||a.state==='warn')&&!risks.includes(a)).sort((a,b)=>impact(b)-impact(a));
-  const list=[...risks,...rest].slice(0,10),left=risks.length+rest.length-list.length;
-  const metric=a=>a.save>51200?'Saves ~'+WF.size(a.save):a.items.length>1||(a.items.length&&a.items[0].page)?a.items.length+(a.items[0]&&a.items[0].page?' page'+(a.items.length>1?'s':''):' found'):'';
+ let order=[];
+ const DK='wfs-done',doneAll=()=>{try{return JSON.parse(localStorage.getItem(DK))||{}}catch(e){return {}}},isDone=id=>!!(doneAll()[S.host]||{})[id];
+ const setDone=(id,v)=>{const d=doneAll(),h=d[S.host]=d[S.host]||{};if(v)h[id]=1;else delete h[id];try{localStorage.setItem(DK,JSON.stringify(d))}catch(e){}};
+ const metric=a=>a.save>51200?'Saves ~'+WF.size(a.save):a.items.length>1||(a.items.length&&a.items[0].page)?a.items.length+(a.items[0]&&a.items[0].page?' page'+(a.items.length>1?'s':''):' found'):'';
+ function steps(){
+  const list=order.slice(0,10),left=order.length-list.length;
   if(!list.length)return `<div class="wf-nh"><h2>Nothing urgent</h2><p>Every check passed or only needs a small tidy-up. The full analysis below has the details.</p></div>`;
   return `<div class="wf-nh"><h2>Your next ${list.length} step${list.length>1?'s':''}</h2><p>Ranked by how much each one helps. Open a step to see where it happens.</p></div>
-  <ol class="wf-steps">${list.map((a,i)=>`<li class="wf-stp${RISK[a.id]?' risk':''}" id="wfs-${a.id}"><details><summary><span class="wf-n1">${i+1}</span><span class="wf-sx"><b>${esc(prob(a))}</b><small>${esc(RISK[a.id]?RISK[a.id]+'. '+a.fix:a.fix)}</small></span><span class="wf-sm"><em>${metric(a)}</em><span class="wf-tag">${RISK[a.id]?'Risk':catName(a)}</span></span></summary><div class="wf-sd"><p>${esc(a.why)}</p><p><b>How to fix it in Webflow:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,5).map(item).join('')}</ul>`:''}<p class="wf-act"><button type="button" class="btn sm" data-go="${catTab(a.cat)}" data-check="${a.id}">${a.items.length>5?`See all ${a.items.length}`:'See it'} in the ${catName(a)} report →</button></p></div></details></li>`).join('')}</ol>
-  ${left?`<p class="wf-note wf-left">${left} more check${left>1?'s':''} to improve after these, in the full analysis below.</p>`:''}`;
+  <ol class="wf-steps">${list.map((a,i)=>`<li class="wf-stp${RISK[a.id]?' risk':''}${isDone(a.id)?' done':''}" id="wfs-${a.id}"><details><summary><span class="wf-n1">${i+1}</span><span class="wf-sx"><b>${esc(prob(a))}</b><small>${esc(RISK[a.id]?RISK[a.id]+'. '+a.fix:a.fix)}</small></span><span class="wf-sm"><em>${metric(a)}</em><span class="wf-tag">${RISK[a.id]?'Risk':catName(a)}</span></span></summary><div class="wf-sd"><p>${esc(a.why)}</p><p><b>How to fix it in Webflow:</b> ${esc(a.fix)}</p>${a.items.length?`<ul class="wf-items">${a.items.slice(0,5).map(item).join('')}</ul>`:''}<p class="wf-act"><button type="button" class="btn sm" data-go="${catTab(a.cat)}" data-check="${a.id}">${a.items.length>5?`See all ${a.items.length}`:'See it'} in the ${catName(a)} report →</button></p></div></details></li>`).join('')}</ol>
+  <p class="wf-act wf-left"><button type="button" class="btn sm p" data-go="steps">Open as a checklist</button>${left?`<span class="wf-note">${left} more check${left>1?'s':''} to improve after these.</span>`:''}</p>`;
  }
+ // The checklist: tick steps off (kept in this browser), copy or download them to take into Notion, Linear, Jira or Asana
+ const where=a=>a.items.slice(0,3).map(x=>x.label).join(', ')+(a.items.length>3?` and ${a.items.length-3} more`:'');
+ function checklist(){
+  const list=order,n=Math.min(10,list.length),d=list.slice(0,n).filter(a=>isDone(a.id)).length;
+  const row=(a,i)=>`<li class="wf-ck${isDone(a.id)?' done':''}${RISK[a.id]?' risk':''}"><label class="wf-cb"><input type="checkbox" data-done="${a.id}"${isDone(a.id)?' checked':''}><span aria-hidden="true"></span><b class="sr">Done: ${esc(prob(a))}</b></label><div class="wf-ckt"><p class="wf-ckh"><span class="wf-n1">${i+1}</span><b>${esc(prob(a))}</b><span class="wf-tag">${RISK[a.id]?'Risk':catName(a)}</span>${metric(a)?`<em>${metric(a)}</em>`:''}</p><p>${esc(a.fix)}</p>${a.items.length?`<p class="wf-ckw"><span>Where:</span> ${esc(where(a))}</p>`:''}</div><button type="button" class="wf-go" data-go="${catTab(a.cat)}" data-check="${a.id}" aria-label="Details for ${esc(prob(a))}">Details →</button></li>`;
+  if(!list.length)return `<div class="wfc"><h3>Nothing to fix</h3><p class="wf-note">Every check passed.</p></div>`;
+  return `<div class="wfc wf-ckhd"><div><h3>Your next ${n} steps</h3><p class="wf-note">Tick them off as you go. Progress is saved in this browser. Take the list into your team's tracker with a copy or a download.</p><div class="wf-prog"><span class="wf-track"><i style="width:${n?d/n*100:0}%"></i></span><b id="wfProg">${d} of ${n} done</b></div></div><div class="wf-ckb"><button type="button" class="btn sm p" id="wfCkCopy">Copy checklist</button><button type="button" class="btn sm" id="wfCkMd">Download .md</button><button type="button" class="btn sm" id="wfCkCsv">Download CSV for Jira, Linear, Asana</button></div></div>
+  <ol class="wf-cks">${list.slice(0,n).map(row).join('')}</ol>${list.length>n?`<h3 class="wf-h3">After that</h3><ol class="wf-cks" start="${n+1}">${list.slice(n).map((a,i)=>row(a,i+n)).join('')}</ol>`:''}`;
+ }
+ const ckText=()=>{const L=[`# Webflow fixes for ${S.host}`,'',`Speed ${rep.score}/100 · SEO ${rep.seo} · Accessibility ${rep.a11y} · ${S.pages.length} pages · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`,`Scanned with the free Webflow speed check: https://aakarsh.design/tools/webflow-speed`,''];
+  order.forEach((a,i)=>{if(i===10)L.push('','## After that','');L.push(`- [${isDone(a.id)?'x':' '}] ${i+1}. ${prob(a)} (${RISK[a.id]?'Risk, ':''}${catName(a)}${metric(a)?', '+metric(a).toLowerCase():''})`,`  - Why: ${a.why}`,`  - Fix: ${a.fix}`);if(a.items.length)L.push(`  - Where: ${where(a)}`)});return L.join('\n')};
+ const ckCsv=()=>{const c=v=>{v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  return '\ufeff'+[['Summary','Description','Area','Priority','Impact','Where','Status'],...order.map((a,i)=>[prob(a),`${a.why}\n\nHow to fix it in Webflow: ${a.fix}`,RISK[a.id]?'Risk':catName(a),i<3||RISK[a.id]?'High':i<10?'Medium':'Low',metric(a),a.items.map(x=>x.url||x.label).slice(0,25).join('\n'),isDone(a.id)?'Done':'To do'])].map(r=>r.map(c).join(',')).join('\n')};
  function tabs(){
   const bad=ids=>rep.audits.filter(a=>ids.includes(a.cat)&&(a.state==='fail'||a.state==='warn')).length;
-  const cnt={speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length,site:0};
+  const cnt={steps:Math.min(10,order.length),speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length,site:0};
   $('wfTabs').innerHTML=TABS.map(([id,nm])=>`<button type="button" role="tab" id="wft-${id}" aria-controls="wfpan-${id}" aria-selected="false" tabindex="-1">${nm}${cnt[id]?`<small>${cnt[id]}</small>`:''}</button>`).join('');
  }
  function view(id){R.dataset.view=id;document.querySelectorAll('#wfSide button').forEach(b=>b.toggleAttribute('aria-current',b.dataset.view===id));const t=TABS.find(x=>x[0]===id);if(t)$('wfDhT').textContent=t[1]}
@@ -455,6 +470,7 @@ function initWebflow(){
   const st=p=>{const f=flags(p);return f.some(x=>x.state==='fail')?'r':f.length?'o':'g'};
   return `<div class="wfc-h"><h3>Heaviest pages</h3><button type="button" class="btn sm" data-go="pages">See all ${S.pages.length} pages →</button></div><div class="wf-tw"><table class="wf-tbl wf-pt"><thead><tr><th>Page</th><th>Title</th><th>Weight</th><th>Files</th><th>Words</th><th>Issues</th><th>Status</th></tr></thead><tbody>${L.map(p=>{const f=flags(p),t=st(p);return `<tr><td><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.path)}</a></td><td class="wf-tt">${esc(p.title||'No title')}</td><td>${WF.size(p.bytes)}</td><td>${p.files.filter(r=>r.kind!=='code').length}</td><td>${p.sig.words.toLocaleString()}</td><td>${f.length}</td><td>${pill(t,word[t])}</td></tr>`}).join('')}</tbody></table></div>`;
  }
+ const progTxt=()=>{const n=Math.min(10,order.length);return n?order.slice(0,n).filter(a=>isDone(a.id)).length+'/'+n:''};
  function recent(){
   const h=hist(),L=Object.entries(h).map(([k,l])=>[k,l[l.length-1]]).filter(x=>x[1]).sort((a,b)=>b[1].t-a[1].t).slice(0,6),box=$('wfRecent');if(!box||!L.length)return;
   box.innerHTML=L.map(([k,x])=>`<li><button type="button" data-host="${esc(k)}"><span>${esc(k.replace(/^www\./,''))}</span><b class="${tone(x.s)}">${x.s}</b></button></li>`).join('');
@@ -549,11 +565,12 @@ function initWebflow(){
  function render(){
   $('wfIntro').hidden=true;R.hidden=false;
   const risks=rep.audits.filter(a=>RISK[a.id]&&(a.state==='fail'||a.state==='warn')).sort((a,b)=>impact(b)-impact(a));
-  $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps(risks);tabs();
+  order=[...risks,...rep.audits.filter(a=>(a.state==='fail'||a.state==='warn')&&!risks.includes(a)).sort((a,b)=>impact(b)-impact(a))];
+  $('wfScore').innerHTML=scoreCard(remember());$('wfRisk').innerHTML=riskCard(risks);$('wfRisk').classList.toggle('ok',!risks.length);$('wfNext').innerHTML=steps();$('wfpan-steps').innerHTML=checklist();tabs();
   $('wfpan-site').innerHTML=overview();
   $('wfBd').innerHTML=breakdown();$('wfTiles').innerHTML=tiles();$('wfPt').innerHTML=pagesTable();$('wfBw').innerHTML=bwCard();$('wfAuth').innerHTML='<h3>Site authority</h3><p class="wf-note">Looking up the rank…</p>';$('wfG').hidden=true;
   $('wfApp').classList.add('has-r');$('wfActs').hidden=false;$('wfCrumb').textContent=S.host;recent();
-  const bad=ids=>rep.audits.filter(a=>ids.includes(a.cat)&&(a.state==='fail'||a.state==='warn')).length,cnt={speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length};
+  const bad=ids=>rep.audits.filter(a=>ids.includes(a.cat)&&(a.state==='fail'||a.state==='warn')).length,cnt={steps:progTxt(),speed:bad(['images','media','loading','code']),seo:bad(['seo']),a11y:bad(['a11y']),pages:S.pages.length,files:S.rows.length};
   document.querySelectorAll('#wfSide button').forEach(b=>{b.disabled=false;b.querySelector('small').textContent=cnt[b.dataset.view]||''});
   $('wfpan-speed').innerHTML=`<div class="wf-cats">${rep.cats.filter(c=>c.group==='speed').map(c=>`<a href="#wfa-${c.id}" data-go="speed" data-cat="${c.id}"><span>${c.name}</span>${sc(c.score)}</a>`).join('')}</div>`+catPanel(['images','media','loading','code']);
   $('wfpan-seo').innerHTML=catPanel(['seo']);$('wfpan-a11y').innerHTML=catPanel(['a11y']);
@@ -596,6 +613,12 @@ function initWebflow(){
  $('wfSide').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b||b.disabled)return;const v=b.dataset.view;if(v==='overview'){view('overview')}else show(v);$('wfApp').scrollIntoView({block:'start'});window.scrollTo({top:0})});
  $('wfRecent').addEventListener('click',e=>{const b=e.target.closest('[data-host]');if(!b||run)return;inp.value=b.dataset.host;start()});
  recent();
+ R.addEventListener('change',e=>{const c=e.target.closest('[data-done]');if(!c)return;const id=c.dataset.done;setDone(id,c.checked);c.closest('li').classList.toggle('done',c.checked);const o=$('wfs-'+id);if(o)o.classList.toggle('done',c.checked);
+  const n=Math.min(10,order.length),d=order.slice(0,n).filter(a=>isDone(a.id)).length;$('wfProg').textContent=`${d} of ${n} done`;$('wfProg').previousElementSibling.firstElementChild.style.width=(n?d/n*100:0)+'%';document.querySelector('#wfSide .wfd-cta small').textContent=progTxt()});
+ R.addEventListener('click',e=>{const id=e.target.id;if(id==='wfCkCopy')copy(ckText(),'the checklist');else if(id==='wfCkMd')save(new Blob([ckText()],{type:'text/markdown'}),`webflow-fixes-${S.host}.md`);else if(id==='wfCkCsv')save(new Blob([ckCsv()],{type:'text/csv'}),`webflow-fixes-${S.host}.csv`)});
+ const TK='wf-theme',app=$('wfApp'),th=$('wfTheme'),setTheme=d=>{app.classList.toggle('dark',d);th.setAttribute('aria-pressed',d);th.title=th.ariaLabel=d?'Light mode':'Dark mode'};
+ setTheme((()=>{try{const v=localStorage.getItem(TK);return v?v==='dark':matchMedia('(prefers-color-scheme: dark)').matches}catch(e){return false}})());
+ th.onclick=()=>{const d=!app.classList.contains('dark');setTheme(d);try{localStorage.setItem(TK,d?'dark':'light')}catch(e){}};
  f.onsubmit=e=>{e.preventDefault();start()};
  f.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{if(run)return;inp.value=b.dataset.try;start()});
  R.addEventListener('click',e=>{const st=e.target.closest('[data-step]');if(st){const li=$('wfs-'+st.dataset.step);li.querySelector('details').open=true;li.scrollIntoView({behavior:'smooth',block:'center'});return}
