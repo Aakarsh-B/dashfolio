@@ -32,9 +32,10 @@ const fade=dir=>`<div class="fade ${dir}" aria-hidden="true"></div>`;
 const tile=(p,i=9)=>`<a class="tile rv" href="projects/${p.id}"><div class="th"><b>${p.t.split(' · ')[0]}</b></div><div class="tb full"><img src="${coverSm(p)}" srcset="${coverSm(p)} 600w, ${cover(p)} 1200w" sizes="(max-width:760px) 92vw, 440px" width="1200" height="900" alt="${p.t} cover" ${i<2?'':'loading="lazy"'}></div><div class="tf">${p.ty}</div></a>`;
 const nextTile=()=>`<a class="tile rv next-up" href="work-with-me"><div class="th"><b>What's next?</b></div><div class="tb"><span class="sticker" aria-hidden="true">open<br>for work</span></div><div class="tf">Freelance brand, web and campaign design</div></a>`;
 // Free tools: each runs in the browser, so they cost nothing to host however many people use them.
-const FREE=[['link-preview','Link preview checker','See how your link looks on LinkedIn, X, Slack and WhatsApp'],['webflow-speed','Webflow speed check','A Lighthouse-style audit for Webflow: speed, SEO and accessibility'],['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
+const FREE=[['style-guide','Style guide from any website','Colours, fonts and type sizes, on one sheet for Figma'],['link-preview','Link preview checker','See how your link looks on LinkedIn, X, Slack and WhatsApp'],['webflow-speed','Webflow speed check','A Lighthouse-style audit for Webflow: speed, SEO and accessibility'],['text-match-cut','Text match cut','Your phrase, highlighted on page after page, as a video'],['image-compressor','Image compressor','Shrink JPG, PNG and WebP, or convert to WebP'],['palette-generator','Palette generator','Lock the colours you love, generate the rest'],['image-palette','Palette from image','Pull the main colours out of any photo'],['contrast-checker','Contrast checker','Check text against WCAG, get the nearest fix']];
 // Each tool card shows what the tool makes, drawn in HTML so it stays sharp and readable at any size.
 const ART={
+ 'style-guide':`<div class="art-g"><div class="sga"><b>Aa</b><span><i style="background:#2f56f5"></i><i style="background:#40d4ff"></i><i style="background:#ff7a59"></i><i style="background:#0b0b0c"></i><i style="background:#f2f2f4"></i></span><small>Instrument Sans · 400 · 600 · 700</small></div></div>`,
  'link-preview':`<div class="art-l"><div class="lpa"><img src="images/og/tools.jpg" alt="" width="1200" height="630" loading="lazy"><b>Free tools for designers</b><small>aakarsh.design</small></div><ul><li><i class="g">✓</i>1200 × 630</li><li><i class="o">!</i>Title cut off</li><li><i class="r">✕</i>No X card</li></ul></div>`,
  'webflow-speed':`<div class="art-w"><span class="wf-ring o big" style="--p:64"><b>64</b></span><ul><li><i class="r">✕</i>Video placed twice<em>−5.8 MB</em></li><li><i class="r">✕</i>Hero image lazy loaded</li><li><i class="o">!</i>Convert to WebP<em>−663 KB</em></li><li><i class="g">✓</i>No GIFs</li></ul></div>`,
  'text-match-cut':`<div class="art-m"><span style="--r:-9deg;--x:-70px"></span><span style="--r:7deg;--x:70px"></span><div><em>The Morning Shrug</em><i></i><b>Local man says <mark>match cut</mark> was his idea</b><i></i><i></i><i style="width:70%"></i><i></i></div></div>`,
@@ -233,6 +234,21 @@ const V={
 </div></section>
 </div>
 </div>`},
+'/tools/style-guide':()=>`${head('Style guide from any website','Paste a website and get its colours, fonts and type sizes on one clean sheet. Copy it into Figma as editable layers, download it as an image, or copy it as CSS variables.')}
+<div class="tk">
+ <form class="wf-f" id="sgF" novalidate>
+  <label for="sgU">Website</label>
+  <div class="wf-in"><input id="sgU" type="url" inputmode="url" placeholder="yoursite.com" autocomplete="url" spellcheck="false"><button class="btn p" type="submit" id="sgGo">Get style guide</button></div>
+  <p class="wf-try">Try ${['linear.app','stripe.com','aakarsh.design'].map(s=>`<button type="button" class="wf-ex" data-try="${s}">${s}</button>`).join('')}</p>
+  <p class="wf-st" id="sgS" role="status" aria-live="polite"></p>
+ </form>
+ <div class="wf-intro sg-intro" id="sgIntro">${[['Colours','The brand colours and neutrals the site really uses, ranked by how often.'],['Typefaces','Heading and body fonts with their weights, drawn in the real fonts when they load.'],['Ready for Figma','One click copies the sheet as SVG. Paste it into Figma and every swatch and label stays editable.']].map(([t,p])=>`<div><b>${t}</b><p>${p}</p></div>`).join('')}</div>
+ <section class="sg-r" id="sgR" hidden aria-label="Style guide">
+  <div class="sg-bar"><button class="btn sm p" type="button" id="sgSvg">Copy SVG for Figma</button><button class="btn sm" type="button" id="sgPng">Download PNG</button><button class="btn sm" type="button" id="sgCss">Copy CSS variables</button></div>
+  <div class="sg-frame"><canvas id="sgC" role="img" aria-label="Style guide sheet"></canvas></div>
+  <p class="wf-fine" id="sgN"></p>
+ </section>
+</div>`,
 '/tools/link-preview':()=>`${head('Link preview checker','See how a link looks when it\'s shared on LinkedIn, X, Facebook, Slack, WhatsApp, iMessage and in Google, before anyone else does. Then fix the title, description and image, with steps for Webflow.')}
 <div class="tk">
  <form class="wf-f" id="lpF" novalidate>
@@ -299,7 +315,7 @@ function caseStudy(p){
 
 // Unknown routes (old links, typos) get an honest page instead of quietly showing the home page.
 const notFound=()=>`${head('This page wandered off','The link might be old, or I moved things around. Here\'s some work to look at instead.','<div class="btns"><a class="btn p" href="./">Back home</a><a class="btn" href="contact">Say hi</a></div>')}<div class="tiles">${PROJECTS.slice(0,4).map(tile).join('')}</div>`;
-const TITLES={'/tools':'Free design tools','/tools/link-preview':'Free link preview checker','/tools/webflow-speed':'Free Webflow speed check','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
+const TITLES={'/tools':'Free design tools','/tools/style-guide':'Free style guide from any website','/tools/link-preview':'Free link preview checker','/tools/webflow-speed':'Free Webflow speed check','/tools/text-match-cut':'Free text match cut video maker','/tools/image-palette':'Free palette from image','/tools/palette-generator':'Free colour palette generator','/tools/contrast-checker':'Free colour contrast checker','/tools/image-compressor':'Free image compressor and WebP converter','/projects':'Projects','/experience':'Experience','/work-with-me':'Work with me','/writing':'Writing','/freebies':'Freebies','/about':'About','/contact':'Contact','/404':'Page not found'};
 // Resolve a route (e.g. /projects/bitespeed) to its key, project, page content and header links.
 function page(h){
  let html,key=h;

@@ -1,4 +1,4 @@
-/* Relay for the Webflow speed check (aakarsh.design/tools/webflow-speed) and the link preview checker (/tools/link-preview).
+/* Relay for the Webflow speed check (aakarsh.design/tools/webflow-speed) the link preview checker (/tools/link-preview) and the style guide tool (/tools/style-guide).
    Browsers can't read another site's pages, so the tool asks this Cloudflare Worker to fetch them. It only fetches
    public pages, sitemaps and robots.txt, only answers the site itself, and caches results for 10 minutes.
    Optional free keys (Worker → Settings → Variables and Secrets, type Secret). The tool works without them:
@@ -50,7 +50,7 @@ export default {
   const target=web(q.get('url'));if(!target)return out('Give a page address as ?url=',400,'text/plain');
   const r=await fetch(target,{headers:{'user-agent':UA},redirect:'follow',cf:{cacheTtl:600,cacheEverything:true}});
   const type=r.headers.get('content-type')||'';
-  if(!/html|xml|text\/plain/.test(type))return out('Only pages, sitemaps and robots.txt',415,'text/plain');
+  if(!/html|xml|text\/plain|text\/css/.test(type))return out('Only pages, stylesheets, sitemaps and robots.txt',415,'text/plain');
   return out((await r.text()).slice(0,4e6),r.status,type,{'x-final-url':r.url,'x-robots-tag':r.headers.get('x-robots-tag')||''});
  }
 };
