@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FluxCap homepage audit · Aakarsh B</title>
+<base href="../../">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A distinctive brand that already stands apart from typical legal tech. The gaps are about saying what FluxCap is, and who it&#x27;s for, fast enough for a busy litigator, and putting your strongest proof where it&#x27;s seen.">
+<meta property="og:title" content="FluxCap homepage audit">
+<meta property="og:description" content="Three fixes for fluxcap.com, in priority order, by Aakarsh B.">
+<meta property="og:image" content="https://aakarsh.design/audit/fluxcap/shot.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="favicon-dot.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="preload" href="fonts/instrument-sans-wd.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css?v=d5a3c1c7">
+<style>
+.au-hero>.wrap{padding-top:120px;padding-bottom:40px}
+.au-h1{font-size:clamp(56px,9vw,104px);line-height:.9;margin:4px 0 20px;color:#fff}
+.au-hero .lead{color:var(--on-night);font-size:clamp(17px,1.8vw,20px);max-width:52ch;line-height:1.5}
+.au-by{display:flex;align-items:center;gap:10px;margin:0;font-size:14px;color:rgba(255,255,255,.7)}.au-by .dot{width:20px;height:20px}
+.au-shot{margin:44px 0 0;border-radius:16px;overflow:hidden;background:#111;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 60px -20px rgba(0,0,0,.9)}
+.au-chrome{display:flex;align-items:center;gap:7px;height:34px;padding:0 14px;background:#1b1c20;border-bottom:1px solid rgba(255,255,255,.06)}
+.au-chrome i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.18)}
+.au-chrome span{margin-left:10px;padding:3px 12px;border-radius:7px;background:rgba(255,255,255,.07);font-size:12.5px;color:rgba(255,255,255,.6)}
+.au-shot img{display:block;width:100%;height:auto}
+.au-cap{margin:10px 2px 0;font-size:13px;color:rgba(255,255,255,.5)}
+.au-body>.wrap{padding-top:10px;padding-bottom:72px;display:grid;gap:64px}
+.au-h2{font-size:clamp(32px,4.4vw,48px);line-height:.95;margin:0 0 22px}
+.au-works{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.au-works li{padding:20px 20px 22px;border-radius:16px;background:var(--panel);box-shadow:var(--ring);font-size:15.5px;line-height:1.5;min-width:0}
+.au-works li .live{display:block;margin:2px 0 14px}
+.au-fixes{display:grid;gap:16px}
+.au-fix{padding:26px 28px;border-radius:18px;background:#fff;box-shadow:var(--ring);display:grid;gap:18px;min-width:0}
+.au-fix h3{display:flex;align-items:center;gap:14px;margin:0;font-size:clamp(24px,2.6vw,30px);line-height:1.05}
+.au-n{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--dot);box-shadow:inset 0 -1px 2px rgba(0,0,0,.25),0 0 12px rgba(58,92,255,.4);color:#fff;font:700 15px var(--head);font-stretch:100%;letter-spacing:0}
+.au-fix dl{margin:0;display:grid;gap:14px}.au-fix dl div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:18px}
+.au-fix dt{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-top:3px}
+.au-fix dd{margin:0;font-size:15.5px;line-height:1.55;color:#2a2b30}.au-fix dd i{font-style:normal;color:var(--ink);background:#eef1ff;border-radius:4px;padding:0 4px}
+.au-fix div.au-fx dd{color:var(--ink);font-weight:500}
+.au-also{margin:18px 0 0;font-size:15px;color:var(--soft)}.au-also b{color:var(--ink)}.au-also i{font-style:normal;color:var(--ink)}
+.au-meas{border-radius:18px;background:var(--panel);box-shadow:var(--ring);padding:8px 24px}
+.au-meas table{width:100%;border-collapse:collapse;font-size:15px}
+.au-meas th,.au-meas td{padding:13px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.au-meas tr:last-child th,.au-meas tr:last-child td{border-bottom:0}
+.au-meas th{font-weight:400;color:var(--soft);padding-right:18px;width:52%}
+.au-meas td{font-weight:600;font-variant-numeric:tabular-nums;word-break:break-word}
+.au-ok,.au-warn{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:10px;transform:translateY(-1px)}.au-ok{background:#12a56a}.au-warn{background:#f2a33a}
+.au-note{margin:12px 2px 0;font-size:13.5px;color:var(--faint)}
+.au-cta{margin:0}.au-cta .btns{margin:0}
+.au-cta .btn{background:#fff;color:#0b0b0c}.au-cta .btn.dk{background:#1b1c20;color:#fff}
+.au-foot{border-top:1px solid var(--line);padding-block:22px 30px}.au-foot .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--faint)}
+.au-foot a{color:inherit;text-decoration:none}.au-foot a:hover{color:var(--ink)}
+.au-tag{font-size:14.5px;color:rgba(255,255,255,.7)}
+@media(max-width:760px){.au-works{grid-template-columns:1fr}.au-fix dl div{grid-template-columns:1fr;gap:4px}.au-fix{padding:22px}.invite.au-cta{grid-template-columns:1fr}}
+@media print{
+ @page{size:A4;margin:0}
+ .top,.skip,.au-dl{display:none!important}
+ .au-hero>.wrap{padding-top:44px}.fade{height:90px}.au-body>.wrap{gap:40px;padding-bottom:40px}
+ .band.dark,.fade,.au-n,.au-works li,.au-fix,.au-meas,.invite,.au-ok,.au-warn,.dot,.live{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .au-fix,.au-works li,.au-meas,.invite{break-inside:avoid}
+ .fade{display:none}.au-body{break-before:page}.au-body>.wrap{padding-top:36px}.au-h2{break-after:avoid}.au-hero{min-height:297mm}
+}
+</style>
+<script data-goatcounter="https://aakarsh.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="bar">
+ <a class="mark" href="./" aria-label="Aakarsh B, home"><span class="dot" aria-hidden="true"></span></a>
+ <span class="au-tag">Homepage audit for FluxCap</span>
+ <span class="sp"></span>
+ <a class="hire" href="work-with-me">Work with me</a>
+</div></header>
+<div class="au-main" id="main" role="main" tabindex="-1">
+<section class="band dark au-hero"><div class="wrap">
+ <p class="where"><i class="live" aria-hidden="true"></i>Homepage audit · fluxcap.com · 15 Nov 2026</p>
+ <h1 class="au-h1">FluxCap</h1>
+ <p class="lead">A distinctive brand that already stands apart from typical legal tech. The gaps are about saying what FluxCap is, and who it's for, fast enough for a busy litigator, and putting your strongest proof where it's seen.</p>
+ <p class="au-by"><span class="dot" aria-hidden="true"></span>Prepared by Aakarsh B, brand and web designer for SaaS teams</p>
+ <figure class="au-shot"><div class="au-chrome" aria-hidden="true"><i></i><i></i><i></i><span>fluxcap.com</span></div><img src="audit/fluxcap/shot.jpg" alt="FluxCap homepage, first screen on a laptop" width="1200" height="750"></figure>
+ <p class="au-cap">First screen on a 1440 px laptop, 15 Nov 2026</p>
+</div></section>
+<div class="fade d2l" aria-hidden="true"></div>
+<section class="band light au-body"><div class="wrap">
+ <div><h2 class="au-h2">What's working</h2><ul class="au-works"><li><span class="live" aria-hidden="true"></span>The legal-pad yellow and editorial type feel like the world of litigation, not generic AI software. It's memorable.</li><li><span class="live" aria-hidden="true"></span>It's fast: on a phone the main content shows in about 1.7 s, with roughly 300 KB downloaded.</li><li><span class="live" aria-hidden="true"></span>One clear action. <i>Request a demo</i> is the only call to action, so nobody wonders what to do next.</li></ul></div>
+ <div><h2 class="au-h2">Three fixes,<br>in priority order</h2><div class="au-fixes"><article class="au-fix"><h3><span class="au-n" aria-hidden="true">1</span>Say &quot;antitrust&quot; in the first screen</h3><dl><div><dt>What I saw</dt><dd>The headline is <i>Built to Play Offense</i>, and the paragraph talks about "consequential cases" and "enforcers". The words antitrust and litigation don't appear above the fold. Antitrust first shows up further down, in the FluxAlmanac card (Sherman Act section 2).</dd></div><div><dt>Why it matters</dt><dd>Visitors arriving from your launch coverage, a referral or search should know within a few seconds that this is built for antitrust and complex litigation teams. A clever headline works best with a plain line next to it.</dd></div><div class="au-fx"><dt>Suggested fix</dt><dd>Keep the headline and add a short eyebrow or subline, for example: <i>AI built for antitrust and complex litigation teams.</i></dd></div></dl></article><article class="au-fix"><h3><span class="au-n" aria-hidden="true">2</span>Move your strongest proof up</h3><dl><div><dt>What I saw</dt><dd><i>Currently being used in active matters with damages in excess of $1 billion</i> and <i>140+ years combined legal experience</i> sit near the bottom of the page. <i>Built by the lawyers who helped shape the law</i> doesn't name anyone.</dd></div><div><dt>Why it matters</dt><dd>For this buyer, who built FluxCap is the most persuasive thing on the page. Your founders' Justice Department antitrust leadership was widely covered at launch, but the homepage never says it.</dd></div><div class="au-fx"><dt>Suggested fix</dt><dd>Add a slim proof strip right under the hero: the $1B+ matters line, the founders' former roles, and your backers (Y Combinator, Burford Capital, Bloomberg Beta).</dd></div></dl></article><article class="au-fix"><h3><span class="au-n" aria-hidden="true">3</span>Show the product near the top</h3><dl><div><dt>What I saw</dt><dd>The first screen is a staged photo. The three engines (FluxAlmanac, FluxFacts, Vision Manager) appear only after scrolling, and they animate in as you scroll: in a full-page capture without scrolling, those sections are blank.</dd></div><div><dt>Why it matters</dt><dd>Lawyers evaluating a tool want to see the workspace. Content that only appears on scroll is also missed by anything that captures the page in one go, such as screenshot tools and some link previewers.</dd></div><div class="au-fx"><dt>Suggested fix</dt><dd>Put a cropped shot of the FluxAlmanac view in or just under the hero, and let sections start visible and animate from that visible state rather than from hidden.</dd></div></dl></article></div><p class="au-also"><b>Also:</b> The page title is just <i>FluxCap</i>. Something like <i>FluxCap | AI for antitrust litigation</i> helps search results and browser tabs.</p></div>
+ <div><h2 class="au-h2">Measured</h2><div class="au-meas"><table><tbody><tr><th scope="row">Main content visible on a phone (LCP)</th><td><span class="au-ok" aria-hidden="true"></span>1.7 s</td></tr><tr><th scope="row">Data downloaded on a phone</th><td><span class="au-ok" aria-hidden="true"></span>306 KB</td></tr><tr><th scope="row">Data downloaded on a laptop</th><td><span class="au-ok" aria-hidden="true"></span>570 KB</td></tr><tr><th scope="row">Requests on a phone</th><td><span class="au-ok" aria-hidden="true"></span>48</td></tr><tr><th scope="row">Layout shift on a phone (CLS)</th><td><span class="au-ok" aria-hidden="true"></span>0.000</td></tr><tr><th scope="row">Page height on a phone</th><td><span class="au-ok" aria-hidden="true"></span>5,697 px</td></tr><tr><th scope="row">Browser tab and search title</th><td><span class="au-warn" aria-hidden="true"></span>FluxCap</td></tr><tr><th scope="row">Share image set (og:image)</th><td><span class="au-ok" aria-hidden="true"></span>Yes</td></tr></tbody></table></div>
+  <p class="au-note">One run each in headless Chrome, as a phone (390 px) and a laptop (1440 px), on 15 Nov 2026. Real visitors' numbers vary with device and network.</p></div>
+ <aside class="invite au-cta"><div><p class="where" style="margin:0"><i class="live" aria-hidden="true"></i>Open to projects</p><h3>Want help with these?</h3><p>I design and build SaaS websites: brand, landing pages and Webflow or Framer builds. Happy to walk through this audit in 15 minutes.</p></div>
+  <div class="btns"><a class="btn" href="work-with-me">Work with me</a><a class="btn dk au-dl" href="audit/fluxcap/audit.pdf" download="fluxcap-homepage-audit.pdf">Download PDF</a></div></aside>
+</div></section>
+</div>
+<footer class="au-foot"><div class="wrap"><span>Aakarsh B · Brand &amp; web designer, Bengaluru</span><span><a href="./">aakarsh.design</a> · <a href="tools">Free tools</a></span></div></footer>
+</body>
+</html>
